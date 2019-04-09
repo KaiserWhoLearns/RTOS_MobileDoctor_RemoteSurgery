@@ -19,7 +19,7 @@ int main(void)
         printf("A B C D\n");
         sleep(time1-time2);
        }
-   
+      return 0;   
 
       }
     return 0;
