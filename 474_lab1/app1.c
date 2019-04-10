@@ -1,14 +1,17 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 //main
 
 int main(void)
 {
-     while(1) {
-        printf("A B C D");
+    while(1) {
+        printf("%s","A B C D\n");
         // must need new line character; because the string is first print to a buffer.
         sleep(1);
-	fflush(stdout);
-      }
+        system("clear");
+        sleep(1);
+        printf("\r");
+    }
     return 0;
 }
