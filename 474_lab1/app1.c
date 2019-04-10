@@ -11,7 +11,6 @@ int main(void)
         sleep(1);
         system("clear");
         sleep(1);
-        printf("\r");
     }
     return 0;
 }
