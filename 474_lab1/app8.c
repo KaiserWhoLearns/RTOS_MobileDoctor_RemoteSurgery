@@ -1,14 +1,13 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "app8_fun.h"
 
-void f1Data(int* delay1);
-void f2Clear(int* delay2);
-int printab = 0, printcd = 0;
+int main(void) {
+    int time1, time2;
+    int printab = 0, printcd = 0;
     // 0 stand for did not print, 1 stand for printed;
     // if printed, then we clear the screen;
-int time1, time2;
-int main(void) {
     // Define the pointers
     int* time1Ptr = &time1;
     int* time2Ptr = &time2;
@@ -19,7 +18,7 @@ int main(void) {
     int times = *time2Ptr/(*time1Ptr);
     while(1) {
 		for(int i = 0; i < times; i ++) {
-			f1Data(time1Ptr);
+			f1Data(time1Ptr, printab, printcd);
 		}
 		if(printcd == 0) {
         system("clear");
@@ -31,27 +30,4 @@ int main(void) {
         }
 	}
 	return 0;
-}
-
-// pre: take in a pointer of int delay1
-void f1Data(int* delay1){
-    f2Clear(delay1);
-	if(printab == 0) {
-          system("clear");
-          printf("A C\n");
-          printab = 1;
-        } else {
-          system("clear");
-          printab = 0;
-    }
-	if(printcd == 1) {
-          printf("B D\n");
-    }
-}
-
-// pre: take in a pointer of int delay2
-void f2Clear(int* delay2) {
-    // sleep for the value of the pointer time
-    sleep(*delay2);
-	system("clear");
 }

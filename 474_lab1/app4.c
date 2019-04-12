@@ -10,9 +10,12 @@ int main(void)
     //assume time1 <= time2
     int printab = 0;
     int printcd = 0;
+    // 0 stand for did not print, 1 stand for printed;
+    // if printed, then we clear the screen;
     while(1) {
       for(int i = 0; i < time2; i = i + time1) {
         for(int j = 0; j < time1; j ++) {
+          // inner for-loop for the shorter sleep
           sleep(1);
         }
         if(printab == 0) {
