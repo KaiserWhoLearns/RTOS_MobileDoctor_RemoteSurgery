@@ -2,12 +2,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 //main
-
-void delay1s()
-{
-  sleep(1);
-}
-
 int main(void)
 {
     int time1 = 0, time2 = 0;
@@ -21,21 +15,21 @@ int main(void)
         for(int j = 0; j < time1; j ++) {
           sleep(1);
         }
-         if(printab == 0) {
+        if(printab == 0) {
           system("clear");
-          printf("A B\n");
+          printf("A C\n");
           printab = 1;
         } else {
           system("clear");
           printab = 0;
         }
         if(printcd == 1) {
-          printf("C D\n");
+          printf("B D\n");
         }
       }
       if(printcd == 0) {
         system("clear");
-        printf("C D\n");
+        printf("B D\n");
         printcd = 1;
       } else {
         system("clear");
