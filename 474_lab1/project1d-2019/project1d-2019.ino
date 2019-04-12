@@ -47,7 +47,9 @@ Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
 
 void setup(void) {
+  // Initialize the serial connection of 9600 bits per second
   Serial.begin(9600);
+  // Print
   Serial.println(F("TFT LCD test"));
 
 
@@ -61,6 +63,7 @@ void setup(void) {
 
   tft.reset();
 
+   //Use identifier to make sure tft works
    uint16_t identifier = tft.readID();
    if(identifier == 0x9325) {
     Serial.println(F("Found ILI9325 LCD driver"));
@@ -106,9 +109,12 @@ void loop(void)
 { 
   // fill the screen with color black
   tft.fillScreen(BLACK);
+  // set start as the number of microseconds that Ardunio has started
   unsigned long start = micros();
+  // Set the position of the cursor
   tft.setCursor(0, 0);
 
+  // Set the text size of 2 and text color as green
   tft.setTextColor(GREEN); tft.setTextSize(2);
 
   for (i = 0; i <=9; i++)          
@@ -119,7 +125,9 @@ void loop(void)
   // print the array with descending order
   for (i = 9; i >= 0; i--)         
   {
+    // Print on TFT
     tft.print(myArray[i]);
+    // Delay to let user see the chars
     delay(1000);
   }
 
