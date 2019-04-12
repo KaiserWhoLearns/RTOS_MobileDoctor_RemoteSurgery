@@ -21,3 +21,20 @@ int main(void)
     return 0;
 
 }
+
+void app2()
+{
+    //const
+    char s[] = "A B C D";
+    int i;
+    int l = strlen(s);
+    //char sub[7] = {0};
+    for (i = 0; i < l; i = i + 2) {
+        
+        printf("%.*s",l-i, s+i);
+        Sleep(500);
+        system("cls");
+        Sleep(500);
+    }
+
+}
