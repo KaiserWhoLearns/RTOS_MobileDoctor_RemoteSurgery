@@ -2,16 +2,22 @@
 #include <unistd.h>
 #include <stdlib.h>
 //main
+void delay1s()
+{
+  sleep(1);
+}
 
 int main(void)
 {
      while(1) {
         system("clear");
+        delay1s();
         printf("A C\n");
-        sleep(1);
+        delay1s();
         system("clear");
+        delay1s();
         printf("A B C D\n");
-        sleep(1);
+        delay1s();
       }
     return 0;
 }
