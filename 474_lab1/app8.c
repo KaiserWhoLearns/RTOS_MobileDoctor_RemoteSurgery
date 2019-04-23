@@ -9,7 +9,7 @@ int main(void) {
     int* time1Ptr = &time1;
     int* time2Ptr = &time2;
     //  prompt for data
-	printf("Please enter a single digit between 0-9 \n");
+	printf("Please enter two single digits between 0-9 \n");
 	//  get the data
 	scanf("%d%d", &time1, &time2);
 	f1Data(time1Ptr, time2Ptr);
