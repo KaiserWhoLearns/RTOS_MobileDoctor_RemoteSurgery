@@ -77,7 +77,7 @@ typedef struct
 *    April, 22, 2019 by Kaiser
 */
 int trIsReverse = 0, prIsReverse = 0;
-void Measure(void* dataPtr, int isEven, int trIsReverse, int prIsReverse)
+void Measure(void* dataPtr, int isEven)
 {
     // dereference the data pointer;
     md = *((MeasureData*) dataPtr);  
@@ -151,8 +151,6 @@ void Compute(void* dataPtr) {
     *(comd.prCorrectedPtr) = (*(comd.pulseRateRaw)) * 3 + 8;
     return;
 }
-
-
 
 /*
 *    @param: generic pointer dataPtr;
