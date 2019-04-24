@@ -30,14 +30,6 @@ typedef struct
         void* taskDataPtr; 
 } TCB;
 
-// Desclare orther data struct
-typedef struct
-{
-    void (*myTask)(void*);
-    void* taskDataPtr; 
-} TCB;
-
-
 typedef struct
 {
     int* temperatureRawPtr;
@@ -65,11 +57,11 @@ typedef struct
 
 typedef struct
 {
-  char* tempCorrected;
-  char* sysPressCorrected;
-  char* diastolicPressCorrected;
-  char* pulseRateCorrected;
-  short* batteryState;
+  char* tempCorrectedPtr;
+  char* sysPressCorrectedPtr;
+  char* diastolicPressCorrectedPtr;
+  char* pulseRateCorrectedPtr;
+  short* batteryStatePtr;
 } DisplayData;
 
 typedef struct

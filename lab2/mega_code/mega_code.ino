@@ -3,6 +3,7 @@
 #include "tcb.h"
 
 // initialization started!
+// initialize values
 unsigned int temperatureRaw = 75;
 unsigned int systolicPressRaw = 80;
 unsigned int diastolicPressRaw = 80;
@@ -19,6 +20,24 @@ Bool bpHigh = FALSE;
 Bool tempHigh = FALSE;
 Bool pulseLow = FALSE;
 
+// initialize pointers
+unsigned int* temperatureRawPtr = &temperatureRaw;
+unsigned int* systolicPressRawPtr = &systolicPressRaw;
+unsigned int* diastolicPressRawPtr = &diastolicPressRaw;
+unsigned int* pulseRateRawPtr = &pulseRateRaw;
+unsigned char* tempCorrectedPtr = &tempCorrected;
+unsigned char* systolicPressCorrectedPtr = &systolicPressCorrected;
+unsigned char* diastolicPressCorrectedPtr = &diastolicPressCorrected;
+unsigned char* pulseRateCorrectedPtr = &pulseRateCorrected;
+
+// initialize taskQueue and TCBs
+TCB taskQueue[5] = NULL;
+TCB meas = NULL, comp = NULL, disp = NULL, alar = NULL, stat = NULL;
+MeasureData mD = NULL;
+ComputeData cD = NULL;
+DisplayData dDa = NULL;
+WarningAlarmData wAD = NULL;
+StatusData sD = NULL;
 
 // Need initialization of data and TCBs
 
@@ -81,16 +100,32 @@ void setup()
   }
   tft.begin(identifier);
 
+
+  // Setup the data structs
+  mD = {temperatureRawPtr, systolicPressRawPtr, diastolicPressCorrectedPtr, pulseRateRawPtr};
+  cD = {temperatureRawPtr, systolicPressRawPtr, diastolicPressCorrectedPtr, pulseRateRawPtr, temperatureRawPtr, sysPressCorrectedPtr, diasCorrectedPtr, prCorrectedPtr};
+  dDa = {tempCorrectedPtr, sysPressCorrectedPtr, diastolicPressCorrectedPtr, pulseRateCorrectedPtr, batteryStatePtr};
+  wAD = {temperatureRawPtr, systolicPressRawPtr, diastolicPressRawPtr, pulseRateRawPtr, batteryStatePtr};
+  sD = {batteryStatePtr};
+
+  // Setup the TCBs
+  meas = {&measure, &mD};
+  comp = {&compute, &cD};
+  dDa = {&display, &dDa};
+  warn = {&WarningAlarm, &wAD};
+  stat = {&status, &sD};
+
+  // Setup task queue
+  taskQueue[0] = meas;
+  taskQueue[1] = comp;
+  taskQueue[2] = stat;
+  taskQueue[3] = warn;
+  taskQueue[4] = disp;
+
 }
 
 void loop()
 {
-  //  send some test characters from the mega to the uno
-//   Serial1.println("A");
-//   delay(1000);
-//   Serial1.println("B");
-//   delay(1000);
-//   Serial1.println("C");
-//   delay(1000);
+    schedulerTest(taskQueue);
 
 }

@@ -9,7 +9,7 @@ int try = 0;
 int* tryPtr = &try;
 
 
-
+void intToChar(char* arr, int val);
 
 
 int main() {
@@ -22,5 +22,16 @@ int main() {
     t = *(anotherTemp.tryPtr);
     printf("%d\n", t);
     printf("%d\n", *(temp.tryPtr));
+    char tem[3];
+    // tem = String(123);
+    intToChar(tem, 12);
+    printf("%s", tem);
     return 0;    
+}
+
+void intToChar(char* arr, int val) {
+    arr[0] = (char) (val / 100 + 48);
+    arr[1] = (char) (val % 100 / 10 + 48);
+    arr[2] = (char) (val % 10 + 48);
+    return;
 }
