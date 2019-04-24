@@ -83,10 +83,10 @@ void Measure(void* dataPtr)
 *    helper method for Compute
 *    April 24, 2019 by Kaiser Sun
 */
-void intToChar(char* arr, int val) {
-    arr[0] = (char) (val / 100 + 48);
-    arr[1] = (char) (val % 100 / 10 + 48);
-    arr[2] = (char) (val % 10 + 48);
+void intToChar(unsigned char* arr, int val) {
+    arr[0] = (unsigned char) (val / 100 + 48);
+    arr[1] = (unsigned char) (val % 100 / 10 + 48);
+    arr[2] = (unsigned char) (val % 10 + 48);
     return;
 }
 
@@ -103,11 +103,11 @@ void Compute(void* dataPtr) {
     int tempC= (*(comd.temperatureRawPtr)) * 0.75 + 5;
     int sysPC =(*(comd.systolicPressRawPtr)) * 2 + 9;
     int diasC = (*(comd.diastolicPressRawPtr)) * 1.5 + 6;
-    int prC = (*(comd.pulseRateRaw)) * 3 + 8;
+    int prC = (*(comd.pulseRateRawPtr)) * 3 + 8;
     intToChar(comd.tempCorrectedPtr, tempC);
     intToChar(comd.sysPressCorrectedPtr, sysPC);
-    intToChar(comd.diastolicPressCorrectedPtr, diasC);
-    intToChar(comd.pulseRateCorrectedPtr, prC);
+    intToChar(comd.diasCorrectedPtr, diasC);
+    intToChar(comd.prCorrectedPtr, prC);
     return;
 }
 
@@ -134,7 +134,7 @@ void Display(void* dataPtr) {
     tft.print("Systolic Pressure: ");
     tft.print(*(dd.sysPressCorrectedPtr));
     tft.print("mmHg   Diastolic Pressure: ");
-    tft.print(*(dd.diasCorrectedPtr));
+    tft.print(*(dd.diastolicPressCorrectedPtr));
     tft.println(" mmHg");
 
     // print temperature
@@ -154,7 +154,7 @@ void Display(void* dataPtr) {
         tft.setTextColor(RED);
     }
     tft.print("    Pulse Rate: ");
-    tft.print(*(dd.prCorrectedPtr));
+    tft.print(*(dd.pulseRateCorrectedPtr));
     tft.print("BPM   ");
 
     // Display battery status

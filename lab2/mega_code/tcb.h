@@ -38,47 +38,56 @@ typedef struct
         void* taskDataPtr; 
 } TCB;
 
+// Declare the functions
+    void Measure(void* dataPtr);
+    void Compute(void* dataPtr);
+    void Status(void* dataPtr);
+    void WarningAlarm(void* dataPtr);
+    void Display(void* dataPtr);
+    void Scheduler(TCB* taskQueue);
+    void sechdulerTest(TCB* taskQ);
+
 typedef struct
 {
-    int* temperatureRawPtr;
-    int* systolicPressRawPtr;
-    int* diastolicPressRawPtr;
-    int* pulseRateRawPtr;
+    unsigned int* temperatureRawPtr;
+    unsigned int* systolicPressRawPtr;
+    unsigned int* diastolicPressRawPtr;
+    unsigned int* pulseRateRawPtr;
 } MeasureData;
 
 typedef struct
 {
-    int* temperatureRawPtr;
-    int* systolicPressRawPtr;
-    int* diastolicPressRawPtr;
-    int* pulseRateRawPtr;
-    int* tempCorrectedPtr;
-    int* sysPressCorrectedPtr;
-    int* diasCorrectedPtr;
-    int* prCorrectedPtr;
+    unsigned int* temperatureRawPtr;
+    unsigned int* systolicPressRawPtr;
+    unsigned int* diastolicPressRawPtr;
+    unsigned int* pulseRateRawPtr;
+    unsigned char* tempCorrectedPtr;
+    unsigned char* sysPressCorrectedPtr;
+    unsigned char* diasCorrectedPtr;
+    unsigned char* prCorrectedPtr;
 } ComputeData;
 
 typedef struct
 {
-    int* batteryStatePtr;
+    unsigned short* batteryStatePtr;
 } StatusData;
 
 typedef struct
 {
-  char* tempCorrectedPtr;
-  char* sysPressCorrectedPtr;
-  char* diastolicPressCorrectedPtr;
-  char* pulseRateCorrectedPtr;
-  short* batteryStatePtr;
+  unsigned char* tempCorrectedPtr;
+  unsigned char* sysPressCorrectedPtr;
+  unsigned char* diastolicPressCorrectedPtr;
+  unsigned char* pulseRateCorrectedPtr;
+  unsigned short* batteryStatePtr;
 } DisplayData;
 
 typedef struct
 {
-    int* temperatureRawPtr;
-    int* systolicPressRawPtr;
-    int* diastolicPressRawPtr;
-    int* pulseRateRawPtr;
-    short* batteryStatePtr; 
+    unsigned int* temperatureRawPtr;
+    unsigned int* systolicPressRawPtr;
+    unsigned int* diastolicPressRawPtr;
+    unsigned int* pulseRateRawPtr;
+    unsigned short* batteryStatePtr; 
 } WarningAlarmData;
 
 // typedef struct
@@ -94,12 +103,5 @@ typedef struct
 // Bool pulseLow = FALSE;
 
 
-// Declare the functions
-    void Measure(void* dataPtr);
-    void Compute(void* dataPtr);
-    void Status(void* dataPtr);
-    void WarningAlarm(void* dataPtr);
-    void Display(void* dataPtr);
-    void Scheduler(TCB* taskQueue);
-    void sechdulerTest(TCB* taskQ);
+
 # endif

@@ -21,19 +21,20 @@ Bool tempHigh = FALSE;
 Bool pulseLow = FALSE;
 
 // initialize pointers
-unsigned int* temperatureRawPtr = &temperatureRaw;
-unsigned int* systolicPressRawPtr = &systolicPressRaw;
-unsigned int* diastolicPressRawPtr = &diastolicPressRaw;
-unsigned int* pulseRateRawPtr = &pulseRateRaw;
-unsigned char* tempCorrectedPtr = tempCorrected;
-unsigned char* systolicPressCorrectedPtr = systolicPressCorrected;
-unsigned char* diastolicPressCorrectedPtr = diastolicPressCorrected;
-unsigned char* pulseRateCorrectedPtr = pulseRateCorrected;
+unsigned int* temperatureRawPtrr = &temperatureRaw;
+unsigned int* systolicPressRawPtrr = &systolicPressRaw;
+unsigned int* diastolicPressRawPtrr = &diastolicPressRaw;
+unsigned int* pulseRateRawPtrr = &pulseRateRaw;
+unsigned char* tempCorrectedPtrr = tempCorrected;
+unsigned char* systolicPressCorrectedPtrr = systolicPressCorrected;
+unsigned char* diastolicPressCorrectedPtrr = diastolicPressCorrected;
+unsigned char* pulseRateCorrectedPtrr = pulseRateCorrected;
+unsigned short* batteryStatePtrr = &batteryState;
 
 // initialize taskQueue and TCBs
 TCB taskQueue[5];
 TCB meas, comp, disp, alar, stat;
-MeasureData mD;
+MeasureData meaD;
 ComputeData cD;
 DisplayData dDa;
 WarningAlarmData wAD;
@@ -100,30 +101,30 @@ void setup()
 
 
   // Setup the data structs
-  mD = {temperatureRawPtr, systolicPressRawPtr, diastolicPressRawPtr, pulseRateRawPtr};
-  cD = {temperatureRawPtr, systolicPressRawPtr, diastolicPressRawPtr, pulseRateRawPtr, temperatureRawPtr, sysPressCorrectedPtr, diasCorrectedPtr, prCorrectedPtr};
-  dDa = {tempCorrectedPtr, sysPressCorrectedPtr, diastolicPressCorrectedPtr, pulseRateCorrectedPtr, batteryStatePtr};
-  wAD = {temperatureRawPtr, systolicPressRawPtr, diastolicPressRawPtr, pulseRateRawPtr, batteryStatePtr};
-  sD = {batteryStatePtr};
+  meaD = MeasureData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr};
+  //cD =  ComputeData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr, tempCorrectedPtrr, systolicPressCorrectedPtrr diasCorrectedPtrr, prCorrectedPtrr};
+  cD = ComputeData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr, tempCorrectedPtrr, systolicPressCorrectedPtrr, diastolicPressCorrectedPtrr, pulseRateCorrectedPtrr};
+  dDa = DisplayData{tempCorrectedPtrr, systolicPressCorrectedPtrr, diastolicPressCorrectedPtrr, pulseRateCorrectedPtrr, batteryStatePtrr};
+  wAD = WarningAlarmData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr, batteryStatePtrr};
+  sD = StatusData{batteryStatePtrr};
 
   // Setup the TCBs
-  meas = {&measure, &mD};
-  comp = {&compute, &cD};
-  dDa = {&display, &dDa};
-  warn = {&WarningAlarm, &wAD};
-  stat = {&status, &sD};
+  meas = {&Measure, &meaD};
+  comp = {&Compute, &cD};
+  disp = {&Display, &dDa};
+  alar = {&WarningAlarm, &wAD};
+  stat = {&Status, &sD};
 
   // Setup task queue
   taskQueue[0] = meas;
   taskQueue[1] = comp;
   taskQueue[2] = stat;
-  taskQueue[3] = warn;
+  taskQueue[3] = alar;
   taskQueue[4] = disp;
 
 }
 
 void loop()
 {
-    schedulerTest(taskQueue);
-
+    sechdulerTest(taskQueue);
 }
