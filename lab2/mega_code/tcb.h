@@ -1,7 +1,7 @@
 #ifndef STRUCTDEF
 #define STRUCTDEF
-#include "Elegoo_GFX.h"    // Core graphics library
-#include "Elegoo_TFTLCD.h" // Hardware-specific library
+#include <Elegoo_GFX.h>    // Core graphics library
+#include <Elegoo_TFTLCD.h> // Hardware-specific library
 // April 23th by Kaiser Sun
 
 
@@ -30,14 +30,6 @@ Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 // Define bool tyoe
 enum myBool {FALSE = 0, TRUE = 1};
 typedef enum myBool Bool;
-
-// Declare the functions
-    void Measure(void* dataPtr);
-    void Compute(void* dataPtr);
-    void Status(void* dataPtr);
-    void WarningAlarm(void* dataPtr);
-    void Display(void* dataPtr);
-    void Scheduler(TCB* taskQueue);
 
 // Declare TCB
 typedef struct
@@ -94,5 +86,20 @@ typedef struct
 
 // } SchedulerData;
 
+// unsigned char bpOutOfRange = 0;
+// unsigned char tempOutOfRange = 0;
+// unsigned char pulseOutOfRange = 0;
+// Bool bpHigh = FALSE;
+// Bool tempHigh = FALSE;
+// Bool pulseLow = FALSE;
 
+
+// Declare the functions
+    void Measure(void* dataPtr);
+    void Compute(void* dataPtr);
+    void Status(void* dataPtr);
+    void WarningAlarm(void* dataPtr);
+    void Display(void* dataPtr);
+    void Scheduler(TCB* taskQueue);
+    void sechdulerTest(TCB* taskQ);
 # endif

@@ -1,5 +1,5 @@
-#include "Elegoo_GFX.h"    // Core graphics library
-#include "Elegoo_TFTLCD.h" // Hardware-specific library
+// #include <Elegoo_GFX.h>    // Core graphics library
+// #include <Elegoo_TFTLCD.h> // Hardware-specific library
 #include "tcb.h"
 
 // initialization started!
@@ -8,10 +8,10 @@ unsigned int temperatureRaw = 75;
 unsigned int systolicPressRaw = 80;
 unsigned int diastolicPressRaw = 80;
 unsigned int pulseRateRaw = 50;
-unsigned char tempCorrected[3] = NULL;
-unsigned char systolicPressCorrected[3] = NULL;
-unsigned char diastolicPressCorrected[3] = NULL;
-unsigned char pulseRateCorrected[3] = NULL;
+unsigned char tempCorrected[3];
+unsigned char systolicPressCorrected[3];
+unsigned char diastolicPressCorrected[3];
+unsigned char pulseRateCorrected[3] ;
 unsigned short batteryState = 200;
 unsigned char bpOutOfRange = 0;
 unsigned char tempOutOfRange = 0;
@@ -25,19 +25,19 @@ unsigned int* temperatureRawPtr = &temperatureRaw;
 unsigned int* systolicPressRawPtr = &systolicPressRaw;
 unsigned int* diastolicPressRawPtr = &diastolicPressRaw;
 unsigned int* pulseRateRawPtr = &pulseRateRaw;
-unsigned char* tempCorrectedPtr = &tempCorrected;
-unsigned char* systolicPressCorrectedPtr = &systolicPressCorrected;
-unsigned char* diastolicPressCorrectedPtr = &diastolicPressCorrected;
-unsigned char* pulseRateCorrectedPtr = &pulseRateCorrected;
+unsigned char* tempCorrectedPtr = tempCorrected;
+unsigned char* systolicPressCorrectedPtr = systolicPressCorrected;
+unsigned char* diastolicPressCorrectedPtr = diastolicPressCorrected;
+unsigned char* pulseRateCorrectedPtr = pulseRateCorrected;
 
 // initialize taskQueue and TCBs
-TCB taskQueue[5] = NULL;
-TCB meas = NULL, comp = NULL, disp = NULL, alar = NULL, stat = NULL;
-MeasureData mD = NULL;
-ComputeData cD = NULL;
-DisplayData dDa = NULL;
-WarningAlarmData wAD = NULL;
-StatusData sD = NULL;
+TCB taskQueue[5];
+TCB meas, comp, disp, alar, stat;
+MeasureData mD;
+ComputeData cD;
+DisplayData dDa;
+WarningAlarmData wAD;
+StatusData sD;
 
 // Need initialization of data and TCBs
 
@@ -100,8 +100,8 @@ void setup()
 
 
   // Setup the data structs
-  mD = {temperatureRawPtr, systolicPressRawPtr, diastolicPressCorrectedPtr, pulseRateRawPtr};
-  cD = {temperatureRawPtr, systolicPressRawPtr, diastolicPressCorrectedPtr, pulseRateRawPtr, temperatureRawPtr, sysPressCorrectedPtr, diasCorrectedPtr, prCorrectedPtr};
+  mD = {temperatureRawPtr, systolicPressRawPtr, diastolicPressRawPtr, pulseRateRawPtr};
+  cD = {temperatureRawPtr, systolicPressRawPtr, diastolicPressRawPtr, pulseRateRawPtr, temperatureRawPtr, sysPressCorrectedPtr, diasCorrectedPtr, prCorrectedPtr};
   dDa = {tempCorrectedPtr, sysPressCorrectedPtr, diastolicPressCorrectedPtr, pulseRateCorrectedPtr, batteryStatePtr};
   wAD = {temperatureRawPtr, systolicPressRawPtr, diastolicPressRawPtr, pulseRateRawPtr, batteryStatePtr};
   sD = {batteryStatePtr};

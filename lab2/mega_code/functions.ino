@@ -14,7 +14,7 @@ Bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
 void Measure(void* dataPtr)
 {
     // dereference the data pointer;
-    md = *((MeasureData*) dataPtr);  
+    MeasureData md = *((MeasureData*) dataPtr);  
         // When the function is executed even times;
         // Update the data;
         if(isEven) {
@@ -99,7 +99,7 @@ void intToChar(char* arr, int val) {
 *    April 24, 2019 by Kaiser Sun
 */
 void Compute(void* dataPtr) {
-    comd = *((ComputeData*) dataPtr);
+    ComputeData comd = *((ComputeData*) dataPtr);
     int tempC= (*(comd.temperatureRawPtr)) * 0.75 + 5;
     int sysPC =(*(comd.systolicPressRawPtr)) * 2 + 9;
     int diasC = (*(comd.diastolicPressRawPtr)) * 1.5 + 6;
@@ -124,7 +124,7 @@ void Display(void* dataPtr) {
     tft.setCursor(0, 0);
     tft.setTextSize(2);
     // Pointer dereference
-    dd = *((DisplayData*) dataPtr);
+    DisplayData dd = *((DisplayData*) dataPtr);
     // Display Pressure
     if(bpOutOfRange == 0) {
         tft.setTextColor(GREEN);
@@ -175,7 +175,7 @@ void Display(void* dataPtr) {
 *    April 23, 2019 by Kaiser Sun
 */
 void WarningAlarm(void* dataPtr) {
-    wad = *((WarningAlarmData*) dataPtr);
+    WarningAlarmData wad = *((WarningAlarmData*) dataPtr);
     if (*(wad.temperatureRawPtr) > 37.8 || *(wad.temperatureRawPtr) < 36.1) {
         tempOutOfRange = 1;
     } else {
@@ -201,7 +201,7 @@ void WarningAlarm(void* dataPtr) {
 *    April 23, 2019 by Kaiser Sun
 */
 void Status(void* dataPtr) {
-    sd = *((StatusData*) dataPtr);
+    StatusData sd = *((StatusData*) dataPtr);
     *(sd.batteryStatePtr) -= 1;
     return;
 }
@@ -214,7 +214,7 @@ void Status(void* dataPtr) {
 */
 void run(int index, TCB* taskQ) {
     // Call the function in the taskQ;
-    (*taskQ[index].myTask)((taskQ[index]).taskDataPtr));
+    (*taskQ[index].myTask)((taskQ[index]).taskDataPtr);
 }
 
 /*
