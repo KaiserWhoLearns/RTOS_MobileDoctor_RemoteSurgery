@@ -1,32 +1,26 @@
 #include <Elegoo_GFX.h>    // Core graphics library
 #include <Elegoo_TFTLCD.h> // Hardware-specific library
+#include "tcb.h"
 
-#define	RED     0xF800
-#define	GREEN   0x07E0
-#define	BLACK   0x0000
+// initialization started!
+unsigned int temperatureRaw = 75;
+unsigned int systolicPressRaw = 80;
+unsigned int diastolicPressRaw = 80;
+unsigned int pulseRateRaw = 50;
+unsigned char tempCorrected[3] = NULL;
+unsigned char systolicPressCorrected[3] = NULL;
+unsigned char diastolicPressCorrected[3] = NULL;
+unsigned char pulseRateCorrected[3] = NULL;
+unsigned short batteryState = 200;
+unsigned char bpOutOfRange = 0;
+unsigned char tempOutOfRange = 0;
+unsigned char pulseOutOfRange = 0;
+Bool bpHigh = FALSE;
+Bool tempHigh = FALSE;
+Bool pulseLow = FALSE;
 
-int isPulseNormal = 1, isTempNormal = 1, isPressNormal = 1;
+
 // Need initialization of data and TCBs
-
-typedef struct
-{
-    int* tempCorrectedPtr;
-    int* sysPressCorrectedPtr;
-    int* diasCorrectedPtr;
-    int* prCorrectedPtr;
-    int* batteryStatePtr;
-} DisplayData;
-
-typedef struct
-{
-    int* temperatureRawPtr;
-    int* systolicPressRawPtr;
-    int* diastolicPressRawPtr;
-    int* pulseRateRawPtr;
-    int* batteryStatePtr; 
-} WarningAlarmData;
-
-
 
 
 void setup()
@@ -99,86 +93,4 @@ void loop()
 //   Serial1.println("C");
 //   delay(1000);
 
-}
-
-/*
-*    @para: generic pointer dataPtr;
-*    Assume the data pointer is of type DisplayData
-*    Display the data on the TFT display
-*    April 23, 2019 by Kaiser Sun
-*/
-void Display(void* dataPtr) {
-    // Setup of tft display
-    tft.fillScreen(BLACK);
-    tft.setCursor(0, 0);
-    tft.setTextSize(2);
-    // Pointer dereference
-    dd = *((DisplayData*) dataPtr);
-    // Display Pressure
-    if(isPressNormal == 1) {
-        tft.setTextColor(GREEN);
-    } else {
-        tft.setTextColor(RED);
-    }
-    tft.print("Systolic Pressure: ");
-    tft.print(*(dd.sysPressCorrectedPtr));
-    tft.print("mmHg   Diastolic Pressure: ");
-    tft.print(*(dd.diasCorrectedPtr));
-    tft.println(" mmHg");
-
-    // print temperature
-    if(isTempNormal == 1) {
-        tft.setTextColor(GREEN);
-    } else {
-        tft.setTextColor(RED);
-    }
-    tft.print("Temperature: ");
-    tft.print(*(dd.tempCorrectedPtr));
-    tft.print("C");
-
-    // Display pulse
-    if(isPulseNormal == 1) {
-        tft.setTextColor(GREEN);
-    } else {
-        tft.setTextColor(RED);
-    }
-    tft.print("    Pulse Rate: ");
-    tft.print(*(dd.prCorrectedPtr));
-    tft.print("BPM   ");
-
-    // Display battery status
-    if(*(dd.batteryStatePtr) > 20) {
-        tft.setTextColor(GREEN);
-    } else {
-        tft.setTextColor(RED);
-    }
-    tft.print("Battery: ");
-    tft.print(*(dd.batteryStatePtr)); 
-    return;
-}
-
-/*
-*    @param: generic pointer dataPtr;
-*    assume the dataPtr is of type dataPtr;
-*    if the data are out of range, diplay with red;
-*    April 23, 2019 by Kaiser Sun
-*/
-void WarningAlarm(void* dataPtr) {
-    wad = *((WarningAlarmData*) dataPtr);
-    if (*(wad.temperatureRawPtr) > 37.8 || *(wad.temperatureRawPtr) < 36.1) {
-        isTempNormal = 0;
-    } else {
-        isTempNormal = 1;
-    }
-    if(*(wad.systolicPressRawPtr) > 120 || *(wad.diastolicPressRawPtr) > 80) {
-        isPressNormal = 0;
-    } else {
-        isPressNormal = 1;
-    }
-    if(*(wad.pulseRateRawPtr) < 60 || *(wad.pulseRateRawPtr) > 100) {
-        isPulseNormal = 0;
-    } else {
-        isPulseNormal = 1;
-    }
-    return;  
 }
