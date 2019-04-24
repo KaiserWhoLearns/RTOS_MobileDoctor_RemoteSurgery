@@ -6,6 +6,7 @@
 #define	BLACK   0x0000
 
 int isPulseNormal = 1, isTempNormal = 1, isPressNormal = 1;
+// Need initialization of data and TCBs
 
 typedef struct
 {
@@ -24,6 +25,8 @@ typedef struct
     int* pulseRateRawPtr;
     int* batteryStatePtr; 
 } WarningAlarmData;
+
+
 
 
 void setup()
