@@ -1,12 +1,5 @@
 #include <stdio.h>
 #include "tcb.h"
-#include <Elegoo_GFX.h>    // Core graphics library
-#include <Elegoo_TFTLCD.h> // Hardware-specific library
-
-#define	RED     0xF800
-#define	GREEN   0x07E0
-#define	BLACK   0x0000
-
 
 int temperatureRaw, systolicPressRaw, diastolicPressRaw, pulseRateRaw, batteryState;
 
@@ -39,24 +32,6 @@ typedef struct
 
 typedef struct
 {
-    int* tempCorrectedPtr;
-    int* sysPressCorrectedPtr;
-    int* diasCorrectedPtr;
-    int* prCorrectedPtr;
-    int* batteryStatePtr;
-} DisplayData;
-
-typedef struct
-{
-    int* temperatureRawPtr;
-    int* systolicPressRawPtr;
-    int* diastolicPressRawPtr;
-    int* pulseRateRawPtr;
-    int* batteryStatePtr; 
-} WarningAlarmData;
-
-typedef struct
-{
     int* batteryStatePtr;
 } StatusData;
 
@@ -76,8 +51,8 @@ typedef struct
 *    pulseRateRaw - even: decrease by 1; - odd: increase by 3; Range: 15-40
 *    April, 22, 2019 by Kaiser
 */
-int trIsReverse = 0, prIsReverse = 0;
-void Measure(void* dataPtr, int isEven)
+int trIsReverse = 0, prIsReverse = 0, isEven = 0;
+void Measure(void* dataPtr)
 {
     // dereference the data pointer;
     md = *((MeasureData*) dataPtr);  
@@ -119,7 +94,7 @@ void Measure(void* dataPtr, int isEven)
             }
         }
 
-        // Check if should reverse the process;
+        // Update isReverse;
         if(*(md.temperatureRawPtr) > 50) {
             trIsReverse = 1;
         } else if (*(md.temperatureRawPtr) < 15)
@@ -134,6 +109,12 @@ void Measure(void* dataPtr, int isEven)
             prIsReverse = 0;
         }
 
+        // Update isEven;
+        if(isEven == 0) {
+            isEven = 1;
+        } else {
+            isEven = 0;
+        }
         return;
 }
 
@@ -158,5 +139,7 @@ void Compute(void* dataPtr) {
 *    BatteryState shall decrease by 1 each it is called;
 */
 void Status(void* dataPtr) {
-    
+    sd = *((StatusData*) dataPtr);
+    *(sd.batteryStatePtr) -= 1;
+    return;
 }
