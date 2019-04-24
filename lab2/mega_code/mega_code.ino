@@ -73,3 +73,43 @@ void loop()
 
 }
 
+/*
+*    @para: generic pointer dataPtr;
+*    Assume the data pointer is of type DisplayData
+*    Display the data on the TFT display
+*    April 23, 2019 by Kaiser Sun
+*/
+void Display(void* dataPtr) {
+    // Setup of tft display
+    tft.fillScreen(BLACK);
+    tft.setCursor(0, 0);
+    tft.setTextColor(GREEN);
+    tft.setTextSize(3);
+    // Pointer dereference
+    dd = *((DisplayData*) dataPtr);
+    // Display
+    tft.print("Systolic Pressure: ");
+    //TODO: need to make sure whether use raw or corrected
+    tft.print(*(dd.systolicPressRawPtr));
+    tft.print("mmHg   Diastolic Pressure: ");
+    tft.print(*(dd.diastolicPressRawPtr));
+    tft.println(" mmHg");
+    // print temperature, pulserate, battery Status
+    tft.print("Temperature: ");
+    tft.print(*(dd.temperatureRawPtr));
+    tft.print("C   Pulse Rate: ");
+    tft.print(*(dd.pulseRateRawPtr));
+    tft.print("BPM   Battery: ");
+    tft.print(*(dd.batteryStatePtr)); 
+}
+
+/*
+*    @param: generic pointer dataPtr;
+*    assume the dataPtr is of type dataPtr;
+*    if the data are out of range, diplay with red;
+*/
+void WarningAlarm(void* dataPtr) {
+    wad = *((WarningAlarmData*) dataPtr);
+    // Change all measurement value?
+    
+}
