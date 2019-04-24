@@ -1,5 +1,5 @@
-#include <Elegoo_GFX.h>    // Core graphics library
-#include <Elegoo_TFTLCD.h> // Hardware-specific library
+#include "Elegoo_GFX.h"    // Core graphics library
+#include "Elegoo_TFTLCD.h" // Hardware-specific library
 #include "tcb.h"
 
 // initialization started!
@@ -44,11 +44,9 @@ StatusData sD = NULL;
 
 void setup()
 {
-  // running on the mega - connect to tx1 and rx1 on the mega and to rx and tx on the uno
-  // start serial1 port at 9600 bps and wait for serial1 port to open:
-  Serial1.begin(9600);
-
-    // Print
+    // Initialize the serial connection of 9600 bits per second
+  Serial.begin(9600);
+  // Print
   Serial.println(F("TFT LCD test"));
 
 
