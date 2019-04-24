@@ -85,6 +85,7 @@ void Measure(void* dataPtr)
 *    April 23, 2019 by Kaiser Sun
 */
 void Compute(void* dataPtr) {
+    // TODO: change the type of computed data
     comd = *((ComputeData*) dataPtr);
     *(comd.tempCorrectedPtr) = (*(comd.temperatureRawPtr)) * 0.75 + 5;
     *(comd.sysPressCorrectedPtr) =(*(comd.systolicPressRawPtr)) * 2 + 9;
@@ -200,10 +201,43 @@ void run(int index, TCB* taskQ) {
 }
 
 /*
-*
-*
-*
+*    @param: schedule each task time; 
+*    each task has maximum 5s to execute;
+*    April 23, 2019 by Kasier Sun
 */
-void scheduler(TCB* taskQ) {
-    
+// void scheduler(TCB* taskQ) {
+
+// }
+
+/*
+*    @param: array of TCB taskQ
+*    pre: assume length(taskQ) = 5
+*    helper method of scheduler, used to measure the time
+*    that each task takes to execute; should be commented
+*    after development;
+*    April 23, 2019 by Kaiser Sun
+*/
+void sechdulerTest(TCB* taskQ) {
+        unsigned long time0 = micros();
+        run(0, taskQ);
+        unsigned long time1 = micros();
+        run(1, taskQ);
+        unsigned long time2 = micros();
+        run(2, taskQ);
+        unsigned long time3 = micros();
+        run(3, taskQ);
+        unsigned long time4 = micros();
+        run(4, taskQ);
+        unsigned long time5 = micros();
+        Serial.print("First: ");
+        Serial.println(time1 - time0);
+        Serial.print("Second: ");
+        Serial.println(time2 - time1);
+        Serial.print("Third: ");
+        Serial.println(time3 - time2);
+        Serial.print("Fourth: ");
+        Serial.println(time4 - time3);
+        Serial.print("Fifth: ");
+        Serial.println(time5 - time4);
+        delay(1000);
 }
