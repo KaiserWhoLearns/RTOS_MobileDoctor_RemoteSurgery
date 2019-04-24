@@ -4,14 +4,15 @@
 
 // initialization started!
 // initialize values
-unsigned int temperatureRaw = 75;
+unsigned int temperatureRaw = 30;
+    // there're problem of initial value of temp!
 unsigned int systolicPressRaw = 80;
 unsigned int diastolicPressRaw = 80;
-unsigned int pulseRateRaw = 50;
-unsigned char tempCorrected[3];
-unsigned char systolicPressCorrected[3];
-unsigned char diastolicPressCorrected[3];
-unsigned char pulseRateCorrected[3] ;
+unsigned int pulseRateRaw = 70;
+unsigned int tempCorrected;
+unsigned int systolicPressCorrected;
+unsigned int diastolicPressCorrected;
+unsigned int pulseRateCorrected;
 unsigned short batteryState = 200;
 unsigned char bpOutOfRange = 0;
 unsigned char tempOutOfRange = 0;
@@ -25,10 +26,10 @@ unsigned int* temperatureRawPtrr = &temperatureRaw;
 unsigned int* systolicPressRawPtrr = &systolicPressRaw;
 unsigned int* diastolicPressRawPtrr = &diastolicPressRaw;
 unsigned int* pulseRateRawPtrr = &pulseRateRaw;
-unsigned char* tempCorrectedPtrr = tempCorrected;
-unsigned char* systolicPressCorrectedPtrr = systolicPressCorrected;
-unsigned char* diastolicPressCorrectedPtrr = diastolicPressCorrected;
-unsigned char* pulseRateCorrectedPtrr = pulseRateCorrected;
+unsigned int* tempCorrectedPtrr = &tempCorrected;
+unsigned int* systolicPressCorrectedPtrr = &systolicPressCorrected;
+unsigned int* diastolicPressCorrectedPtrr = &diastolicPressCorrected;
+unsigned int* pulseRateCorrectedPtrr = &pulseRateCorrected;
 unsigned short* batteryStatePtrr = &batteryState;
 
 // initialize taskQueue and TCBs

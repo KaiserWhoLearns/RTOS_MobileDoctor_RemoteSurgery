@@ -16,7 +16,8 @@
 
 #define LCD_RESET A4 // Can alternately just connect to Arduino's reset pin
 
-#define  BLACK   0x0000
+#define BLACK   0x0000
+#define GREY    0x7BEF 
 #define BLUE    0x001F
 #define RED     0xF800
 #define GREEN   0x07E0
@@ -24,7 +25,6 @@
 #define MAGENTA 0xF81F
 #define YELLOW  0xFFE0
 #define WHITE   0xFFFF
-
 Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
 // Define bool tyoe
@@ -61,10 +61,10 @@ typedef struct
     unsigned int* systolicPressRawPtr;
     unsigned int* diastolicPressRawPtr;
     unsigned int* pulseRateRawPtr;
-    unsigned char* tempCorrectedPtr;
-    unsigned char* sysPressCorrectedPtr;
-    unsigned char* diasCorrectedPtr;
-    unsigned char* prCorrectedPtr;
+    unsigned int* tempCorrectedPtr;
+    unsigned int* sysPressCorrectedPtr;
+    unsigned int* diasCorrectedPtr;
+    unsigned int* prCorrectedPtr;
 } ComputeData;
 
 typedef struct
@@ -74,10 +74,10 @@ typedef struct
 
 typedef struct
 {
-  unsigned char* tempCorrectedPtr;
-  unsigned char* sysPressCorrectedPtr;
-  unsigned char* diastolicPressCorrectedPtr;
-  unsigned char* pulseRateCorrectedPtr;
+  unsigned int* tempCorrectedPtr;
+  unsigned int* sysPressCorrectedPtr;
+  unsigned int* diastolicPressCorrectedPtr;
+  unsigned int* pulseRateCorrectedPtr;
   unsigned short* batteryStatePtr;
 } DisplayData;
 

@@ -42,14 +42,14 @@ void Measure(void* dataPtr)
                 *(md.diastolicPressRawPtr) += 1;
             }
             if(!trIsReverse) {
-                *(md.temperatureRawPtr) -= 2;
+                *(md.temperatureRawPtr) -= 1;
             } else {
-                *(md.temperatureRawPtr) += 2;
+                *(md.temperatureRawPtr) += 1;
             }
             if(!prIsReverse) {
-                *(md.pulseRateRawPtr) += 1;
+                *(md.pulseRateRawPtr) += 3;
             } else {
-                *(md.pulseRateRawPtr) -= 1;
+                *(md.pulseRateRawPtr) -= 3;
             }
         }
 
@@ -77,18 +77,7 @@ void Measure(void* dataPtr)
         return;
 }
 
-/*
-*    @param: char array arr, integer val;
-*    Transfer the integer value in val to arr;
-*    helper method for Compute
-*    April 24, 2019 by Kaiser Sun
-*/
-void intToChar(unsigned char* arr, int val) {
-    arr[0] = (unsigned char) (val / 100 + 48);
-    arr[1] = (unsigned char) (val % 100 / 10 + 48);
-    arr[2] = (unsigned char) (val % 10 + 48);
-    return;
-}
+
 
 /*
 *    @para: generic pointer dataPtr;
@@ -100,14 +89,10 @@ void intToChar(unsigned char* arr, int val) {
 */
 void Compute(void* dataPtr) {
     ComputeData comd = *((ComputeData*) dataPtr);
-    int tempC= (*(comd.temperatureRawPtr)) * 0.75 + 5;
-    int sysPC =(*(comd.systolicPressRawPtr)) * 2 + 9;
-    int diasC = (*(comd.diastolicPressRawPtr)) * 1.5 + 6;
-    int prC = (*(comd.pulseRateRawPtr)) * 3 + 8;
-    intToChar(comd.tempCorrectedPtr, tempC);
-    intToChar(comd.sysPressCorrectedPtr, sysPC);
-    intToChar(comd.diasCorrectedPtr, diasC);
-    intToChar(comd.prCorrectedPtr, prC);
+    *(comd.tempCorrectedPtr) = (*(comd.temperatureRawPtr)) * 0.75 + 5;
+    *(comd.sysPressCorrectedPtr) = (*(comd.systolicPressRawPtr)) * 2 + 9;
+    *(comd.diasCorrectedPtr) = (*(comd.diastolicPressRawPtr)) * 1.5 + 6;
+    *(comd.prCorrectedPtr) = (*(comd.pulseRateRawPtr)) * 3 + 8;
     return;
 }
 
@@ -120,11 +105,15 @@ void Compute(void* dataPtr) {
 */
 void Display(void* dataPtr) {
     // Setup of tft display
-    tft.fillScreen(BLACK);
+    tft.fillScreen(GREY);
     tft.setCursor(0, 0);
-    tft.setTextSize(2);
     // Pointer dereference
     DisplayData dd = *((DisplayData*) dataPtr);
+    // Starter
+    tft.setTextColor(CYAN);
+    tft.setTextSize(2);
+    tft.println("   Mobile Doctor");
+    tft.setTextSize(1.7);
     // Display Pressure
     if(bpOutOfRange == 0) {
         tft.setTextColor(GREEN);
@@ -133,7 +122,8 @@ void Display(void* dataPtr) {
     }
     tft.print("Systolic Pressure: ");
     tft.print(*(dd.sysPressCorrectedPtr));
-    tft.print("mmHg   Diastolic Pressure: ");
+    tft.println(" mmHg");
+    tft.print("Diastolic Pressure: ");
     tft.print(*(dd.diastolicPressCorrectedPtr));
     tft.println(" mmHg");
 
@@ -145,7 +135,7 @@ void Display(void* dataPtr) {
     }
     tft.print("Temperature: ");
     tft.print(*(dd.tempCorrectedPtr));
-    tft.print("C");
+    tft.println(" C");
 
     // Display pulse
     if(pulseOutOfRange == 0) {
@@ -153,9 +143,9 @@ void Display(void* dataPtr) {
     } else {
         tft.setTextColor(RED);
     }
-    tft.print("    Pulse Rate: ");
+    tft.print("Pulse Rate: ");
     tft.print(*(dd.pulseRateCorrectedPtr));
-    tft.print("BPM   ");
+    tft.println("BPM");
 
     // Display battery status
     if(*(dd.batteryStatePtr) > 20) {
@@ -164,7 +154,26 @@ void Display(void* dataPtr) {
         tft.setTextColor(RED);
     }
     tft.print("Battery: ");
-    tft.print(*(dd.batteryStatePtr)); 
+    tft.println(*(dd.batteryStatePtr)); 
+    // Display too high or low warnings
+    tft.setTextSize(1.5);
+    tft.setTextColor(RED);
+    if(tempHigh) {
+        tft.println("Your body temperature is too high! Calm down QWQ");
+    }
+
+    if (bpHigh) {
+        tft.println("Your blood pressure is too high! Calm down QWQ");
+    }
+    
+    if(pulseLow) {
+        tft.println("Your heart beat is too slow. Do something exciting 0w0");
+    }
+
+    // End
+    tft.setTextSize(1.4);
+    tft.setTextColor(CYAN);
+    tft.println("                  CSE 474 Inc.");
     return;
 }
 
@@ -183,13 +192,28 @@ void WarningAlarm(void* dataPtr) {
     }
     if(*(wad.systolicPressRawPtr) > 120 || *(wad.diastolicPressRawPtr) > 80) {
         bpOutOfRange = 1;
+        bpHigh = TRUE;
     } else {
         bpOutOfRange = 0;
+        bpHigh = FALSE;
     }
     if(*(wad.pulseRateRawPtr) < 60 || *(wad.pulseRateRawPtr) > 100) {
         pulseOutOfRange = 1;
     } else {
         pulseOutOfRange = 0;
+    }
+    
+    // TODO : Make change to the warnings(comfirm the values)
+    if(*(wad.temperatureRawPtr) > 37.8) {
+        tempHigh = TRUE;
+    } else {
+        tempHigh = FALSE;
+    }
+
+    if(*(wad.pulseRateRawPtr) < 60) {
+        pulseLow = TRUE;
+    } else {
+        pulseLow = FALSE;
     }
     return;  
 }
@@ -202,7 +226,9 @@ void WarningAlarm(void* dataPtr) {
 */
 void Status(void* dataPtr) {
     StatusData sd = *((StatusData*) dataPtr);
-    *(sd.batteryStatePtr) -= 1;
+    if(*(sd.batteryStatePtr) > 0) {
+        *(sd.batteryStatePtr) -= 1;
+    }
     return;
 }
 
