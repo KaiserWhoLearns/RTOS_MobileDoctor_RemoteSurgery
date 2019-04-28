@@ -8,9 +8,10 @@ typedef struct
 int try = 0;
 int* tryPtr = &try;
 
-
+void fuckYourSelf(void* f);
 void intToChar(char* arr, int val);
-
+int fun = 1;
+int* fe = &fun;
 
 int main() {
     // tempStruct temp = {tryPtr};
@@ -31,7 +32,10 @@ int main() {
     int* tempPtr = &temp;
     printf("%d", temp);
     *(tempPtr) = temp2;
-    printf("%d", temp);
+    printf("%d\n", temp);
+
+    fuckYourSelf(fe);
+    printf("%c%d", 'F', fun);
     return 0;    
 }
 
@@ -39,5 +43,11 @@ void intToChar(char* arr, int val) {
     arr[0] = (char) (val / 100 + 48);
     arr[1] = (char) (val % 100 / 10 + 48);
     arr[2] = (char) (val % 10 + 48);
+    return;
+}
+
+void fuckYourSelf(void* f) {
+    int tem = 110;
+    *((int*)f) = tem;
     return;
 }
