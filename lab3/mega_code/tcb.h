@@ -2,7 +2,9 @@
 #define STRUCTDEF
 #include <Elegoo_GFX.h>    // Core graphics library
 #include <Elegoo_TFTLCD.h> // Hardware-specific library
+#include <TouchScreen.h> // TouchScreen library
 // April 23th by Kaiser Sun
+// May 8th modified by Kaiser Sun, add touch screen
 
 
 // pin assignments for TFT
@@ -25,7 +27,47 @@
 #define MAGENTA 0xF81F
 #define YELLOW  0xFFE0
 #define WHITE   0xFFFF
+
+// touch screen settings
+#define YP A2  // must be an analog pin, use "An" notation!
+#define XM A3  // must be an analog pin, use "An" notation!
+#define YM 8   // can be a digital pin
+#define XP 9   // can be a digital pin
+
+// button settings
+/******************* UI details */
+#define BUTTON_X 50
+#define BUTTON_Y 90
+#define BUTTON_W 80
+#define BUTTON_H 25
+#define BUTTON_SPACING_X 30
+#define BUTTON_SPACING_Y 8
+#define BUTTON_TEXTSIZE 2
+
+// text box where numbers go
+#define TEXT_X 10
+#define TEXT_Y 10
+#define TEXT_W 300
+#define TEXT_H 50
+#define TEXT_TSIZE 3
+#define TEXT_TCOLOR BLUE
+
+//Touch For New ILI9341 TP
+#define TS_MINX 70
+#define TS_MAXX 920
+
+#define TS_MINY 120
+#define TS_MAXY 900
+
 Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
+TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
+
+// Buttons setup
+Elegoo_GFX_Button buttons[5];
+char buttonlabels[5][15] = {"Menu", "Announciation", 
+    "BloodPressure", "Temperature", "Pulse Rate"};
+uint16_t buttoncolors[5] = {GREY, GREY, 
+    MAGENTA, MAGENTA, MAGENTA};
 
 // Define bool tyoe
 enum myBool {FALSE = 0, TRUE = 1};
@@ -34,8 +76,8 @@ typedef enum myBool Bool;
 // Declare TCB
 typedef struct 
 {  
-        void (*myTask)(void*);
-        void* taskDataPtr; 
+    void (*myTask)(void*);
+    void* taskDataPtr; 
 } TCB;
 
 // Declare the functions
@@ -89,6 +131,13 @@ typedef struct
     unsigned int* pulseRateRawPtr;
     unsigned short* batteryStatePtr; 
 } WarningAlarmData;
+
+typedef struct
+{
+    unsigned short* measurementSelection;
+    unsigned short* alarmAcknowledge;
+} KeypadData;
+
 
 // typedef struct
 // {

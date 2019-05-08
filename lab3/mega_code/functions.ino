@@ -187,6 +187,23 @@ void Status(void* dataPtr) {
 }
 
 /*
+*   @param: generic pointer dataPtr
+*   Assume the dataPtr is of type keyData
+*   Goes into mode select; from mode select, we can select or 
+*   get announciation data
+*   May 8, 2019 by Kaiser Sun
+*/
+void Select(void* dataPtr) {
+    KeypadData kd = *((KeypadData) kd);
+    if(*(kd.measurementSelection) == 1) {
+        menu();
+    }
+    if(*(kd.alarmAcknowledge) == 1) {
+        announciation();
+    }
+}
+
+/*
 *    @param: int index, TCB* taskQ;
 *    pre: index < length(taskQ);
 *    helper method of sechdule function;
@@ -238,3 +255,5 @@ void sechdulerTest(TCB* taskQ) {
         Serial.println(time5 - time4);
         delay(1000);
 }
+
+

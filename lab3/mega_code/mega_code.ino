@@ -36,6 +36,9 @@ unsigned int* diastolicPressCorrectedPtrr = &diastolicPressCorrected;
 unsigned int* pulseRateCorrectedPtrr = &pulseRateCorrected;
 unsigned short* batteryStatePtrr = &batteryState;
 
+//initialize keypad values and pointers
+
+
 // initialize taskQueue and TCBs
 TCB taskQueue[5];
 TCB meas, comp, disp, alar, stat;
@@ -104,9 +107,8 @@ void setup()
   
   }
   tft.begin(identifier);
-
-  tft.println("Test in loop2");
-  tft.println(*(meaD.pulseRateRawPtr));
+  tft.setRotation(1);
+  // TODO: Create buttons here
 
   // Setup the data structs
   meaD = MeasureData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr};
