@@ -194,13 +194,58 @@ void Status(void* dataPtr) {
 *   May 8, 2019 by Kaiser Sun
 */
 void Select(void* dataPtr) {
-    KeypadData kd = *((KeypadData) kd);
-    if(*(kd.measurementSelection) == 1) {
-        menu();
+    KeypadData kd = *((KeypadData*) dataPtr);
+
+    TSPoint p = ts.getPoint();
+    if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+    // scale from 0->1023 to tft.width
+        p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
+        p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));//
+    }    
+    //Go through each button to check if they're pressed
+    for(uint8_t b = 0; b < 6; b ++) {
+      if (buttons[b].contains(p.x, p.y)) {
+      //Serial.print("Pressing: "); Serial.println(b);
+      buttons[b].press(true);  // tell the button it is pressed
+      Serial.print(p.x);
+      Serial.print(", ");
+      Serial.println(p.y);
+    } else {
+      buttons[b].press(false);  // tell the button it is NOT pressed
     }
-    if(*(kd.alarmAcknowledge) == 1) {
-        announciation();
     }
+
+    for (uint8_t b=0; b<6; b++) {
+    if (buttons[b].justReleased()) {
+      // Serial.print("Released: "); Serial.println(b);
+      buttons[b].drawButton();  // draw normal
+    }
+    
+    if (buttons[b].justPressed()) {
+        buttons[b].drawButton(true); 
+        // Take actions here
+        if(b == 0) {
+          kd.measurementSelectionPtr = 1;
+        }
+        if(b == 1) {
+          kd.alarmAcknowledgePtr = 1;
+        }
+    }
+
+
+    if(*(kd.measurementSelectionPtr) == 1) {
+        // menu();
+        (*disp.myTask)(disp.taskDataPtr);
+    }
+    if(*(kd.alarmAcknowledgePtr) == 1) {
+        // announciation();
+    }
+    *(kd.measurementSelectionPtr) = 0;
+    *(kd.alarmAcknowledgePtr) = 0;
+
+    return;
+}
+
 }
 
 /*

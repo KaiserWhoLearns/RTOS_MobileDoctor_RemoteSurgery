@@ -37,18 +37,27 @@ unsigned int* pulseRateCorrectedPtrr = &pulseRateCorrected;
 unsigned short* batteryStatePtrr = &batteryState;
 
 //initialize keypad values and pointers
+unsigned short measurementSelection = 0;
+unsigned short alarmAcknowledge = 0;
+unsigned short* measurementSelectionPtr = &measurementSelection;
+unsigned short* alarmAcknowledgePtr = &alarmAcknowledge;
 
+// Buttons setup
+Elegoo_GFX_Button buttons[6];
+char buttonlabels[6][15] = {"Menu", "Anno", "ALL",
+    "BP", "T", "PR"};
+uint16_t buttoncolors[6] = {GREY, GREY, GREY,
+    MAGENTA, MAGENTA, MAGENTA};
 
 // initialize taskQueue and TCBs
 TCB taskQueue[5];
-TCB meas, comp, disp, alar, stat;
+TCB meas, comp, disp, alar, stat, keyp;
 MeasureData meaD;
 ComputeData cD;
 DisplayData dDa;
 WarningAlarmData wAD;
 StatusData sD;
-
-// Need initialization of data and TCBs
+KeypadData kD;
 
 
 void setup()
@@ -90,11 +99,11 @@ void setup()
        Serial.println(F("Found 0x9341 LCD driver"));
   }
   else if(identifier==0x1111)
-  {     
+    {     
       identifier=0x9328;
        Serial.println(F("Found 0x9328 LCD driver"));
-  }
-  else {
+    }
+    else {
     Serial.print(F("Unknown LCD driver chip: "));
     Serial.println(identifier, HEX);
     Serial.println(F("If using the Elegoo 2.8\" TFT Arduino shield, the line:"));
@@ -105,10 +114,19 @@ void setup()
     Serial.println(F("matches the tutorial."));
     identifier=0x9328;
   
-  }
-  tft.begin(identifier);
-  tft.setRotation(1);
-  // TODO: Create buttons here
+    }
+    tft.begin(identifier);
+    tft.setRotation(1);
+    // TODO: Create buttons here
+    for(unsigned short row = 0; row < 2; row ++) {
+        for(unsigned short col = 0; col < 3; col ++) {
+            buttons[col + row*3].initButton(&tft, BUTTON_X+col*(BUTTON_W+BUTTON_SPACING_X), 
+                 BUTTON_Y+row*(BUTTON_H+BUTTON_SPACING_Y),    // x, y, w, h, outline, fill, text
+                  BUTTON_W, BUTTON_H, WHITE, buttoncolors[col+row*3], WHITE,
+                  buttonlabels[col + row*3], BUTTON_TEXTSIZE); 
+      buttons[col + row*3].drawButton();
+        }
+    }
 
   // Setup the data structs
   meaD = MeasureData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr};
@@ -117,6 +135,7 @@ void setup()
   dDa = DisplayData{tempCorrectedPtrr, systolicPressCorrectedPtrr, diastolicPressCorrectedPtrr, pulseRateCorrectedPtrr, batteryStatePtrr};
   wAD = WarningAlarmData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr, batteryStatePtrr};
   sD = StatusData{batteryStatePtrr};
+  kD = KeypadData{measurementSelectionPtr, alarmAcknowledgePtr};
 
   // Setup the TCBs
   meas = {&Measure, &meaD};
@@ -124,7 +143,8 @@ void setup()
   disp = {&Display, &dDa};
   alar = {&WarningAlarm, &wAD};
   stat = {&Status, &sD};
-
+  keyp = {&Select, &kD};
+  
   // Setup task queue
   taskQueue[0] = meas;
   taskQueue[1] = comp;
@@ -135,5 +155,12 @@ void setup()
 
 void loop()
 {
-    sechdulerTest(taskQueue);
+
+
+
+    // check if the button stage has changed
+    // Select(kD);
+    (*keyp.myTask)(keyp.taskDataPtr);
+
+    //sechdulerTest(taskQueue);
 }

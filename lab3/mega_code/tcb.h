@@ -39,7 +39,7 @@
 #define BUTTON_X 50
 #define BUTTON_Y 90
 #define BUTTON_W 80
-#define BUTTON_H 25
+#define BUTTON_H 40
 #define BUTTON_SPACING_X 30
 #define BUTTON_SPACING_Y 8
 #define BUTTON_TEXTSIZE 2
@@ -59,15 +59,13 @@
 #define TS_MINY 120
 #define TS_MAXY 900
 
+#define MINPRESSURE 10
+#define MAXPRESSURE 1000
+
 Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
-// Buttons setup
-Elegoo_GFX_Button buttons[5];
-char buttonlabels[5][15] = {"Menu", "Announciation", 
-    "BloodPressure", "Temperature", "Pulse Rate"};
-uint16_t buttoncolors[5] = {GREY, GREY, 
-    MAGENTA, MAGENTA, MAGENTA};
+
 
 // Define bool tyoe
 enum myBool {FALSE = 0, TRUE = 1};
@@ -134,8 +132,8 @@ typedef struct
 
 typedef struct
 {
-    unsigned short* measurementSelection;
-    unsigned short* alarmAcknowledge;
+    unsigned short* measurementSelectionPtr;
+    unsigned short* alarmAcknowledgePtr;
 } KeypadData;
 
 
