@@ -122,7 +122,7 @@ void setup()
         for(unsigned short col = 0; col < 3; col ++) {
             buttons[col + row*3].initButton(&tft, BUTTON_X+col*(BUTTON_W+BUTTON_SPACING_X), 
                  BUTTON_Y+row*(BUTTON_H+BUTTON_SPACING_Y),    // x, y, w, h, outline, fill, text
-                  BUTTON_W, BUTTON_H, WHITE, buttoncolors[col+row*3], WHITE,
+                  BUTTON_W, BUTTON_H, GREEN, buttoncolors[col+row*3], RED,
                   buttonlabels[col + row*3], BUTTON_TEXTSIZE); 
       buttons[col + row*3].drawButton();
         }
@@ -156,11 +156,17 @@ void setup()
 void loop()
 {
 
-
-
+  
     // check if the button stage has changed
     // Select(kD);
     (*keyp.myTask)(keyp.taskDataPtr);
-
+    //delay(100000);
+    // measurementSelection = 0;
     //sechdulerTest(taskQueue);
+    //tft.fillScreen(BLACK);
+   for(unsigned short row = 0; row < 2; row ++) {
+        for(unsigned short col = 0; col < 3; col ++) {
+          // buttons[col + row*3].drawButton();
+        }
+    }
 }

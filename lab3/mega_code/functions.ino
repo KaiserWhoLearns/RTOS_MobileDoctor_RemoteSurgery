@@ -194,6 +194,9 @@ void Status(void* dataPtr) {
 *   May 8, 2019 by Kaiser Sun
 */
 void Select(void* dataPtr) {
+
+
+
     KeypadData kd = *((KeypadData*) dataPtr);
 
     TSPoint p = ts.getPoint();
@@ -210,42 +213,33 @@ void Select(void* dataPtr) {
       Serial.print(p.x);
       Serial.print(", ");
       Serial.println(p.y);
+      if(b == 0) {
+        Serial.print("Menu is pressed");
+        tft.fillScreen(GREY);
+        tft.setCursor(0, 0);
+        int col = 0, row = 0; 
+      buttons[col + row*3].drawButton();
+      }
+      if(b == 1) {
+          Serial.print("announciation is pressed");
+      }
     } else {
       buttons[b].press(false);  // tell the button it is NOT pressed
     }
     }
 
-    for (uint8_t b=0; b<6; b++) {
-    if (buttons[b].justReleased()) {
-      // Serial.print("Released: "); Serial.println(b);
-      buttons[b].drawButton();  // draw normal
-    }
-    
-    if (buttons[b].justPressed()) {
-        buttons[b].drawButton(true); 
-        // Take actions here
-        if(b == 0) {
-          kd.measurementSelectionPtr = 1;
-        }
-        if(b == 1) {
-          kd.alarmAcknowledgePtr = 1;
-        }
-    }
-
-
     if(*(kd.measurementSelectionPtr) == 1) {
         // menu();
-        (*disp.myTask)(disp.taskDataPtr);
+        Serial1.println("Menu pressed");
     }
     if(*(kd.alarmAcknowledgePtr) == 1) {
         // announciation();
+        Serial1.println("alarm Pressed");
     }
     *(kd.measurementSelectionPtr) = 0;
     *(kd.alarmAcknowledgePtr) = 0;
 
     return;
-}
-
 }
 
 /*
