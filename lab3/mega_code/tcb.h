@@ -49,13 +49,13 @@
 #define MAXPRESSURE 1000
 
 // Macro for location on screen
-#define MENU(x, y) (y > 0) && (y < 400) && (x > 0) && (x < 400)
-#define ANN(x, y) (y > 625) && (y < 750) && (x > 250) && (x < 750)
-#define QUIT(x, y) (y > 0) && (y < 875) && (x > 0) && (x < 850)
-#define T(x, y) (x < 800) && (x > 500) && (y < 350) && (y > 150)
-#define BP(x, y) (x < 800) && (x > 500) && (y < 600) && (y > 400)
-#define PR(x, y) (x < 800) && (x > 500) && (y < 850) && (y > 650)
-
+#define MENU(x, y) (y > 0) && (y < 240) && (x > 0) && (x < 165)
+#define ANN(x, y) (y > 0) && (y < 240) && (x > 165) && (x < 330)
+#define QUIT1(x, y) (y > 0) && (y < 240) && (x > 0) && (x < 70)
+#define T(x, y) (x < 330) && (x > 70) && (y < 240) && (y > 160)
+#define BP(x, y) (x < 330) && (x > 70) && (y < 80) && (y > 0)
+#define PR(x, y) (x < 330) && (x > 70) && (y < 160) && (y > 80)
+#define QUIT2(x, y) (x > 0) && (x < 330) && (y > 180) && (y < 240)
 Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 

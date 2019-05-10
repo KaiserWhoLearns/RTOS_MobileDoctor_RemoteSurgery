@@ -196,20 +196,20 @@ void Status(void* dataPtr) {
 void drawSub(int x, int y, bool d) {
     Serial.print("Entered drawSub");
     if(!d) {
-        tft.fillRect(x, y, 80, 50, RED);
+        tft.fillRect(x, y, 260, 80, RED);
     } else {
-        tft.fillRect(x, y, 80, 50, GREEN);
+        tft.fillRect(x, y, 260, 80, GREEN);
     }
     // See Line595 of Elegoo_GFX.cpp
-    tft.setTextSize(2);
+    tft.setTextSize(3);
     tft.setTextColor(BLUE);
-    tft.setCursor(x - 1, y-1);
-    if(y == 10) {
-        tft.print("Te");
-    } else if(y == 90) {
+    tft.setCursor(x + 1, y + 1);
+    if(y == 0) {
         tft.print("BP");
-    } else if(y == 170) {
+    } else if(y == 80) {
         tft.print("PR");
+    } else if(y == 160) {
+        tft.print("T");
     }
 }
 
@@ -228,10 +228,10 @@ void menu(KeypadData* dataPtr) {
     // Draw menu
     tft.setCursor(0, 0);
     tft.fillScreen(BLUE);
-    drawSub(150, 10, dispT);
-    drawSub(150, 90, dispBP);
-    drawSub(150, 170, dispPR);
-    tft.fillRect(0, 0, 100, 100, GREEN);
+    drawSub(70, 0, dispBP);
+    drawSub(70, 80, dispPR);
+    drawSub(70, 160, dispT);
+    tft.fillRect(0, 0, 70, 240, YELLOW);
     // Get point
     digitalWrite(13, HIGH);
     TSPoint p = ts.getPoint();
@@ -268,7 +268,7 @@ void menu(KeypadData* dataPtr) {
                 dispPR = TRUE;
             }
         }
-        if(QUIT(p.x, p.y)) {
+        if(QUIT1(p.x, p.y)) {
             *(d.measurementSelectionPtr) = 0;
         }
     }
@@ -283,10 +283,10 @@ void menu(KeypadData* dataPtr) {
 void anno(KeypadData* dataPtr) {
     KeypadData d = *dataPtr;
     // Draw exit button
-    tft.fillRect(0, 0, 100, 100, RED);
+    tft.fillRect(0, 180, 330, 60, RED);
     tft.setTextSize(2);
     tft.setTextColor(BLUE);
-    tft.setCursor(95, 95);
+    tft.setCursor(150, 200);
     tft.print("Exit");
     (*disp.myTask)(disp.taskDataPtr);
     // getPoint
@@ -300,7 +300,7 @@ void anno(KeypadData* dataPtr) {
         // scale from 0->1023 to tft.width
         p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
         p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
-        if(QUIT(p.x, p.y)) {
+        if(QUIT2(p.x, p.y)) {
             *(d.alarmAcknowledgePtr) = 0;
         }
     }
@@ -321,8 +321,8 @@ void Select(void* dataPtr) {
     // When it's select mode
     if(*(kd.measurementSelectionPtr) == 0 && *(kd.alarmAcknowledgePtr) == 0) {
         tft.fillScreen(BLACK);
-        tft.fillRect(90, 50, 80, 80, GREEN);
-        tft.fillRect(90, 135, 80, 80, YELLOW);
+        tft.fillRect(0, 0, 165, 240, GREEN);
+        tft.fillRect(165, 0, 165, 240, YELLOW);
         digitalWrite(13, HIGH);
         TSPoint p = ts.getPoint();
         digitalWrite(13, LOW);
