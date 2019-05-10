@@ -51,7 +51,7 @@ void insertLast(TCB* node) {
 
 //delete given item
 
-TCB* deleteT(TCB* node) {
+TCB* deleteNode(TCB* node) {
 	//start from the first link
 	   TCB* current = front;
 	   TCB* previous = NULL;
