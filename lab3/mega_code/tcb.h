@@ -34,33 +34,27 @@
 #define YM 8   // can be a digital pin
 #define XP 9   // can be a digital pin
 
-// button settings
-/******************* UI details */
-#define BUTTON_X 50
-#define BUTTON_Y 90
-#define BUTTON_W 80
-#define BUTTON_H 40
-#define BUTTON_SPACING_X 30
-#define BUTTON_SPACING_Y 8
-#define BUTTON_TEXTSIZE 2
-
-// text box where numbers go
-#define TEXT_X 10
-#define TEXT_Y 10
-#define TEXT_W 300
-#define TEXT_H 50
-#define TEXT_TSIZE 3
-#define TEXT_TCOLOR BLUE
-
 //Touch For New ILI9341 TP
 #define TS_MINX 70
 #define TS_MAXX 920
 
 #define TS_MINY 120
 #define TS_MAXY 900
+// We have a status line for like, is FONA working
+#define STATUS_X 65
+#define STATUS_Y 10
 
-#define MINPRESSURE 10
+// Set up bound for pressure
+#define MINPRESSURE 5
 #define MAXPRESSURE 1000
+
+// Macro for location on screen
+#define MENU(x, y) (y > 0) && (y < 400) && (x > 0) && (x < 400)
+#define ANN(x, y) (y > 625) && (y < 750) && (x > 250) && (x < 750)
+#define QUIT(x, y) (y > 0) && (y < 875) && (x > 0) && (x < 850)
+#define T(x, y) (x < 800) && (x > 500) && (y < 350) && (y > 150)
+#define BP(x, y) (x < 800) && (x > 500) && (y < 600) && (y > 400)
+#define PR(x, y) (x < 800) && (x > 500) && (y < 850) && (y > 650)
 
 Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);

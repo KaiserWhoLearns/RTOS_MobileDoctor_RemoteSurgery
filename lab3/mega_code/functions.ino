@@ -1,5 +1,8 @@
 #include "tcb.h"
 
+
+
+
 /*
 *    @para: void* dataPtr, we assume it's MeasureData pointer; integer isEven, check if it's even;
 *    isEven range: 0 or 1;
@@ -10,10 +13,6 @@
 *    pulseRateRaw - even: decrease by 1; - odd: increase by 3; Range: 15-40
 *    April, 22, 2019 by Kaiser
 */
-
-// Test Code
-unsigned int testInt = 10;
-unsigned int* testIntPtr = &testInt;
 
 Bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
 void Measure(void* dataPtr)
@@ -50,7 +49,7 @@ void Compute(void* dataPtr) {
     return;
 }
 
-
+int countt = 0;
 /*
 *    @para: generic pointer dataPtr;
 *    Assume the data pointer is of type DisplayData
@@ -187,58 +186,177 @@ void Status(void* dataPtr) {
 }
 
 /*
+*    @para: take in x, y, the center of the rectangle
+*           bool d, to see whether it is unselected
+*    Draw the buttons
+*    (700, 250) -> T
+*    (700, 500) -> BP
+*    (700, 750) -> PR
+*/
+void drawSub(int x, int y, bool d) {
+    Serial.print("Entered drawSub");
+    if(!d) {
+        tft.fillRect(x, y, 80, 50, RED);
+    } else {
+        tft.fillRect(x, y, 80, 50, GREEN);
+    }
+    // See Line595 of Elegoo_GFX.cpp
+    tft.setTextSize(2);
+    tft.setTextColor(BLUE);
+    tft.setCursor(x - 1, y-1);
+    if(y == 10) {
+        tft.print("Te");
+    } else if(y == 90) {
+        tft.print("BP");
+    } else if(y == 170) {
+        tft.print("PR");
+    }
+}
+
+/*
+*   This function is called when the TFT is in menu mode
+*   May 9, 2019 by Kaiser
+*/
+void menu(KeypadData* dataPtr) {
+    KeypadData d = *dataPtr;
+    // Test 
+    Serial.print("Entered menu mode");
+    Serial.print("Measure: ");
+    Serial.println(*(d.measurementSelectionPtr));
+    Serial.print("Ann");
+    Serial.println(*(d.alarmAcknowledgePtr));
+    // Draw menu
+    tft.setCursor(0, 0);
+    tft.fillScreen(BLUE);
+    drawSub(150, 10, dispT);
+    drawSub(150, 90, dispBP);
+    drawSub(150, 170, dispPR);
+    tft.fillRect(0, 0, 100, 100, GREEN);
+    // Get point
+    digitalWrite(13, HIGH);
+    TSPoint p = ts.getPoint();
+    digitalWrite(13, LOW);
+    pinMode(XM, OUTPUT);
+    pinMode(YP, OUTPUT);
+    // If we have point selected
+    if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+    // scale from 0->1023 to tft.width
+        p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
+        p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
+        Serial.print(p.x);
+        Serial.print(", ");
+        Serial.println(p.y);
+        // while(!T(p.x, p.y) && !BP(p.x, p.y) && !PR(p.x, p.y) && !QUIT(p.x, p.y)) {
+        if(T(p.x, p.y)) {
+            if(dispT) {
+                dispT = FALSE;
+            } else {
+                dispT = TRUE;
+            }
+        }
+        if(BP(p.x, p.y)) {
+            if(dispBP) {
+                dispBP = FALSE;
+            } else {
+                dispBP = TRUE;
+            }
+        }
+        if(PR(p.x, p.y)) {
+            if(dispPR) {
+                dispPR = FALSE;
+            } else {
+                dispPR = TRUE;
+            }
+        }
+        if(QUIT(p.x, p.y)) {
+            *(d.measurementSelectionPtr) = 0;
+        }
+    }
+    return;
+}
+
+/*
+*    @param: KeypadData pointer, dataPtr
+*    Submethod of select; when called, goes into announciation mode
+*    May 10th by Kaiser
+*/
+void anno(KeypadData* dataPtr) {
+    KeypadData d = *dataPtr;
+    // Draw exit button
+    tft.fillRect(0, 0, 100, 100, RED);
+    tft.setTextSize(2);
+    tft.setTextColor(BLUE);
+    tft.setCursor(95, 95);
+    tft.print("Exit");
+    (*disp.myTask)(disp.taskDataPtr);
+    // getPoint
+    digitalWrite(13, HIGH);
+    TSPoint p = ts.getPoint();
+    digitalWrite(13, LOW);
+    pinMode(XM, OUTPUT);
+    pinMode(YP, OUTPUT);
+    // If we have point selected
+    if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+        // scale from 0->1023 to tft.width
+        p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
+        p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
+        if(QUIT(p.x, p.y)) {
+            *(d.alarmAcknowledgePtr) = 0;
+        }
+    }
+    return;
+}
+
+// int countt = 0;
+/*
 *   @param: generic pointer dataPtr
 *   Assume the dataPtr is of type keyData
 *   Goes into mode select; from mode select, we can select or 
 *   get announciation data
 *   May 8, 2019 by Kaiser Sun
+*   May 9, 2019 rewrote by Kaiser
 */
 void Select(void* dataPtr) {
-
-
-
     KeypadData kd = *((KeypadData*) dataPtr);
-
-    TSPoint p = ts.getPoint();
-    if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
-    // scale from 0->1023 to tft.width
-        p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
-        p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));//
-    }    
-    //Go through each button to check if they're pressed
-    for(uint8_t b = 0; b < 6; b ++) {
-      if (buttons[b].contains(p.x, p.y)) {
-      //Serial.print("Pressing: "); Serial.println(b);
-      buttons[b].press(true);  // tell the button it is pressed
-      Serial.print(p.x);
-      Serial.print(", ");
-      Serial.println(p.y);
-      if(b == 0) {
-        Serial.print("Menu is pressed");
-        tft.fillScreen(GREY);
-        tft.setCursor(0, 0);
-        int col = 0, row = 0; 
-      buttons[col + row*3].drawButton();
-      }
-      if(b == 1) {
-          Serial.print("announciation is pressed");
-      }
-    } else {
-      buttons[b].press(false);  // tell the button it is NOT pressed
+    // When it's select mode
+    if(*(kd.measurementSelectionPtr) == 0 && *(kd.alarmAcknowledgePtr) == 0) {
+        tft.fillScreen(BLACK);
+        tft.fillRect(90, 50, 80, 80, GREEN);
+        tft.fillRect(90, 135, 80, 80, YELLOW);
+        digitalWrite(13, HIGH);
+        TSPoint p = ts.getPoint();
+        digitalWrite(13, LOW);
+        pinMode(XM, OUTPUT);
+        pinMode(YP, OUTPUT);
+        if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+        // scale from 0->1023 to tft.width
+            p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
+            p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
+            Serial.println(MENU(p.x, p.y));
+            if(MENU(p.x, p.y)) {
+                *(kd.measurementSelectionPtr) = 1;
+                Serial.print("MENU pressed");
+                Serial.print(p.x);
+                Serial.print(", ");
+                Serial.println(p.y);
+            } else if(ANN(p.x, p.y)) {
+                // If it's announciation, turn to display
+                *(kd.alarmAcknowledgePtr) = 1;
+                Serial.print("ANN pressed");
+                Serial.print(p.x);
+                Serial.print(", ");
+                Serial.println(p.y);
+                Serial.println(*(kd.alarmAcknowledgePtr));
+        }
     }
     }
-
+    // Check if it is measure mode or announciation mode
     if(*(kd.measurementSelectionPtr) == 1) {
-        // menu();
-        Serial1.println("Menu pressed");
+        menu(&kd);
+    } else if(*(kd.alarmAcknowledgePtr) == 1) {
+            Serial.println("Announciation mode");
+            anno(&kd);
     }
-    if(*(kd.alarmAcknowledgePtr) == 1) {
-        // announciation();
-        Serial1.println("alarm Pressed");
-    }
-    *(kd.measurementSelectionPtr) = 0;
-    *(kd.alarmAcknowledgePtr) = 0;
-
     return;
 }
 
