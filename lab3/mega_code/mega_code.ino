@@ -36,32 +36,37 @@ unsigned int* diastolicPressCorrectedPtrr = &diastolicPressCorrected;
 unsigned int* pulseRateCorrectedPtrr = &pulseRateCorrected;
 unsigned short* batteryStatePtrr = &batteryState;
 
+//initialize keypad values and pointers
+unsigned short measurementSelection = 0;
+unsigned short alarmAcknowledge = 0;
+unsigned short* measurementSelectionPtr = &measurementSelection;
+unsigned short* alarmAcknowledgePtr = &alarmAcknowledge;
+
+
 // initialize taskQueue and TCBs
 TCB taskQueue[5];
-TCB meas, comp, disp, alar, stat;
+TCB meas, comp, disp, alar, stat, keyp;
 MeasureData meaD;
 ComputeData cD;
 DisplayData dDa;
 WarningAlarmData wAD;
 StatusData sD;
+KeypadData kD;
 
-// Need initialization of data and TCBs
 
-
-void setup()
-{
+void setup() {
     // Initialize the serial connection of 9600 bits per second
-  Serial.begin(9600);
-  Serial1.begin(4800);
-  // Print
-  Serial.println(F("TFT LCD test"));
+    Serial.begin(9600);
+    Serial1.begin(4800);
+    // Print
+    Serial.println(F("TFT LCD test"));
 
 
-#ifdef USE_Elegoo_SHIELD_PINOUT
+  #ifdef USE_Elegoo_SHIELD_PINOUT
   Serial.println(F("Using Elegoo 2.4\" TFT Arduino Shield Pinout"));
-#else
+  #else
   Serial.println(F("Using Elegoo 2.4\" TFT Breakout Board Pinout"));
-#endif
+  #endif
 
   Serial.print("TFT size is "); Serial.print(tft.width()); Serial.print("x"); Serial.println(tft.height());
 
@@ -71,27 +76,27 @@ void setup()
    uint16_t identifier = tft.readID();
    if(identifier == 0x9325) {
     Serial.println(F("Found ILI9325 LCD driver"));
-  } else if(identifier == 0x9328) {
+    } else if(identifier == 0x9328) {
     Serial.println(F("Found ILI9328 LCD driver"));
-  } else if(identifier == 0x4535) {
+    } else if(identifier == 0x4535) {
     Serial.println(F("Found LGDP4535 LCD driver"));
-  }else if(identifier == 0x7575) {
+    }else if(identifier == 0x7575) {
     Serial.println(F("Found HX8347G LCD driver"));
-  } else if(identifier == 0x9341) {
+    } else if(identifier == 0x9341) {
     Serial.println(F("Found ILI9341 LCD driver"));
-  } else if(identifier == 0x8357) {
+    } else if(identifier == 0x8357) {
     Serial.println(F("Found HX8357D LCD driver"));
-  } else if(identifier==0x0101)
-  {     
+    } else if(identifier==0x0101)
+    {     
       identifier=0x9341;
        Serial.println(F("Found 0x9341 LCD driver"));
   }
   else if(identifier==0x1111)
-  {     
+    {     
       identifier=0x9328;
        Serial.println(F("Found 0x9328 LCD driver"));
-  }
-  else {
+    }
+    else {
     Serial.print(F("Unknown LCD driver chip: "));
     Serial.println(identifier, HEX);
     Serial.println(F("If using the Elegoo 2.8\" TFT Arduino shield, the line:"));
@@ -102,11 +107,9 @@ void setup()
     Serial.println(F("matches the tutorial."));
     identifier=0x9328;
   
-  }
-  tft.begin(identifier);
-
-  tft.println("Test in loop2");
-  tft.println(*(meaD.pulseRateRawPtr));
+    }
+    tft.begin(identifier);
+    tft.setRotation(1);
 
   // Setup the data structs
   meaD = MeasureData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr};
@@ -115,6 +118,7 @@ void setup()
   dDa = DisplayData{tempCorrectedPtrr, systolicPressCorrectedPtrr, diastolicPressCorrectedPtrr, pulseRateCorrectedPtrr, batteryStatePtrr};
   wAD = WarningAlarmData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr, batteryStatePtrr};
   sD = StatusData{batteryStatePtrr};
+  kD = KeypadData{measurementSelectionPtr, alarmAcknowledgePtr};
 
   // Setup the TCBs
   meas = {&Measure, &meaD};
@@ -122,16 +126,41 @@ void setup()
   disp = {&Display, &dDa};
   alar = {&WarningAlarm, &wAD};
   stat = {&Status, &sD};
-
+  keyp = {&Select, &kD};
+  
   // Setup task queue
   taskQueue[0] = meas;
   taskQueue[1] = comp;
   taskQueue[2] = stat;
   taskQueue[3] = alar;
-  taskQueue[4] = disp;
+  taskQueue[4] = keyp;
+  // taskQueue[4] = disp;
+  
 }
 
+bool dispBP = TRUE;
+bool dispT = TRUE;
+bool dispPR = TRUE;
+
+int count = 0;
 void loop()
 {
-    sechdulerTest(taskQueue);
+  sechdulerTest(taskQueue);
+  // (*keyp.myTask)(keyp.taskDataPtr);
+  // tft.fillScreen(GREY);
+  // // Get point
+  //   digitalWrite(13, HIGH);
+  //   TSPoint p = ts.getPoint();
+  //   digitalWrite(13, LOW);
+  //   pinMode(XM, OUTPUT);
+  //   pinMode(YP, OUTPUT);
+  //   // If we have point selected
+  //   if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+  //   // scale from 0->1023 to tft.width
+  //   p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
+  //       p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
+  //       Serial.print(p.x);
+  //       Serial.print(", ");
+  //       Serial.println(p.y);
+  //   }    
 }
