@@ -11,53 +11,50 @@
 #include <stdbool.h>
 #include "tcb.h"
 
-struct node {
-   TCB data;
 
-   struct node *next;
-   struct node *prev;
-};
 
-//this link always point to first Link
-struct node *front = NULL;
+// struct node {
+//    TCB data;
 
-//this link always point to last Link
-struct node *back = NULL;
+//    struct node *next;
+//    struct node *prev;
+// };
 
-struct node *current = NULL;
+
 
 bool isEmpty() {
    return front == NULL;
 }
 
-void insertLast(int key, int data) {
+void insertLast(TCB* node) {
 
    //create a link
-   struct node *link = (struct node*) malloc(sizeof(struct node));
+   //TCB* link = (TCB*) malloc(sizeof(TCB));
 
-   link->data = data;
+   //link->data = data;
 
    if(isEmpty()) {
       //make it the last link
-      back = link;
+		front = node;
+      back = node;
    } else {
       //make link a new last link
-      back->next = link;
+      back->next = node;
 
       //mark old last node as prev of new link
-      link->prev = back;
+      node->prev = back;
+		back = node;
    }
 
-   //point last to new last node
-   back = link;
+   return;
 }
 
 //delete given item
 
-struct node* deleteT(TCB data) {
+TCB* deleteT(TCB* node) {
 	//start from the first link
-	   struct node* current = front;
-	   struct node* previous = NULL;
+	   TCB* current = front;
+	   TCB* previous = NULL;
 
 	   //if list is empty
 	   if(front == NULL) {
@@ -65,7 +62,7 @@ struct node* deleteT(TCB data) {
 	   }
 
 	   //navigate through list
-	   while(current->data != data) {
+	   while(current != node) {
 	      //if it is last node
 
 	      if(current->next == NULL) {

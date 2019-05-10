@@ -66,11 +66,29 @@ enum myBool {FALSE = 0, TRUE = 1};
 typedef enum myBool Bool;
 
 // Declare TCB
-typedef struct 
-{  
-    void (*myTask)(void*);
-    void* taskDataPtr; 
-} TCB;
+// typedef struct 
+// {  
+//     void (*myTask)(void*);
+//     void* taskDataPtr; 
+
+// } TCB;
+
+struct MyStruct
+{
+void (*myTask)(void*);
+void* taskDataPtr;
+struct MyStruct* next;
+struct MyStruct* prev;
+};
+typedef struct MyStruct TCB;
+
+//this link always point to first Link
+TCB* front = NULL;
+
+//this link always point to last Link
+TCB* back = NULL;
+void insertLast(TCB* node);
+TCB* deleteNode(TCB* node);
 
 // Declare the functions
     void Measure(void* dataPtr);
