@@ -44,7 +44,7 @@ unsigned short* alarmAcknowledgePtr = &alarmAcknowledge;
 
 
 // initialize taskQueue and TCBs
-TCB taskQueue[5];
+//TCB taskQueue;
 TCB meas, comp, disp, alar, stat, keyp;
 MeasureData meaD;
 ComputeData cD;
@@ -129,11 +129,11 @@ void setup() {
   keyp = {&Select, &kD};
   
   // Setup task queue
-  taskQueue[0] = meas;
-  taskQueue[1] = comp;
-  taskQueue[2] = stat;
-  taskQueue[3] = alar;
-  taskQueue[4] = keyp;
+  insertLast(meas);
+  insertLast(comp);
+  insertLast(stat);
+  insertLast(alar);
+  insertLast(keyp);
   // taskQueue[4] = disp;
   
 }
@@ -142,7 +142,7 @@ void setup() {
 
 void loop()
 {
-    sechdulerTest(taskQueue);
+    sechdulerTest(front);
   // (*keyp.myTask)(keyp.taskDataPtr);
   // tft.fillScreen(GREY);
   // // Get point

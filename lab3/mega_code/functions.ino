@@ -382,9 +382,9 @@ void Select(void* dataPtr) {
 *    helper method of sechdule function;
 *    April 23, 2019 by Kaiser Sun
 */
-void run(int index, TCB* taskQ) {
+void run(TCB* taskQ) {
     // Call the function in the taskQ;
-    (*taskQ[index].myTask)((taskQ[index]).taskDataPtr);
+    (*taskQ.myTask)((taskQ[index]).taskDataPtr);
 }
 
 /*
@@ -405,28 +405,80 @@ void run(int index, TCB* taskQ) {
 *    April 23, 2019 by Kaiser Sun
 */
 void sechdulerTest(TCB* taskQ) {
-        unsigned long time0 = micros();
-        run(0, taskQ);
-        unsigned long time1 = micros();
-        run(1, taskQ);
-        unsigned long time2 = micros();
-        run(2, taskQ);
-        unsigned long time3 = micros();
-        run(3, taskQ);
-        unsigned long time4 = micros();
-        run(4, taskQ);
-        unsigned long time5 = micros();
-        Serial.print("First: ");
-        Serial.println(time1 - time0);
-        Serial.print("Second: ");
-        Serial.println(time2 - time1);
-        Serial.print("Third: ");
-        Serial.println(time3 - time2);
-        Serial.print("Fourth: ");
-        Serial.println(time4 - time3);
-        Serial.print("Fifth: ");
-        Serial.println(time5 - time4);
-        delay(1000);
+        TCB* taskQueue = front;
+
+        while (taskQueue != NULL) {
+            run(taskQueue);
+            taskQueue = taskQueue->next;
+        }
+        
+        // unsigned long time0 = micros();
+        // run(deleteNode());
+        // unsigned long time1 = micros();
+        // run(1, taskQ);
+        // unsigned long time2 = micros();
+        // run(2, taskQ);
+        // unsigned long time3 = micros();
+        // run(3, taskQ);
+        // unsigned long time4 = micros();
+        // run(4, taskQ);
+        // unsigned long time5 = micros();
+        // Serial.print("First: ");
+        // Serial.println(time1 - time0);
+        // Serial.print("Second: ");
+        // Serial.println(time2 - time1);
+        // Serial.print("Third: ");
+        // Serial.println(time3 - time2);
+        // Serial.print("Fourth: ");
+        // Serial.println(time4 - time3);
+        // Serial.print("Fifth: ");
+        // Serial.println(time5 - time4);
+        // delay(1000);
 }
+// void issue(long* interval, long* prev_time, long period, TCB* block, Bool* flag, int use_flag) {
+//   // Serial.print(*count); Serial.print(" "); Serial.print(p);Serial.print(" ");Serial.print(*prev);Serial.println();
+//   if (use_flag) {
+//     if (*flag == TRUE) {
+//       insert(block);
+//       *flag = FALSE;
+//       issue_count += 1;
+//     }
+//   } else {
+//     if (*interval == 0 && *prev_time == period) {
+//       insert(block);
+//       issue_count+= 1;
+//     }
+//   }
+// }
+
+// void scheduler() {
+//   head = NULL;
+//   tail = NULL;
+//   issue_count = 0;
+
+//   long interval = (timer - start) % 5;
+//   issue(&interval, &timer_prev, 4, &meas, NULL, 0);
+//   issue(&interval, &timer_prev, 4, &comp, &computeFlag, 1);
+//   issue(&interval, &timer_prev, 0, &warn, NULL, 0);
+//   issue(&interval, &timer_prev, 4, &disp, &disFlag, 1);
+//   issue(&interval, &timer_prev, 4, &stat, &statusFlag, 1);
+  
+//   Serial.print("issue count:  ");Serial.print(issue_count);Serial.println();
+//   Serial.print(interval);Serial.print(" ");Serial.print(timer_prev); Serial.println();
+//   timer_prev = interval;
+
+//   /*
+//   Serial.print(cCount);Serial.print(" ");Serial.print(cPrev); Serial.println();
+//   Serial.print(dCount);Serial.print(" ");Serial.print(dPrev); Serial.println();
+//   Serial.print(wCount);Serial.print(" ");Serial.print(wPrev); Serial.println();
+//   Serial.print(sCount);Serial.print(" ");Serial.print(sPrev); Serial.println();
+//   */
+//   TCB* cur = head;
+//   int i;
+//   //Serial.println("start");
+//   for (i = 0; i < issue_count; i++) {
+//     (*cur->mytask)(cur->taskDataPr);
+//     cur = cur->next;
+//   }
 
 
