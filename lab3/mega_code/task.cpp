@@ -5,14 +5,14 @@
  *      Author: xinyu
  */
 
-#include "task.h"
+// #include "task.h"
 
-task::task() {
-	// TODO Auto-generated constructor stub
+// task::task() {
+// 	// TODO Auto-generated constructor stub
 
-}
+// }
 
-task::~task() {
-	// TODO Auto-generated destructor stub
-}
+// task::~task() {
+// 	// TODO Auto-generated destructor stub
+// }
 

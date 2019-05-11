@@ -1,7 +1,8 @@
 #include "tcb.h"
 
-
-
+bool dispBP = TRUE;
+bool dispT = TRUE;
+bool dispPR = TRUE;
 
 /*
 *    @para: void* dataPtr, we assume it's MeasureData pointer; integer isEven, check if it's even;
@@ -66,39 +67,45 @@ void Display(void* dataPtr) {
     tft.setTextColor(CYAN);
     tft.setTextSize(2);
     tft.println("   Mobile Doctor");
-    tft.setTextSize(1.7);
+    tft.setTextSize(2);
     // Display Pressure
-    if(bpOutOfRange == 0) {
-        tft.setTextColor(GREEN);
-    } else {
-        tft.setTextColor(RED);
+    if(dispBP) {
+        if(bpOutOfRange == 0) {
+            tft.setTextColor(GREEN);
+        } else {
+            tft.setTextColor(RED);
+        }
+        tft.print("Systolic Pressure: ");
+        tft.print(*(dd.sysPressCorrectedPtr));
+        tft.println(" mmHg");
+        tft.print("Diastolic Pressure: ");
+        tft.print(*(dd.diastolicPressCorrectedPtr));
+        tft.println(" mmHg");
     }
-    tft.print("Systolic Pressure: ");
-    tft.print(*(dd.sysPressCorrectedPtr));
-    tft.println(" mmHg");
-    tft.print("Diastolic Pressure: ");
-    tft.print(*(dd.diastolicPressCorrectedPtr));
-    tft.println(" mmHg");
 
     // print temperature
-    if(tempOutOfRange == 0) {
-        tft.setTextColor(GREEN);
-    } else {
-        tft.setTextColor(RED);
+    if(dispT) {
+        if(tempOutOfRange == 0) {
+            tft.setTextColor(GREEN);
+        } else {
+            tft.setTextColor(RED);
+        }
+        tft.print("Temperature: ");
+        tft.print(*(dd.tempCorrectedPtr));
+        tft.println(" C");
     }
-    tft.print("Temperature: ");
-    tft.print(*(dd.tempCorrectedPtr));
-    tft.println(" C");
 
     // Display pulse
-    if(pulseOutOfRange == 0) {
-        tft.setTextColor(GREEN);
-    } else {
-        tft.setTextColor(RED);
+    if(dispPR) {
+        if(pulseOutOfRange == 0) {
+            tft.setTextColor(GREEN);
+        } else {
+            tft.setTextColor(RED);
+        }
+        tft.print("Pulse Rate: ");
+        tft.print(*(dd.pulseRateCorrectedPtr));
+        tft.println("BPM");
     }
-    tft.print("Pulse Rate: ");
-    tft.print(*(dd.pulseRateCorrectedPtr));
-    tft.println("BPM");
 
     // Display battery status
     if(*(dd.batteryStatePtr) > 20) {
@@ -201,15 +208,15 @@ void drawSub(int x, int y, bool d) {
         tft.fillRect(x, y, 260, 80, GREEN);
     }
     // See Line595 of Elegoo_GFX.cpp
-    tft.setTextSize(3);
-    tft.setTextColor(BLUE);
-    tft.setCursor(x + 1, y + 1);
+    tft.setTextSize(2);
+    tft.setTextColor(BLACK);
+    tft.setCursor(x + 10, y + 10);
     if(y == 0) {
-        tft.print("BP");
+        tft.print("BloodPressure");
     } else if(y == 80) {
-        tft.print("PR");
+        tft.print("PulseRate");
     } else if(y == 160) {
-        tft.print("T");
+        tft.print("Temperature");
     }
 }
 
@@ -223,15 +230,19 @@ void menu(KeypadData* dataPtr) {
     Serial.print("Entered menu mode");
     Serial.print("Measure: ");
     Serial.println(*(d.measurementSelectionPtr));
-    Serial.print("Ann");
+    Serial.print("Announciation");
     Serial.println(*(d.alarmAcknowledgePtr));
     // Draw menu
     tft.setCursor(0, 0);
-    tft.fillScreen(BLUE);
+    tft.fillScreen(BLACK);
     drawSub(70, 0, dispBP);
     drawSub(70, 80, dispPR);
     drawSub(70, 160, dispT);
-    tft.fillRect(0, 0, 70, 240, YELLOW);
+    tft.fillRect(0, 0, 70, 240, MAGENTA);
+    tft.setTextSize(2);
+    tft.setTextColor(BLACK);
+    tft.setCursor(5, 100);
+    tft.print("Exit");
     // Get point
     digitalWrite(13, HIGH);
     TSPoint p = ts.getPoint();
@@ -307,7 +318,6 @@ void anno(KeypadData* dataPtr) {
     return;
 }
 
-// int countt = 0;
 /*
 *   @param: generic pointer dataPtr
 *   Assume the dataPtr is of type keyData
@@ -322,7 +332,13 @@ void Select(void* dataPtr) {
     if(*(kd.measurementSelectionPtr) == 0 && *(kd.alarmAcknowledgePtr) == 0) {
         tft.fillScreen(BLACK);
         tft.fillRect(0, 0, 165, 240, GREEN);
+        tft.setTextSize(2);
+        tft.setTextColor(BLACK);
+        tft.setCursor(10, 100);
+        tft.print("MENU");
         tft.fillRect(165, 0, 165, 240, YELLOW);
+        tft.setCursor(230, 100);
+        tft.print("Announ");
         digitalWrite(13, HIGH);
         TSPoint p = ts.getPoint();
         digitalWrite(13, LOW);

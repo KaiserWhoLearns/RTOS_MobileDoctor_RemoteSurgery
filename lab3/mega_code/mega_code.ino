@@ -138,29 +138,28 @@ void setup() {
   
 }
 
-bool dispBP = TRUE;
-bool dispT = TRUE;
-bool dispPR = TRUE;
 
-int count = 0;
+
 void loop()
 {
-  sechdulerTest(taskQueue);
+    sechdulerTest(taskQueue);
   // (*keyp.myTask)(keyp.taskDataPtr);
   // tft.fillScreen(GREY);
   // // Get point
-  //   digitalWrite(13, HIGH);
-  //   TSPoint p = ts.getPoint();
-  //   digitalWrite(13, LOW);
-  //   pinMode(XM, OUTPUT);
-  //   pinMode(YP, OUTPUT);
-  //   // If we have point selected
-  //   if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
-  //   // scale from 0->1023 to tft.width
-  //   p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
-  //       p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
-  //       Serial.print(p.x);
-  //       Serial.print(", ");
-  //       Serial.println(p.y);
-  //   }    
+    // digitalWrite(13, HIGH);
+    // TSPoint p = ts.getPoint();
+    // digitalWrite(13, LOW);
+    // pinMode(XM, OUTPUT);
+    // pinMode(YP, OUTPUT);
+    // // If we have point selected
+    // if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+    // // scale from 0->1023 to tft.width
+    // p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
+    //     p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
+    //     Serial.print(p.x);
+    //     Serial.print(", ");
+    //     Serial.print(p.y);
+    //     Serial.print(", ");
+    //     Serial.println(p.z);
+    // }    
 }
