@@ -1,6 +1,7 @@
 // #include <Elegoo_GFX.h>    // Core graphics library
 // #include <Elegoo_TFTLCD.h> // Hardware-specific library
 #include "tcb.h"
+#include "task.h"
 
 // initialization started!
 // initialize raw values
@@ -129,11 +130,11 @@ void setup() {
   keyp = {&Select, &kD};
   
   // Setup task queue
-  insertLast(meas);
-  insertLast(comp);
-  insertLast(stat);
-  insertLast(alar);
-  insertLast(keyp);
+  insertLast(&meas);
+  insertLast(&comp);
+  insertLast(&stat);
+  insertLast(&alar);
+  insertLast(&keyp);
   // taskQueue[4] = disp;
   
 }
@@ -142,7 +143,7 @@ void setup() {
 
 void loop()
 {
-    sechdulerTest(front);
+    sechdulerTest();
   // (*keyp.myTask)(keyp.taskDataPtr);
   // tft.fillScreen(GREY);
   // // Get point
@@ -163,3 +164,4 @@ void loop()
     //     Serial.println(p.z);
     // }    
 }
+
