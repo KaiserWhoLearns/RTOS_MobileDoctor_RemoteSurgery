@@ -98,25 +98,23 @@ TCB* deleteNode(TCB* node);
     void Display(void* dataPtr);
     void Scheduler(TCB* taskQueue);
     void sechdulerTest(TCB* taskQ);
-
 typedef struct
 {
-    unsigned int* temperatureRawPtr;
-    unsigned int* systolicPressRawPtr;
-    unsigned int* diastolicPressRawPtr;
-    unsigned int* pulseRateRawPtr;
+    unsigned int* temperatureRawBuf;
+    unsigned int* bloodPressRawBuf;
+    unsigned int* pulseRateRawBuf;
+    unsigned short* measurementSelectionPtr;
 } MeasureData;
 
 typedef struct
 {
-    unsigned int* temperatureRawPtr;
-    unsigned int* systolicPressRawPtr;
-    unsigned int* diastolicPressRawPtr;
-    unsigned int* pulseRateRawPtr;
-    unsigned int* tempCorrectedPtr;
-    unsigned int* sysPressCorrectedPtr;
-    unsigned int* diasCorrectedPtr;
-    unsigned int* prCorrectedPtr;
+    unsigned int* temperatureRawBuf;
+    unsigned int* bloodPressRawBuf;
+    unsigned int* pulseRateRawBuf;
+    unsigned char* tempCorrectedBuf;
+    unsigned char* bloodPressCorrectedBuf;
+    unsigned char* prCorrectedBuf;
+    unsigned short* measurementSelectionPtr;
 } ComputeData;
 
 typedef struct
@@ -126,22 +124,63 @@ typedef struct
 
 typedef struct
 {
-  unsigned int* tempCorrectedPtr;
-  unsigned int* sysPressCorrectedPtr;
-  unsigned int* diastolicPressCorrectedPtr;
-  unsigned int* pulseRateCorrectedPtr;
+  unsigned char* tempCorrectedBuf;
+  unsigned char* bloodPressCorrectedBuf;
+  unsigned char* prCorrectedBuf;
   unsigned short* batteryStatePtr;
 } DisplayData;
 
 typedef struct
 {
-    unsigned int* temperatureRawPtr;
-    unsigned int* systolicPressRawPtr;
-    unsigned int* diastolicPressRawPtr;
-    unsigned int* pulseRateRawPtr;
+    unsigned int* temperatureRawBuf;
+    unsigned int* bloodPressRawBuf;
+    unsigned int* pulseRateRawBuf;
     unsigned short* batteryStatePtr; 
 } WarningAlarmData;
 
+//typedef struct
+//{
+//    unsigned int* temperatureRawPtr;
+//    unsigned int* systolicPressRawPtr;
+//    unsigned int* diastolicPressRawPtr;
+//    unsigned int* pulseRateRawPtr;
+//} MeasureData;
+//
+//typedef struct
+//{
+//    unsigned int* temperatureRawPtr;
+//    unsigned int* systolicPressRawPtr;
+//    unsigned int* diastolicPressRawPtr;
+//    unsigned int* pulseRateRawPtr;
+//    unsigned int* tempCorrectedPtr;
+//    unsigned int* sysPressCorrectedPtr;
+//    unsigned int* diasCorrectedPtr;
+//    unsigned int* prCorrectedPtr;
+//} ComputeData;
+//
+//typedef struct
+//{
+//    unsigned short* batteryStatePtr;
+//} StatusData;
+//
+//typedef struct
+//{
+//  unsigned int* tempCorrectedPtr;
+//  unsigned int* sysPressCorrectedPtr;
+//  unsigned int* diastolicPressCorrectedPtr;
+//  unsigned int* pulseRateCorrectedPtr;
+//  unsigned short* batteryStatePtr;
+//} DisplayData;
+//
+//typedef struct
+//{
+//    unsigned int* temperatureRawPtr;
+//    unsigned int* systolicPressRawPtr;
+//    unsigned int* diastolicPressRawPtr;
+//    unsigned int* pulseRateRawPtr;
+//    unsigned short* batteryStatePtr; 
+//} WarningAlarmData;
+//
 typedef struct
 {
     unsigned short* measurementSelectionPtr;

@@ -31,6 +31,9 @@ Bool bpHigh = FALSE;
 Bool tempHigh = FALSE;
 Bool pulseLow = FALSE;
 
+unsigned long time1;
+unsigned long time2;
+
 //// initialize raw value pointers
 unsigned int* temperatureRawPtrr = temperatureRawBuf;
 //unsigned int* systolicPressCorrectedPtrr = &bloodPressCorrectedBuf;
@@ -149,14 +152,31 @@ void setup() {
   insertLast(&stat);
   insertLast(&alar);
   insertLast(&keyp);
+  time1 = millis();
   // taskQueue[4] = disp;
+  run(&keyp);
   
 }
+
 
 
 
 void loop()
 {
     sechdulerTest();
+    // time2 = millis();
+    // Serial.print(time1);
+    // Serial.print(" ");
+    // Serial.println(time2);
+    // if(time2 - time1 > 2000) {
+    //   insertLast(&keyp);
+    //   sechdulerTest();
+    //   deleteNode(&keyp);
+    //   time1 = time2;
+    // } else {
+    //   // sechdulerTest();
+    // }
+    
+    
     
 }

@@ -423,12 +423,18 @@ void Select(void* dataPtr) {
     // When it's select mode
     if(*(kd.measurementSelectionPtr) == 0 && *(kd.alarmAcknowledgePtr) == 0) {
         tft.fillScreen(BLACK);
-        tft.fillRect(0, 0, 165, 240, GREEN);
+        tft.fillRect(0, 0, 165, 120, GREEN);
+        // Not used button
+        tft.fillRect(0, 120, 165, 240, BLUE);
+        // Upper: not used button
         tft.setTextSize(2);
         tft.setTextColor(BLACK);
         tft.setCursor(10, 100);
         tft.print("MENU");
-        tft.fillRect(165, 0, 165, 240, YELLOW);
+        tft.fillRect(165, 0, 165, 120, YELLOW);
+        // Not used button
+        tft.fillRect(165, 120, 165, 240, CYAN);
+        // Upper: not used button
         tft.setCursor(230, 100);
         tft.print("Announ");
         digitalWrite(13, HIGH);
