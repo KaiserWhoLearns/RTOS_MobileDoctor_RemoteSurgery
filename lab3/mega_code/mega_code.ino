@@ -5,16 +5,23 @@
 
 // initialization started!
 // initialize raw values
-unsigned int temperatureRaw = 30;
-    // there're problem of initial value of temp!
-unsigned int systolicPressRaw = 80;
-unsigned int diastolicPressRaw = 80;
-unsigned int pulseRateRaw = 70;
-//initialize corrected values
-unsigned int tempCorrected;
-unsigned int systolicPressCorrected;
-unsigned int diastolicPressCorrected;
-unsigned int pulseRateCorrected;
+//unsigned int temperatureRaw = 30;
+//    // there're problem of initial value of temp!
+//unsigned int systolicPressRaw = 80;
+//unsigned int diastolicPressRaw = 80;
+//unsigned int pulseRateRaw = 70;
+////initialize corrected values
+//unsigned int tempCorrected;
+//unsigned int systolicPressCorrected;
+//unsigned int diastolicPressCorrected;
+//unsigned int pulseRateCorrected;
+unsigned int temperatureRawBuf[8]= {30, 0, 0, 0, 0, 0, 0, 0};
+unsigned int bloodPressRawBuf[16]= {80, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+unsigned int pulseRateRawBuf[8] = {70, 0, 0, 0, 0, 0, 0, 0};
+
+unsigned char tempCorrectedBuf[8]= {28, 0, 0, 0, 0, 0, 0, 0};
+unsigned char bloodPressCorrectedBuf[16] = {126, 169, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+unsigned char pulseRateCorrectedBuf[8]= {218, 0, 0, 0, 0, 0, 0, 0};
 
 unsigned short batteryState = 200;
 unsigned char bpOutOfRange = 0;
@@ -24,17 +31,19 @@ Bool bpHigh = FALSE;
 Bool tempHigh = FALSE;
 Bool pulseLow = FALSE;
 
-// initialize raw value pointers
-unsigned int* temperatureRawPtrr = &temperatureRaw;
-unsigned int* systolicPressRawPtrr = &systolicPressRaw;
-unsigned int* diastolicPressRawPtrr = &diastolicPressRaw;
-unsigned int* pulseRateRawPtrr = &pulseRateRaw;
-
-//initialize corrected pointers
-unsigned int* tempCorrectedPtrr = &tempCorrected;
-unsigned int* systolicPressCorrectedPtrr = &systolicPressCorrected;
-unsigned int* diastolicPressCorrectedPtrr = &diastolicPressCorrected;
-unsigned int* pulseRateCorrectedPtrr = &pulseRateCorrected;
+//// initialize raw value pointers
+unsigned int* temperatureRawPtrr = temperatureRawBuf;
+//unsigned int* systolicPressCorrectedPtrr = &bloodPressCorrectedBuf;
+//unsigned int* diastolicPressCorrectedPtrr = &diastolicPressCorrected;
+unsigned int* bloodPressRawPtrr = bloodPressRawBuf;
+unsigned int* pulseRateRawPtrr = pulseRateRawBuf;
+//
+////initialize corrected pointers
+unsigned char* tempCorrectedPtrr = tempCorrectedBuf;
+unsigned char* bloodPressCorrectedPtrr = bloodPressCorrectedBuf;
+//unsigned int* systolicPressCorrectedPtrr = &bloodPressCorrectedBuf;
+//unsigned int* diastolicPressCorrectedPtrr = &diastolicPressCorrected;
+unsigned char* pulseRateCorrectedPtrr = pulseRateCorrectedBuf;
 unsigned short* batteryStatePtrr = &batteryState;
 
 //initialize keypad values and pointers
@@ -113,14 +122,19 @@ void setup() {
     tft.setRotation(1);
 
   // Setup the data structs
-  meaD = MeasureData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr};
-  //cD =  ComputeData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr, tempCorrectedPtrr, systolicPressCorrectedPtrr diasCorrectedPtrr, prCorrectedPtrr};
-  cD = ComputeData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr, tempCorrectedPtrr, systolicPressCorrectedPtrr, diastolicPressCorrectedPtrr, pulseRateCorrectedPtrr};
-  dDa = DisplayData{tempCorrectedPtrr, systolicPressCorrectedPtrr, diastolicPressCorrectedPtrr, pulseRateCorrectedPtrr, batteryStatePtrr};
-  wAD = WarningAlarmData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr, batteryStatePtrr};
+  meaD = MeasureData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, measurementSelectionPtr};
+  cD = ComputeData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, measurementSelectionPtr};
+  dDa = DisplayData{tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, batteryStatePtrr};
+  wAD = WarningAlarmData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, batteryStatePtrr};
   sD = StatusData{batteryStatePtrr};
   kD = KeypadData{measurementSelectionPtr, alarmAcknowledgePtr};
-
+//
+//  meaD = MeasureData{temperatureRawBuf, bloodPressRawBuf, pulseRateRawBuf, measurementSelectionPtr};
+//  cD = ComputeData{temperatureRawBuf, bloodPressRawBuf, pulseRateRawBuf, tempCorrectedBuf, bloodPressCorrectedBuf, pulseRateCorrectedBuf, measurementSelectionPtr};
+//  dDa = DisplayData{tempCorrectedBuf, bloodPressCorrectedBuf, pulseRateCorrectedBuf, batteryStatePtrr};
+//  wAD = WarningAlarmData{temperatureRawBuf, bloodPressRawBuf, pulseRateRawBuf, batteryStatePtrr};
+//  sD = StatusData{batteryStatePtrr};
+//  kD = KeypadData{measurementSelectionPtr, alarmAcknowledgePtr};
   // Setup the TCBs
   meas = {&Measure, &meaD};
   comp = {&Compute, &cD};
@@ -144,24 +158,5 @@ void setup() {
 void loop()
 {
     sechdulerTest();
-  // (*keyp.myTask)(keyp.taskDataPtr);
-  // tft.fillScreen(GREY);
-  // // Get point
-    // digitalWrite(13, HIGH);
-    // TSPoint p = ts.getPoint();
-    // digitalWrite(13, LOW);
-    // pinMode(XM, OUTPUT);
-    // pinMode(YP, OUTPUT);
-    // // If we have point selected
-    // if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
-    // // scale from 0->1023 to tft.width
-    // p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
-    //     p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
-    //     Serial.print(p.x);
-    //     Serial.print(", ");
-    //     Serial.print(p.y);
-    //     Serial.print(", ");
-    //     Serial.println(p.z);
-    // }    
+    
 }
-

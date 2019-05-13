@@ -16,18 +16,61 @@ bool dispPR = TRUE;
 */
 
 Bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
+
+
+void shift(int newVal,int Bufsize,unsigned int* Buf) {
+  for (int i = 1; i <= Bufsize-1; i++) { 
+    //if ( (*Buff)[Bufsize - (i+1)] != null)
+   // if ( Buf[Bufsize - (i+1)] != NULL) { //if element 6 is not null
+      *(Buf + (Bufsize - i)) =  *(Buf + (Bufsize - (i+1)));  //element 7 = element 6
+    }
+    *Buf = newVal;
+  //}
+}
+
+void shiftChar(int newVal,int Bufsize,unsigned char* Buf) {
+  for (int i = 1; i <= Bufsize-1; i++) { 
+    //if ( (*Buff)[Bufsize - (i+1)] != null)
+   // if ( Buf[Bufsize - (i+1)] != NULL) { //if element 6 is not null
+      *(Buf + (Bufsize - i)) =  *(Buf + (Bufsize - (i+1)));  //element 7 = element 6    //}
+  }
+    *Buf = newVal;
+  
+}
+//void Measure(void* dataPtr)
+//{
+//
+//    MeasureData md = *((MeasureData*) dataPtr);
+//    Serial1.write((char)0x00);
+//    *(md.temperatureRawPtr) = Serial1.read();
+//    Serial1.write((char)0x03);
+//    *(md.pulseRateRawPtr)= Serial1.read();
+//    Serial1.write((char)0x01);
+//    *(md.systolicPressRawPtr) = Serial1.read();
+//    Serial1.write((char)0x02);
+//    *(md.diastolicPressRawPtr) = Serial1.read();
+//    return;
+//}
+
 void Measure(void* dataPtr)
 {
-
-    MeasureData md = *((MeasureData*) dataPtr);
-    Serial1.write((char)0x00);
-    *(md.temperatureRawPtr) = Serial1.read();
-    Serial1.write((char)0x03);
-    *(md.pulseRateRawPtr)= Serial1.read();
-    Serial1.write((char)0x01);
-    *(md.systolicPressRawPtr) = Serial1.read();
-    Serial1.write((char)0x02);
-    *(md.diastolicPressRawPtr) = Serial1.read();
+      MeasureData md = *((MeasureData*) dataPtr);
+      //retrieve serial new values from uno
+      //if (*(md.measurementSelectionPtr) == 1) {
+      Serial1.write((char)0x00);
+      int newTemp = Serial1.read();
+      Serial1.write((char)0x03);
+      int newPr = Serial1.read();
+      Serial1.write((char)0x01);
+      int newSys = Serial1.read();
+      Serial1.write((char)0x02);
+      int newDia = Serial1.read();
+      //put the new values into the buffers
+      shift(newTemp, 8, (md.temperatureRawBuf));
+      shift(newPr, 8, (md.pulseRateRawBuf));
+      shift(newSys, 16, (md.bloodPressRawBuf));
+      shift(newDia, 16, (md.bloodPressRawBuf));
+    //}
     return;
 }
 
@@ -41,13 +84,27 @@ void Measure(void* dataPtr)
 *    Change the type of corrected to char[]
 *    April 24, 2019 by Kaiser Sun
 */
+//void Compute(void* dataPtr) {
+//    ComputeData comd = *((ComputeData*) dataPtr);
+//    *(comd.tempCorrectedPtr) = (*(comd.temperatureRawPtr)) * 0.75 + 5;
+//    *(comd.sysPressCorrectedPtr) = (*(comd.systolicPressRawPtr)) * 2 + 9;
+//    *(comd.diasCorrectedPtr) = (*(comd.diastolicPressRawPtr)) * 1.5 + 6;
+//    *(comd.prCorrectedPtr) = (*(comd.pulseRateRawPtr)) * 3 + 8;
+//    return;
+//}
 void Compute(void* dataPtr) {
-    ComputeData comd = *((ComputeData*) dataPtr);
-    *(comd.tempCorrectedPtr) = (*(comd.temperatureRawPtr)) * 0.75 + 5;
-    *(comd.sysPressCorrectedPtr) = (*(comd.systolicPressRawPtr)) * 2 + 9;
-    *(comd.diasCorrectedPtr) = (*(comd.diastolicPressRawPtr)) * 1.5 + 6;
-    *(comd.prCorrectedPtr) = (*(comd.pulseRateRawPtr)) * 3 + 8;
-    return;
+  ComputeData comd = *((ComputeData*) dataPtr);
+     //if (*(comd.measurementSelectionPtr) == 1) {
+      int correctedTemp = (*(comd.temperatureRawBuf)) * 0.75 + 5;
+      int correctedDia = (*(comd.bloodPressRawBuf)) * 1.5 + 6;
+      int correctedSys = (*(comd.bloodPressRawBuf + 1)) * 2 + 9;
+      int correctedPr = (*(comd.pulseRateRawBuf)) * 3 + 8; 
+      shiftChar(correctedTemp, 8, (comd.tempCorrectedBuf));
+      shiftChar(correctedPr, 8, (comd.prCorrectedBuf));
+      shiftChar(correctedSys, 16, (comd.bloodPressCorrectedBuf));
+      shiftChar(correctedDia, 16, (comd.bloodPressCorrectedBuf));
+     //}
+     return;
 }
 
 int countt = 0;
@@ -57,6 +114,7 @@ int countt = 0;
 *    Display the data on the TFT display
 *    April 23, 2019 by Kaiser Sun
 */
+
 void Display(void* dataPtr) {
     // Setup of tft display
     tft.fillScreen(GREY);
@@ -76,10 +134,10 @@ void Display(void* dataPtr) {
             tft.setTextColor(RED);
         }
         tft.print("Systolic Pressure: ");
-        tft.print(*(dd.sysPressCorrectedPtr));
+        tft.print(*(dd.bloodPressCorrectedBuf + 1));
         tft.println(" mmHg");
         tft.print("Diastolic Pressure: ");
-        tft.print(*(dd.diastolicPressCorrectedPtr));
+        tft.print(*(dd.bloodPressCorrectedBuf));
         tft.println(" mmHg");
     }
 
@@ -91,7 +149,7 @@ void Display(void* dataPtr) {
             tft.setTextColor(RED);
         }
         tft.print("Temperature: ");
-        tft.print(*(dd.tempCorrectedPtr));
+        tft.print(*(dd.tempCorrectedBuf));
         tft.println(" C");
     }
 
@@ -103,7 +161,7 @@ void Display(void* dataPtr) {
             tft.setTextColor(RED);
         }
         tft.print("Pulse Rate: ");
-        tft.print(*(dd.pulseRateCorrectedPtr));
+        tft.print(*(dd.prCorrectedBuf));
         tft.println("BPM");
     }
 
@@ -137,47 +195,81 @@ void Display(void* dataPtr) {
     return;
 }
 
+
 /*
 *    @param: generic pointer dataPtr;
 *    assume the dataPtr is of type dataPtr;
 *    if the data are out of range, diplay with red;
 *    April 23, 2019 by Kaiser Sun
 */
+//void WarningAlarm(void* dataPtr) {
+//    WarningAlarmData wad = *((WarningAlarmData*) dataPtr);
+//    if (*(wad.temperatureRawPtr) > 37.8 || *(wad.temperatureRawPtr) < 36.1) {
+//        tempOutOfRange = 1;
+//    } else {
+//        tempOutOfRange = 0;
+//    }
+//    if(*(wad.systolicPressRawPtr) > 120 || *(wad.diastolicPressRawPtr) > 80) {
+//        bpOutOfRange = 1;
+//        bpHigh = TRUE;
+//    } else {
+//        bpOutOfRange = 0;
+//        bpHigh = FALSE;
+//    }
+//    if(*(wad.pulseRateRawPtr) < 60 || *(wad.pulseRateRawPtr) > 100) {
+//        pulseOutOfRange = 1;
+//    } else {
+//        pulseOutOfRange = 0;
+//    }
+//    
+//    // TODO : Make change to the warnings(comfirm the values)
+//    if(*(wad.temperatureRawPtr) > 37.8) {
+//        tempHigh = TRUE;
+//    } else {
+//        tempHigh = FALSE;
+//    }
+//
+//    if(*(wad.pulseRateRawPtr) < 60) {
+//        pulseLow = TRUE;
+//    } else {
+//        pulseLow = FALSE;
+//    }
+//    return;  
+//}
 void WarningAlarm(void* dataPtr) {
     WarningAlarmData wad = *((WarningAlarmData*) dataPtr);
-    if (*(wad.temperatureRawPtr) > 37.8 || *(wad.temperatureRawPtr) < 36.1) {
+    if (*(wad.temperatureRawBuf) > 37.8 || *(wad.temperatureRawBuf) < 36.1) {
         tempOutOfRange = 1;
     } else {
         tempOutOfRange = 0;
     }
-    if(*(wad.systolicPressRawPtr) > 120 || *(wad.diastolicPressRawPtr) > 80) {
+    if(*(wad.bloodPressRawBuf + 1) > 120 || *(wad.bloodPressRawBuf) > 80) {
         bpOutOfRange = 1;
         bpHigh = TRUE;
     } else {
         bpOutOfRange = 0;
         bpHigh = FALSE;
     }
-    if(*(wad.pulseRateRawPtr) < 60 || *(wad.pulseRateRawPtr) > 100) {
+    if(*(wad.pulseRateRawBuf) < 60 || *(wad.pulseRateRawBuf) > 100) {
         pulseOutOfRange = 1;
     } else {
         pulseOutOfRange = 0;
     }
     
     // TODO : Make change to the warnings(comfirm the values)
-    if(*(wad.temperatureRawPtr) > 37.8) {
+    if(*(wad.temperatureRawBuf) > 37.8) {
         tempHigh = TRUE;
     } else {
         tempHigh = FALSE;
     }
 
-    if(*(wad.pulseRateRawPtr) < 60) {
+    if(*(wad.pulseRateRawBuf) < 60) {
         pulseLow = TRUE;
     } else {
         pulseLow = FALSE;
     }
     return;  
 }
-
 /*
 *    @param: generic pointer dataPtr;
 *    Assume the dataPtr is of type StatusData;
