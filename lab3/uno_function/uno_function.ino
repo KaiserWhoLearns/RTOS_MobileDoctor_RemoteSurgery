@@ -1,8 +1,9 @@
 // #include <Elegoo_GFX.h>    // Core graphics library
 // #include <Elegoo_TFTLCD.h> // Hardware-specific library
 #include "tcb.h"
-
-
+#define interruptPin 10   // Arbitrary pin. Fix later.
+#define delayTimeSec 0.1
+unsigned int pulseCount = 0;
 // initialize raw values
 unsigned int temperatureRaw = 30;
     // there're problem of initial value of temp!
@@ -16,6 +17,8 @@ unsigned int* systolicPressRawPtrr = &systolicPressRaw;
 unsigned int* diastolicPressRawPtrr = &diastolicPressRaw;
 unsigned int* pulseRateRawPtrr = &pulseRateRaw;
 
+
+
 Bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
 
 
@@ -28,53 +31,15 @@ MeasureData meaD = MeasureData{temperatureRawPtrr, systolicPressRawPtrr, diastol
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(4800);
-
+  pinMode(interruptPin, INPUT);
+  attachInterrupt(digitalPinToInterrupt(interruptPin), incrementPulseCount, RISING);
 } 
 
 char incoming;
 
 void loop() {
-  // put your main code here, to run repeatedly:
-//  Measure(&meaD);
-//  char incoming = Serial.read();
-//  if (incoming == 0x00) {
-//    Serial.write(*temperatureRawPtrr);
-//  } else if (incoming == 0x01) {
-//    Serial.write(*systolicPressRawPtrr);
-//  } else if (incoming == 0x02) {
-//    Serial.write(*diastolicPressRawPtrr);
-//  } else {
-//    Serial.write(*pulseRateRawPtrr);
-//  }
-//  Measure(&meaD);
-//  char incoming = Serial.read();
-//  switch (incoming) {
-//    case 0x00:
-//      Serial.write(*temperatureRawPtrr);
-//      Measure(&meaD);
-//      
-//      break;
-//  
-//    case 0x01:
-//      Serial.write(*systolicPressRawPtrr);
-//      break;
-//  
-//    case 0x02:
-//      Serial.write(*diastolicPressRawPtrr);
-//      break;
-//     
-//    case 0x03:
-//      Serial.write(*pulseRateRawPtrr);
-//      break;
-//  
-//    default: 
-//      break;
-//  }
+  
   Measure(&meaD);
-  //Serial.println(*pulseRateRawPtrr);
-  //Serial.print(*temperatureRawPtrr);
-  //Serial.println(*systolicPressRawPtrr);
-  //Serial.print(*diastolicPressRawPtrr);
   incoming = Serial.read();
   if (incoming == (char)0x03) {
     Serial.write(*pulseRateRawPtrr);
@@ -96,7 +61,18 @@ void loop() {
   } 
    
 }
+void incrementPulseCount() {
+  pulseCount += 1;
+}
+int getRawPulseRate() {
+  pulseCount = 0;
 
+  delay(1000 * delayTimeSec);
+
+  unsigned int rawPulseRate = (pulseCount / delayTimeSec) * 60;
+
+  return rawPulseRate;
+}
 // dereference the data pointer;
 void Measure(void* dataPtr)
 {   
@@ -104,6 +80,10 @@ void Measure(void* dataPtr)
     MeasureData md = *((MeasureData*) dataPtr);  
         // When the function is executed even times;
         // Update the data;
+        
+        
+        *(md.pulseRateRawPtr) = getRawPulseRate();   
+        
         if(isEven) {
             if(*(md.systolicPressRawPtr) <= 100) {
                 *(md.systolicPressRawPtr) += 3;
@@ -116,11 +96,11 @@ void Measure(void* dataPtr)
             } else {
                 *(md.temperatureRawPtr) -= 2;
             }
-            if(!prIsReverse) {
-                *(md.pulseRateRawPtr) -= 1;
-            } else {
-                *(md.pulseRateRawPtr) += 1;
-            }
+//            if(!prIsReverse) {
+//                *(md.pulseRateRawPtr) -= 1;
+//            } else {
+//                *(md.pulseRateRawPtr) += 1;
+//            }
         } else {
             if(*(md.systolicPressRawPtr) <= 100) {
                 *(md.systolicPressRawPtr) -= 1;
@@ -133,11 +113,11 @@ void Measure(void* dataPtr)
             } else {
                 *(md.temperatureRawPtr) += 1;
             }
-            if(!prIsReverse) {
-                *(md.pulseRateRawPtr) += 3;
-            } else {
-                *(md.pulseRateRawPtr) -= 3;
-            }
+//            if(!prIsReverse) {
+//                *(md.pulseRateRawPtr) += 3;
+//            } else {
+//                *(md.pulseRateRawPtr) -= 3;
+//            }
         }
 
         // Update isReverse;
@@ -148,12 +128,12 @@ void Measure(void* dataPtr)
             trIsReverse = FALSE;
         }
 
-        if(*(md.pulseRateRawPtr) > 40) {
-            prIsReverse = TRUE;
-        } else if (*(md.pulseRateRawPtr) < 15)
-        {
-            prIsReverse = FALSE;
-        }
+//        if(*(md.pulseRateRawPtr) > 40) {
+//            prIsReverse = TRUE;
+//        } else if (*(md.pulseRateRawPtr) < 15)
+//        {
+//            prIsReverse = FALSE;
+//        }
 
         // Update isEven;
         if(isEven) {

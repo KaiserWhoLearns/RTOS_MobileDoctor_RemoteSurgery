@@ -1,107 +1,145 @@
-#ifndef STRUCTDEF
-#define STRUCTDEF
-#include <Elegoo_GFX.h>    // Core graphics library
-#include <Elegoo_TFTLCD.h> // Hardware-specific library
-// April 23th by Kaiser Sun
+// #include <Elegoo_GFX.h>    // Core graphics library
+// #include <Elegoo_TFTLCD.h> // Hardware-specific library
+#include "tcb.h"
+#define interruptPin 10   // Arbitrary pin. Fix later.
+#define delayTimeSec 0.1
+unsigned int pulseCount = 0;
+// initialize raw values
+unsigned int temperatureRaw = 30;
+    // there're problem of initial value of temp!
+unsigned int systolicPressRaw = 80;
+unsigned int diastolicPressRaw = 80;
+unsigned int pulseRateRaw = 70;
 
-
-// pin assignments for TFT
-// The control pins for the LCD can be assigned to any digital or
-// analog pins...but we'll use the analog pins as this allows us to
-// double up the pins with the touch screen (see the TFT paint example).
-#define LCD_CS A3 // Chip Select goes to Analog 3
-#define LCD_CD A2 // Command/Data goes to Analog 2
-#define LCD_WR A1 // LCD Write goes to Analog 1
-#define LCD_RD A0 // LCD Read goes to Analog 0
-
-#define LCD_RESET A4 // Can alternately just connect to Arduino's reset pin
-
-#define BLACK   0x0000
-#define GREY    0x7BEF 
-#define BLUE    0x001F
-#define RED     0xF800
-#define GREEN   0x07E0
-#define CYAN    0x07FF
-#define MAGENTA 0xF81F
-#define YELLOW  0xFFE0
-#define WHITE   0xFFFF
-Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
-
-// Define bool tyoe
-enum myBool {FALSE = 0, TRUE = 1};
-typedef enum myBool Bool;
-
-// Declare TCB
-typedef struct 
-{  
-        void (*myTask)(void*);
-        void* taskDataPtr; 
-} TCB;
-
-// Declare the functions
-    void Measure(void* dataPtr);
-    void Compute(void* dataPtr);
-    void Status(void* dataPtr);
-    void WarningAlarm(void* dataPtr);
-    void Display(void* dataPtr);
-    void Scheduler(TCB* taskQueue);
-    void sechdulerTest(TCB* taskQ);
-
-typedef struct
-{
-    unsigned int* temperatureRawPtr;
-    unsigned int* systolicPressRawPtr;
-    unsigned int* diastolicPressRawPtr;
-    unsigned int* pulseRateRawPtr;
-} MeasureData;
-
-typedef struct
-{
-    unsigned int* temperatureRawPtr;
-    unsigned int* systolicPressRawPtr;
-    unsigned int* diastolicPressRawPtr;
-    unsigned int* pulseRateRawPtr;
-    unsigned int* tempCorrectedPtr;
-    unsigned int* sysPressCorrectedPtr;
-    unsigned int* diasCorrectedPtr;
-    unsigned int* prCorrectedPtr;
-} ComputeData;
-
-typedef struct
-{
-    unsigned short* batteryStatePtr;
-} StatusData;
-
-typedef struct
-{
-  unsigned int* tempCorrectedPtr;
-  unsigned int* sysPressCorrectedPtr;
-  unsigned int* diastolicPressCorrectedPtr;
-  unsigned int* pulseRateCorrectedPtr;
-  unsigned short* batteryStatePtr;
-} DisplayData;
-
-typedef struct
-{
-    unsigned int* temperatureRawPtr;
-    unsigned int* systolicPressRawPtr;
-    unsigned int* diastolicPressRawPtr;
-    unsigned int* pulseRateRawPtr;
-    unsigned short* batteryStatePtr; 
-} WarningAlarmData;
-
-// typedef struct
-// {
-
-// } SchedulerData;
-
-// unsigned char bpOutOfRange = 0;
-// unsigned char tempOutOfRange = 0;
-// unsigned char pulseOutOfRange = 0;
-// Bool bpHigh = FALSE;
-// Bool tempHigh = FALSE;
-// Bool pulseLow = FALSE;
+// initialize raw value pointers
+unsigned int* temperatureRawPtrr = &temperatureRaw;
+unsigned int* systolicPressRawPtrr = &systolicPressRaw;
+unsigned int* diastolicPressRawPtrr = &diastolicPressRaw;
+unsigned int* pulseRateRawPtrr = &pulseRateRaw;
 
 
 
-# endif
+Bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
+
+
+//MeasureData meaD;
+
+//set up data struct
+MeasureData meaD = MeasureData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr};
+ 
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(4800);
+  pinMode(interruptPin, INPUT);
+  attachInterrupt(digitalPinToInterrupt(interruptPin), incrementPulseCount, RISING);
+} 
+
+char incoming;
+
+void loop() {
+  
+  Measure(&meaD);
+  incoming = Serial.read();
+  if (incoming == (char)0x03) {
+    Serial.write(*pulseRateRawPtrr);
+    //Serial.println(*pulseRateRawPtrr);
+    incoming = Serial.read();
+  }
+  if (incoming == (char)0x00) {
+    Serial.write(*temperatureRawPtrr);
+    Serial.println(*pulseRateRawPtrr);
+    incoming = Serial.read();
+  } 
+  if (incoming == (char)0x01) {
+    Serial.write(*systolicPressRawPtrr);
+    incoming = Serial.read();
+  } 
+  if (incoming == (char)0x02) {
+    Serial.write(*diastolicPressRawPtrr);
+    incoming = Serial.read();
+  } 
+   
+}
+void incrementPulseCount() {
+  pulseCount += 1;
+}
+int getRawPulseRate() {
+  pulseCount = 0;
+
+  delay(1000 * delayTimeSec);
+
+  unsigned int rawPulseRate = (pulseCount / delayTimeSec) * 60;
+
+  return rawPulseRate;
+}
+// dereference the data pointer;
+void Measure(void* dataPtr)
+{   
+    // dereference the data pointer;
+    MeasureData md = *((MeasureData*) dataPtr);  
+        // When the function is executed even times;
+        // Update the data;
+        
+        
+        *(md.pulseRateRawPtr) = getRawPulseRate();   
+        
+        if(isEven) {
+            if(*(md.systolicPressRawPtr) <= 100) {
+                *(md.systolicPressRawPtr) += 3;
+            }
+            if(*(md.diastolicPressRawPtr) >= 40) {
+                *(md.diastolicPressRawPtr) -= 2;
+            }
+            if(!trIsReverse) {
+                *(md.temperatureRawPtr) += 2;
+            } else {
+                *(md.temperatureRawPtr) -= 2;
+            }
+//            if(!prIsReverse) {
+//                *(md.pulseRateRawPtr) -= 1;
+//            } else {
+//                *(md.pulseRateRawPtr) += 1;
+//            }
+        } else {
+            if(*(md.systolicPressRawPtr) <= 100) {
+                *(md.systolicPressRawPtr) -= 1;
+            }
+            if(*(md.diastolicPressRawPtr) >= 40) {
+                *(md.diastolicPressRawPtr) += 1;
+            }
+            if(!trIsReverse) {
+                *(md.temperatureRawPtr) -= 1;
+            } else {
+                *(md.temperatureRawPtr) += 1;
+            }
+//            if(!prIsReverse) {
+//                *(md.pulseRateRawPtr) += 3;
+//            } else {
+//                *(md.pulseRateRawPtr) -= 3;
+//            }
+        }
+
+        // Update isReverse;
+        if(*(md.temperatureRawPtr) > 50) {
+            trIsReverse = TRUE;
+        } else if (*(md.temperatureRawPtr) < 15)
+        {
+            trIsReverse = FALSE;
+        }
+
+//        if(*(md.pulseRateRawPtr) > 40) {
+//            prIsReverse = TRUE;
+//        } else if (*(md.pulseRateRawPtr) < 15)
+//        {
+//            prIsReverse = FALSE;
+//        }
+
+        // Update isEven;
+        if(isEven) {
+            isEven = FALSE;
+        } else {
+            isEven = TRUE;
+        }
+        return;
+    }
