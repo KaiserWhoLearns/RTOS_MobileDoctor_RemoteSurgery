@@ -151,7 +151,7 @@ void setup() {
   insertLast(&comp);
   insertLast(&stat);
   insertLast(&alar);
-  insertLast(&keyp);
+  //insertLast(&keyp);
   time1 = millis();
   // taskQueue[4] = disp;
   run(&keyp);
@@ -163,19 +163,19 @@ void setup() {
 
 void loop()
 {
-    sechdulerTest();
-    // time2 = millis();
-    // Serial.print(time1);
-    // Serial.print(" ");
-    // Serial.println(time2);
-    // if(time2 - time1 > 2000) {
-    //   insertLast(&keyp);
-    //   sechdulerTest();
-    //   deleteNode(&keyp);
-    //   time1 = time2;
-    // } else {
-    //   // sechdulerTest();
-    // }
+    //sechdulerTest();
+    time2 = millis();
+   //  Serial.print(time1);
+    //Serial.print(" ");
+    //Serial.println(time2);
+    if(time2 - time1 > 2000) {
+      insertLast(&keyp);
+      sechdulerTest();
+      deleteNode(&keyp);
+      time1 = time2;
+    } else {
+      // sechdulerTest();
+    }
     
     
     

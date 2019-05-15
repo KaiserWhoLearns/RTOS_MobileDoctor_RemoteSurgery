@@ -65,6 +65,8 @@ void Measure(void* dataPtr)
       int newSys = Serial1.read();
       Serial1.write((char)0x02);
       int newDia = Serial1.read();
+
+      Serial.println(newPr);
       //put the new values into the buffers
       shift(newTemp, 8, (md.temperatureRawBuf));
       shift(newPr, 8, (md.pulseRateRawBuf));
@@ -99,6 +101,8 @@ void Compute(void* dataPtr) {
       int correctedDia = (*(comd.bloodPressRawBuf)) * 1.5 + 6;
       int correctedSys = (*(comd.bloodPressRawBuf + 1)) * 2 + 9;
       int correctedPr = (*(comd.pulseRateRawBuf)) * 3 + 8; 
+      Serial.print("Corrected pulse rate");
+      Serial.println(correctedPr);
       shiftChar(correctedTemp, 8, (comd.tempCorrectedBuf));
       shiftChar(correctedPr, 8, (comd.prCorrectedBuf));
       shiftChar(correctedSys, 16, (comd.bloodPressCorrectedBuf));
@@ -533,6 +537,3 @@ void sechdulerTest() {
         // Serial.println(time5 - time4);
         // delay(1000);
 }
-
-
-
