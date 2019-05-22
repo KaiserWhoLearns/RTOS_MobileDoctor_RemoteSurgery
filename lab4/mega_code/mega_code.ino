@@ -161,7 +161,7 @@ void loop()
     // Serial.print(time1);
     //Serial.print(" ");
     //Serial.println(time2);
-    if(time2 - time1 > 500) {
+    if(time2 - time1 > 900) {
       insertLast(&keyp);
       sechdulerTest();
       deleteNode(&keyp);

@@ -268,12 +268,11 @@ void drawSub(int x, int y, bool d) {
 */
 void menu(KeypadData* dataPtr) {
     KeypadData d = *dataPtr;
-    // Test 
-    Serial.print("Entered menu mode");
-    Serial.print("Measure: ");
-    Serial.println(*(d.measurementSelectionPtr));
-    Serial.print("Announciation");
-    Serial.println(*(d.alarmAcknowledgePtr));
+    // // Test 
+    // Serial.print("Entered menu mode");
+    // Serial.print("Measure: ");
+    // Serial.println(*(d.measurementSelectionPtr));
+    // Serial.println(*(d.alarmAcknowledgePtr));
     // Draw menu
     tft.setCursor(0, 0);
     tft.fillScreen(BLACK);
@@ -431,6 +430,7 @@ void Select(void* dataPtr) {
 *   change the display status; 's' is start of message
 *   'e' is end of message
 *   Order: temperature, pressure, pulserate, respiration rate
+*   May 29th, 2019 by Kaiser
 */
 char t = 'q';
 void Communications(void* dataPtr) {
@@ -442,15 +442,30 @@ void Communications(void* dataPtr) {
             while(t != 'e') {
                 // When they did not read end of message, keep loop
                 if(t == 't') {
+                    Serial.write("Temperature: ");
+                    Serial.println(*(cd.tempCorrectedBuf));
+                    Serial.println(" ");
                     if(dispT) { dispT = false; } else {dispT = true; }
                 }
                 if(t == 'b') {
+                    Serial.write("Systolic Pressure: ");
+                    Serial.println(*(cd.bloodPressCorrectedBuf + 1));
+                    Serial.println(" ");
+                    Serial.write("Diastolic Pressure: ");
+                    Serial.println(*(cd.bloodPressCorrectedBuf));
+                    Serial.println(" ");
                     if(dispBP) { dispBP = false; } else { dispBP = true; }
                 }
                 if(t == 'p') {
+                    Serial.write("Pulse Rate: ");
+                    Serial.println(*(cd.prCorrectedBuf));
+                    Serial.println(" ");
                     if(dispPR) { dispPR = false; } else { dispPR = true; }
                 }
                 if(t == 'r') {
+                    Serial.write("Respiration Rate: ");
+                    Serial.println(*(cd.respirationRateCorBufPtr));
+                    Serial.println(" ");
                     if(dispRR) {dispRR = false; } else { dispRR = true; }
                 }
                 i ++;
