@@ -4,67 +4,64 @@
 #include "task.h"
 
 // initialization started!
-// initialize raw values
-//unsigned int temperatureRaw = 30;
-//    // there're problem of initial value of temp!
-//unsigned int systolicPressRaw = 80;
-//unsigned int diastolicPressRaw = 80;
-//unsigned int pulseRateRaw = 70;
-////initialize corrected values
-//unsigned int tempCorrected;
-//unsigned int systolicPressCorrected;
-//unsigned int diastolicPressCorrected;
-//unsigned int pulseRateCorrected;
 unsigned int temperatureRawBuf[8]= {30, 0, 0, 0, 0, 0, 0, 0};
 unsigned int bloodPressRawBuf[16]= {80, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 unsigned int pulseRateRawBuf[8] = {70, 0, 0, 0, 0, 0, 0, 0};
-
+unsigned int respirationRateRawBuf[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 unsigned char tempCorrectedBuf[8]= {28, 0, 0, 0, 0, 0, 0, 0};
 unsigned char bloodPressCorrectedBuf[16] = {126, 169, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 unsigned char pulseRateCorrectedBuf[8]= {218, 0, 0, 0, 0, 0, 0, 0};
+unsigned char respirationRateCorBuf[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 unsigned short batteryState = 200;
 unsigned char bpOutOfRange = 0;
 unsigned char tempOutOfRange = 0;
 unsigned char pulseOutOfRange = 0;
+unsigned char rrOutOfRange = 0;
 Bool bpHigh = FALSE;
 Bool tempHigh = FALSE;
 Bool pulseLow = FALSE;
-
+Bool rrLow = FALSE;
+Bool rrHigh = FALSE;
 unsigned long time1;
 unsigned long time2;
 
-//// initialize raw value pointers
+// initialize raw value pointers
 unsigned int* temperatureRawPtrr = temperatureRawBuf;
-//unsigned int* systolicPressCorrectedPtrr = &bloodPressCorrectedBuf;
-//unsigned int* diastolicPressCorrectedPtrr = &diastolicPressCorrected;
 unsigned int* bloodPressRawPtrr = bloodPressRawBuf;
 unsigned int* pulseRateRawPtrr = pulseRateRawBuf;
-//
-////initialize corrected pointers
+unsigned int* respirationRateRawPtr = respirationRateRawBuf;
+//initialize corrected pointers
 unsigned char* tempCorrectedPtrr = tempCorrectedBuf;
 unsigned char* bloodPressCorrectedPtrr = bloodPressCorrectedBuf;
-//unsigned int* systolicPressCorrectedPtrr = &bloodPressCorrectedBuf;
-//unsigned int* diastolicPressCorrectedPtrr = &diastolicPressCorrected;
 unsigned char* pulseRateCorrectedPtrr = pulseRateCorrectedBuf;
 unsigned short* batteryStatePtrr = &batteryState;
+unsigned char* respirationRateCorPtr = respirationRateCorBuf;
 
 //initialize keypad values and pointers
+unsigned short localFunctionSelect = 0;
 unsigned short measurementSelection = 0;
 unsigned short alarmAcknowledge = 0;
+unsigned short command = 0;
+unsigned short remoteFunctionSelect = 0;
+unsigned short measurementResultSelection = 0;
+unsigned short* localFunctionSelectPtr = &localFunctionSelect;
 unsigned short* measurementSelectionPtr = &measurementSelection;
 unsigned short* alarmAcknowledgePtr = &alarmAcknowledge;
-
+unsigned short* commandPtr = &command;
+unsigned short* remoteFunctionSelectPtr = &remoteFunctionSelect;
+unsigned short* measurementResultSelectionPtr = &measurementResultSelection;
 
 // initialize taskQueue and TCBs
 //TCB taskQueue;
-TCB meas, comp, disp, alar, stat, keyp;
+TCB meas, comp, disp, alar, stat, keyp, com;
 MeasureData meaD;
 ComputeData cD;
 DisplayData dDa;
 WarningAlarmData wAD;
 StatusData sD;
 KeypadData kD;
+CommunicationsData comD;
 
 
 void setup() {
@@ -125,26 +122,21 @@ void setup() {
     tft.setRotation(1);
 
   // Setup the data structs
-  meaD = MeasureData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, measurementSelectionPtr};
-  cD = ComputeData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, measurementSelectionPtr};
-  dDa = DisplayData{tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, batteryStatePtrr};
+  meaD = MeasureData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr, measurementSelectionPtr};
+  cD = ComputeData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr,tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr,measurementSelectionPtr};
+  dDa = DisplayData{tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr, batteryStatePtrr};
   wAD = WarningAlarmData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, batteryStatePtrr};
   sD = StatusData{batteryStatePtrr};
-  kD = KeypadData{measurementSelectionPtr, alarmAcknowledgePtr};
-//
-//  meaD = MeasureData{temperatureRawBuf, bloodPressRawBuf, pulseRateRawBuf, measurementSelectionPtr};
-//  cD = ComputeData{temperatureRawBuf, bloodPressRawBuf, pulseRateRawBuf, tempCorrectedBuf, bloodPressCorrectedBuf, pulseRateCorrectedBuf, measurementSelectionPtr};
-//  dDa = DisplayData{tempCorrectedBuf, bloodPressCorrectedBuf, pulseRateCorrectedBuf, batteryStatePtrr};
-//  wAD = WarningAlarmData{temperatureRawBuf, bloodPressRawBuf, pulseRateRawBuf, batteryStatePtrr};
-//  sD = StatusData{batteryStatePtrr};
-//  kD = KeypadData{measurementSelectionPtr, alarmAcknowledgePtr};
-  // Setup the TCBs
+  kD = KeypadData{localFunctionSelectPtr, measurementSelectionPtr, alarmAcknowledgePtr, commandPtr, remoteFunctionSelectPtr, measurementResultSelectionPtr};
+  comD = CommunicationsData{tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr};
+// Setup the TCBs
   meas = {&Measure, &meaD};
   comp = {&Compute, &cD};
   disp = {&Display, &dDa};
   alar = {&WarningAlarm, &wAD};
   stat = {&Status, &sD};
   keyp = {&Select, &kD};
+  com = {&Communications, &comD};
   
   // Setup task queue
   insertLast(&meas);
@@ -165,7 +157,7 @@ void loop()
 {
     //sechdulerTest();
     time2 = millis();
-   //  Serial.print(time1);
+    // Serial.print(time1);
     //Serial.print(" ");
     //Serial.println(time2);
     if(time2 - time1 > 2000) {

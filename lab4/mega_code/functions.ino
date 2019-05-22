@@ -1,19 +1,11 @@
-#include "tcb.h"
+ #include "tcb.h"
 
 bool dispBP = TRUE;
 bool dispT = TRUE;
 bool dispPR = TRUE;
+bool dispRR = TRUE;
 
-/*
-*    @para: void* dataPtr, we assume it's MeasureData pointer; integer isEven, check if it's even;
-*    isEven range: 0 or 1;
-*    Increase temperatureRaw by 2 even number time, decrease by 1 odd times called before reach 50; 0 is even;
-*    Then reverse the process until temperatureRaw falls below 15 
-*    systolicPressRaw  - even: Increase by 3; - odd: decrease by 1; Range: no larger than 100
-*    diastolicPressRaw -even: decrease by 2; - odd: increase by 1; Range: no less than 40
-*    pulseRateRaw - even: decrease by 1; - odd: increase by 3; Range: 15-40
-*    April, 22, 2019 by Kaiser
-*/
+
 
 Bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
 
@@ -37,21 +29,17 @@ void shiftChar(int newVal,int Bufsize,unsigned char* Buf) {
     *Buf = newVal;
   
 }
-//void Measure(void* dataPtr)
-//{
-//
-//    MeasureData md = *((MeasureData*) dataPtr);
-//    Serial1.write((char)0x00);
-//    *(md.temperatureRawPtr) = Serial1.read();
-//    Serial1.write((char)0x03);
-//    *(md.pulseRateRawPtr)= Serial1.read();
-//    Serial1.write((char)0x01);
-//    *(md.systolicPressRawPtr) = Serial1.read();
-//    Serial1.write((char)0x02);
-//    *(md.diastolicPressRawPtr) = Serial1.read();
-//    return;
-//}
 
+/*
+*    @para: void* dataPtr, we assume it's MeasureData pointer; integer isEven, check if it's even;
+*    isEven range: 0 or 1;
+*    Increase temperatureRaw by 2 even number time, decrease by 1 odd times called before reach 50; 0 is even;
+*    Then reverse the process until temperatureRaw falls below 15 
+*    systolicPressRaw  - even: Increase by 3; - odd: decrease by 1; Range: no larger than 100
+*    diastolicPressRaw -even: decrease by 2; - odd: increase by 1; Range: no less than 40
+*    pulseRateRaw - even: decrease by 1; - odd: increase by 3; Range: 15-40
+*    April, 22, 2019 by Kaiser
+*/
 void Measure(void* dataPtr)
 {
       MeasureData md = *((MeasureData*) dataPtr);
@@ -86,14 +74,6 @@ void Measure(void* dataPtr)
 *    Change the type of corrected to char[]
 *    April 24, 2019 by Kaiser Sun
 */
-//void Compute(void* dataPtr) {
-//    ComputeData comd = *((ComputeData*) dataPtr);
-//    *(comd.tempCorrectedPtr) = (*(comd.temperatureRawPtr)) * 0.75 + 5;
-//    *(comd.sysPressCorrectedPtr) = (*(comd.systolicPressRawPtr)) * 2 + 9;
-//    *(comd.diasCorrectedPtr) = (*(comd.diastolicPressRawPtr)) * 1.5 + 6;
-//    *(comd.prCorrectedPtr) = (*(comd.pulseRateRawPtr)) * 3 + 8;
-//    return;
-//}
 void Compute(void* dataPtr) {
   ComputeData comd = *((ComputeData*) dataPtr);
      //if (*(comd.measurementSelectionPtr) == 1) {
@@ -206,40 +186,6 @@ void Display(void* dataPtr) {
 *    if the data are out of range, diplay with red;
 *    April 23, 2019 by Kaiser Sun
 */
-//void WarningAlarm(void* dataPtr) {
-//    WarningAlarmData wad = *((WarningAlarmData*) dataPtr);
-//    if (*(wad.temperatureRawPtr) > 37.8 || *(wad.temperatureRawPtr) < 36.1) {
-//        tempOutOfRange = 1;
-//    } else {
-//        tempOutOfRange = 0;
-//    }
-//    if(*(wad.systolicPressRawPtr) > 120 || *(wad.diastolicPressRawPtr) > 80) {
-//        bpOutOfRange = 1;
-//        bpHigh = TRUE;
-//    } else {
-//        bpOutOfRange = 0;
-//        bpHigh = FALSE;
-//    }
-//    if(*(wad.pulseRateRawPtr) < 60 || *(wad.pulseRateRawPtr) > 100) {
-//        pulseOutOfRange = 1;
-//    } else {
-//        pulseOutOfRange = 0;
-//    }
-//    
-//    // TODO : Make change to the warnings(comfirm the values)
-//    if(*(wad.temperatureRawPtr) > 37.8) {
-//        tempHigh = TRUE;
-//    } else {
-//        tempHigh = FALSE;
-//    }
-//
-//    if(*(wad.pulseRateRawPtr) < 60) {
-//        pulseLow = TRUE;
-//    } else {
-//        pulseLow = FALSE;
-//    }
-//    return;  
-//}
 void WarningAlarm(void* dataPtr) {
     WarningAlarmData wad = *((WarningAlarmData*) dataPtr);
     if (*(wad.temperatureRawBuf) > 37.8 || *(wad.temperatureRawBuf) < 36.1) {
@@ -478,6 +424,19 @@ void Select(void* dataPtr) {
     return;
 }
 
+
+/*
+*   @param: data pointer of communications data
+*   Send the corrected data to the perioheral subsystem
+*
+*/
+void Communications(void* dataPtr) {
+    if(Serial.available() > 0) {
+
+    }
+    return;
+}
+
 /*
 *    @param: int index, TCB* taskQ;
 *    pre: index < length(taskQ);
@@ -487,16 +446,9 @@ void Select(void* dataPtr) {
 void run(TCB* taskQ) {
     // Call the function in the taskQ;
     (*taskQ->myTask)(taskQ->taskDataPtr);
+    if(Serial.available)
 }
 
-/*
-*    @param: schedule each task time; 
-*    each task has maximum 5s to execute;
-*    April 23, 2019 by Kasier Sun
-*/
-// void scheduler(TCB* taskQ) {
-
-// }
 
 /*
 *    @param: array of TCB taskQ
@@ -513,27 +465,4 @@ void sechdulerTest() {
             run(taskQueue);
             taskQueue = taskQueue->next;
         }
-        
-        // unsigned long time0 = micros();
-        // run(deleteNode());
-        // unsigned long time1 = micros();
-        // run(1, taskQ);
-        // unsigned long time2 = micros();
-        // run(2, taskQ);
-        // unsigned long time3 = micros();
-        // run(3, taskQ);
-        // unsigned long time4 = micros();
-        // run(4, taskQ);
-        // unsigned long time5 = micros();
-        // Serial.print("First: ");
-        // Serial.println(time1 - time0);
-        // Serial.print("Second: ");
-        // Serial.println(time2 - time1);
-        // Serial.print("Third: ");
-        // Serial.println(time3 - time2);
-        // Serial.print("Fourth: ");
-        // Serial.println(time4 - time3);
-        // Serial.print("Fifth: ");
-        // Serial.println(time5 - time4);
-        // delay(1000);
 }

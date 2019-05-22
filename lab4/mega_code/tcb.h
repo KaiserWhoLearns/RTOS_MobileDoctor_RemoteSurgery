@@ -103,6 +103,7 @@ typedef struct
     unsigned int* temperatureRawBuf;
     unsigned int* bloodPressRawBuf;
     unsigned int* pulseRateRawBuf;
+    unsigned int* respirationRateRawBuf;
     unsigned short* measurementSelectionPtr;
 } MeasureData;
 
@@ -111,9 +112,11 @@ typedef struct
     unsigned int* temperatureRawBuf;
     unsigned int* bloodPressRawBuf;
     unsigned int* pulseRateRawBuf;
+    unsigned int* respirationRateRawBuf;
     unsigned char* tempCorrectedBuf;
     unsigned char* bloodPressCorrectedBuf;
     unsigned char* prCorrectedBuf;
+    unsigned char* respirationRateCorBufPtr;
     unsigned short* measurementSelectionPtr;
 } ComputeData;
 
@@ -127,6 +130,7 @@ typedef struct
   unsigned char* tempCorrectedBuf;
   unsigned char* bloodPressCorrectedBuf;
   unsigned char* prCorrectedBuf;
+  unsigned char* respirationRateCorrectedBuf;
   unsigned short* batteryStatePtr;
 } DisplayData;
 
@@ -138,68 +142,23 @@ typedef struct
     unsigned short* batteryStatePtr; 
 } WarningAlarmData;
 
-//typedef struct
-//{
-//    unsigned int* temperatureRawPtr;
-//    unsigned int* systolicPressRawPtr;
-//    unsigned int* diastolicPressRawPtr;
-//    unsigned int* pulseRateRawPtr;
-//} MeasureData;
-//
-//typedef struct
-//{
-//    unsigned int* temperatureRawPtr;
-//    unsigned int* systolicPressRawPtr;
-//    unsigned int* diastolicPressRawPtr;
-//    unsigned int* pulseRateRawPtr;
-//    unsigned int* tempCorrectedPtr;
-//    unsigned int* sysPressCorrectedPtr;
-//    unsigned int* diasCorrectedPtr;
-//    unsigned int* prCorrectedPtr;
-//} ComputeData;
-//
-//typedef struct
-//{
-//    unsigned short* batteryStatePtr;
-//} StatusData;
-//
-//typedef struct
-//{
-//  unsigned int* tempCorrectedPtr;
-//  unsigned int* sysPressCorrectedPtr;
-//  unsigned int* diastolicPressCorrectedPtr;
-//  unsigned int* pulseRateCorrectedPtr;
-//  unsigned short* batteryStatePtr;
-//} DisplayData;
-//
-//typedef struct
-//{
-//    unsigned int* temperatureRawPtr;
-//    unsigned int* systolicPressRawPtr;
-//    unsigned int* diastolicPressRawPtr;
-//    unsigned int* pulseRateRawPtr;
-//    unsigned short* batteryStatePtr; 
-//} WarningAlarmData;
-//
 typedef struct
 {
+    unsigned short* localFunctionSelectPtr;
     unsigned short* measurementSelectionPtr;
     unsigned short* alarmAcknowledgePtr;
+    unsigned short* commandPtr;
+    unsigned short* remoteFunctionSelectPtr;
+    unsigned short* measurementResultSelectionPtr;
 } KeypadData;
 
-
-// typedef struct
-// {
-
-// } SchedulerData;
-
-// unsigned char bpOutOfRange = 0;
-// unsigned char tempOutOfRange = 0;
-// unsigned char pulseOutOfRange = 0;
-// Bool bpHigh = FALSE;
-// Bool tempHigh = FALSE;
-// Bool pulseLow = FALSE;
-
+typedef struct
+{
+    unsigned char* tempCorrectedBuf;
+    unsigned char* bloodPressCorrectedBuf;
+    unsigned char* prCorrectedBuf;
+    unsigned char* respirationRateCorBufPtr;
+} CommunicationsData;
 
 
 # endif
