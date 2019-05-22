@@ -143,6 +143,7 @@ void setup() {
   insertLast(&comp);
   insertLast(&stat);
   insertLast(&alar);
+  insertLast(&com);
   //insertLast(&keyp);
   time1 = millis();
   // taskQueue[4] = disp;
@@ -160,7 +161,7 @@ void loop()
     // Serial.print(time1);
     //Serial.print(" ");
     //Serial.println(time2);
-    if(time2 - time1 > 2000) {
+    if(time2 - time1 > 500) {
       insertLast(&keyp);
       sechdulerTest();
       deleteNode(&keyp);

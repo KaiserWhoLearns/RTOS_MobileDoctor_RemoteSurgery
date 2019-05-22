@@ -427,12 +427,37 @@ void Select(void* dataPtr) {
 
 /*
 *   @param: data pointer of communications data
-*   Send the corrected data to the perioheral subsystem
-*
+*   Receive the command from remote subsystem
+*   change the display status; 's' is start of message
+*   'e' is end of message
+*   Order: temperature, pressure, pulserate, respiration rate
 */
+char t = 'q';
 void Communications(void* dataPtr) {
+    CommunicationsData cd = *((CommunicationsData*) dataPtr);
     if(Serial.available() > 0) {
-
+        if(Serial.read() == 's') {
+            int i = 0;
+            t = Serial.read();
+            while(t != 'e') {
+                // When they did not read end of message, keep loop
+                if(t == 't') {
+                    if(dispT) { dispT = false; } else {dispT = true; }
+                }
+                if(t == 'b') {
+                    if(dispBP) { dispBP = false; } else { dispBP = true; }
+                }
+                if(t == 'p') {
+                    if(dispPR) { dispPR = false; } else { dispPR = true; }
+                }
+                if(t == 'r') {
+                    if(dispRR) {dispRR = false; } else { dispRR = true; }
+                }
+                i ++;
+                t = Serial.read();
+            }
+        }
+        t = 'e';
     }
     return;
 }
@@ -446,7 +471,6 @@ void Communications(void* dataPtr) {
 void run(TCB* taskQ) {
     // Call the function in the taskQ;
     (*taskQ->myTask)(taskQ->taskDataPtr);
-    if(Serial.available)
 }
 
 
