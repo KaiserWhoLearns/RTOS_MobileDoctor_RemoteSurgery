@@ -14,15 +14,6 @@ unsigned char pulseRateCorrectedBuf[8]= {218, 0, 0, 0, 0, 0, 0, 0};
 unsigned char respirationRateCorBuf[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 unsigned short batteryState = 200;
-unsigned char bpOutOfRange = 0;
-unsigned char tempOutOfRange = 0;
-unsigned char pulseOutOfRange = 0;
-unsigned char rrOutOfRange = 0;
-Bool bpHigh = FALSE;
-Bool tempHigh = FALSE;
-Bool pulseLow = FALSE;
-Bool rrLow = FALSE;
-Bool rrHigh = FALSE;
 unsigned long time1;
 unsigned long time2;
 

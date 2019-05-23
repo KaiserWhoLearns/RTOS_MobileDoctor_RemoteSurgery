@@ -29,14 +29,54 @@ void shiftChar(int newVal,int Bufsize,unsigned char* Buf) {
 }
 
 
-// TODO: fill in this helper function of whether value is high or low
-bool isHigh() {
-    return true;
+/*
+*    @param: take in the systolic and diastolic BloodPressure
+*    return true if it's high; false otherwise
+*    May23, 2019 Kaiser
+*/
+bool isBPHigh(int sys, int dia) {
+    if(sys > 130) {
+        if(float(sys - 130)/130 > 0.15) { return true; }
+        else { return false; }
+    } else if(sys < 120) {
+        if(float(120 - sys)/120 > 0.15) { return true; }
+        else { return false; }
+    }
+    if(dia > 80) {
+        if(float(dia - 80)/80 > 0.15) { return true; }
+        else { return false; }
+    } else {
+        if(float(70 - dia)/70 > 0.15) { return true; }
+        else { return false; }
+    }
+    return false;
 }
 
-// TODO: fill in this helper function of whether value is out of range 5%
-bool isOutOfRange() {
-    return true;
+/*
+*   @param: float Temperature t
+*   return true if Temperature high; false otherwise
+*/
+bool isTHight(float t) {
+    return t > 37.8 && (t - 37.8)/37.8 > 0.15 
+            || t < 36.1 && (36.1 - 7)/36.1 > 0.15;
+}
+
+/*
+*   @param: float pulse rate pr
+*    return true if it's too out of range(0.15); false otherwise
+*/
+bool isPRHigh(float pr) {
+    return (pr > 100) && (pr - 100) / 100 > 0.15
+            || (pr < 60) && (60 - pr) / 60 > 0.15;
+}
+
+/*
+*   @param: float respiration rate rr
+*   return true if it's too out of range(0.15); false otherwise
+*/
+bool isRRHigh(float rr) {
+    return (rr > 25) && (rr - 25) / 25 > 0.15
+        || (rr < 12) && (12 - rr) / 12 > 0.15;
 }
 
 /*

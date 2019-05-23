@@ -6,7 +6,19 @@ bool dispT = TRUE;
 bool dispPR = TRUE;
 bool dispRR = TRUE;
 
-Bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
+// By high we mean 15% out of range
+bool bpHigh = FALSE;
+bool tempHigh = FALSE;
+bool prHigh = FALSE;
+bool rrLow = FALSE;
+bool rrHigh = FALSE;
+
+unsigned char bpOutOfRange = 0;
+unsigned char tempOutOfRange = 0;
+unsigned char pulseOutOfRange = 0;
+unsigned char rrOutOfRange = 0;
+
+bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
 
 
 
@@ -22,25 +34,7 @@ Bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
 */
 void Measure(void* dataPtr)
 {
-      MeasureData md = *((MeasureData*) dataPtr);
-      //retrieve serial new values from uno
-      //if (*(md.measurementSelectionPtr) == 1) {
-    //   Serial1.write((char)0x00);
-    //   int newTemp = Serial1.read();
-    //   Serial1.write((char)0x03);
-    //   int newPr = Serial1.read();
-    //   Serial1.write((char)0x01);
-    //   int newSys = Serial1.read();
-    //   Serial1.write((char)0x02);
-    //   int newDia = Serial1.read();
-
-    //   Serial.println(newPr);
-    //   //put the new values into the buffers
-    //   shift(newTemp, 8, (md.temperatureRawBuf));
-    //   shift(newPr, 8, (md.pulseRateRawBuf));
-    //   shift(newSys, 16, (md.bloodPressRawBuf));
-    //   shift(newDia, 16, (md.bloodPressRawBuf));
-
+    MeasureData md = *((MeasureData*) dataPtr);
     Serial1.write('s');
     if(dispT) { 
         Serial1.write('t'); 
@@ -81,8 +75,8 @@ void Measure(void* dataPtr)
 *    April 24, 2019 by Kaiser Sun
 */
 void Compute(void* dataPtr) {
+    // TODO : change by disp values
   ComputeData comd = *((ComputeData*) dataPtr);
-     //if (*(comd.measurementSelectionPtr) == 1) {
       int correctedTemp = (*(comd.temperatureRawBuf)) * 0.75 + 5;
       int correctedDia = (*(comd.bloodPressRawBuf)) * 1.5 + 6;
       int correctedSys = (*(comd.bloodPressRawBuf + 1)) * 2 + 9;
@@ -93,7 +87,6 @@ void Compute(void* dataPtr) {
       shiftChar(correctedPr, 8, (comd.prCorrectedBuf));
       shiftChar(correctedSys, 16, (comd.bloodPressCorrectedBuf));
       shiftChar(correctedDia, 16, (comd.bloodPressCorrectedBuf));
-     //}
      return;
 }
 
@@ -106,6 +99,8 @@ int countt = 0;
 */
 
 void Display(void* dataPtr) {
+    // TODO: change the color of display!
+
     // Setup of tft display
     tft.fillScreen(GREY);
     tft.setCursor(0, 0);
@@ -121,7 +116,11 @@ void Display(void* dataPtr) {
         if(bpOutOfRange == 0) {
             tft.setTextColor(GREEN);
         } else {
+            if(bpHigh) {
             tft.setTextColor(RED);
+            } else {
+                tft.setTextColor(YELLOW);
+            }
         }
         tft.print("Systolic Pressure: ");
         tft.print(*(dd.bloodPressCorrectedBuf + 1));
@@ -136,7 +135,11 @@ void Display(void* dataPtr) {
         if(tempOutOfRange == 0) {
             tft.setTextColor(GREEN);
         } else {
+            if(tempHigh) {
             tft.setTextColor(RED);
+            } else {
+            tft.setTextColor(YELLOW);
+            }
         }
         tft.print("Temperature: ");
         tft.print(*(dd.tempCorrectedBuf));
@@ -148,7 +151,11 @@ void Display(void* dataPtr) {
         if(pulseOutOfRange == 0) {
             tft.setTextColor(GREEN);
         } else {
+            if(prHigh) {
             tft.setTextColor(RED);
+            } else {
+            tft.setTextColor(YELLOW);
+            }
         }
         tft.print("Pulse Rate: ");
         tft.print(*(dd.prCorrectedBuf));
@@ -156,6 +163,17 @@ void Display(void* dataPtr) {
     }
 
     // Display respiration rate
+    if(dispRR) {
+        if(rrOutOfRange == 0) {
+            tft.setTextColor(GREEN);
+        } else {
+            if(rrHigh) {
+            tft.setTextColor(RED);
+            } else {
+            tft.setTextColor(YELLOW);
+            }
+        }
+    }
     tft.print("Respiration Rate: ");
     tft.print(*(dd.respirationRateCorrectedBuf));
     tft.println(" /s");
@@ -179,7 +197,7 @@ void Display(void* dataPtr) {
         tft.println("Your blood pressure is too high! Calm down QWQ");
     }
     
-    if(pulseLow) {
+    if(prHigh) {
         tft.println("Your heart beat is too slow. Do something exciting 0w0");
     }
 
@@ -201,33 +219,26 @@ void WarningAlarm(void* dataPtr) {
     WarningAlarmData wad = *((WarningAlarmData*) dataPtr);
     if (*(wad.temperatureRawBuf) > 37.8 || *(wad.temperatureRawBuf) < 36.1) {
         tempOutOfRange = 1;
+        tempHigh = isTHight(float(*(wad.temperatureRawBuf)));
     } else {
         tempOutOfRange = 0;
     }
-    if(*(wad.bloodPressRawBuf + 1) > 120 || *(wad.bloodPressRawBuf) > 80) {
+    if(*(wad.bloodPressRawBuf + 1) < 130 || *(wad.bloodPressRawBuf) > 80 || *(wad.bloodPressRawBuf + 1) < 120 || *(wad.bloodPressRawBuf) < 70) {
         bpOutOfRange = 1;
-        bpHigh = TRUE;
+        //sys: 1, Dia: 0
+        bpHigh = isBPHigh(*(wad.bloodPressRawBuf + 1), *(wad.bloodPressRawBuf));
     } else {
         bpOutOfRange = 0;
-        bpHigh = FALSE;
     }
     if(*(wad.pulseRateRawBuf) < 60 || *(wad.pulseRateRawBuf) > 100) {
         pulseOutOfRange = 1;
+        prHigh = isPRHigh(float(*(wad.pulseRateRawBuf)));
     } else {
         pulseOutOfRange = 0;
     }
-    
-    // TODO : Make change to the warnings(comfirm the values)
-    if(*(wad.temperatureRawBuf) > 37.8) {
-        tempHigh = TRUE;
-    } else {
-        tempHigh = FALSE;
-    }
-
-    if(*(wad.pulseRateRawBuf) < 60) {
-        pulseLow = TRUE;
-    } else {
-        pulseLow = FALSE;
+    if(*(wad.rrRawBuf) < 12 || *(wad.rrRawBuf) > 25) {
+        rrOutOfRange = 1;
+        rrHigh = isRRHigh(float(*(wad.rrRawBuf)));
     }
     return;  
 }
@@ -490,7 +501,7 @@ void startUp() {
   meaD = MeasureData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr, measurementSelectionPtr};
   cD = ComputeData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr,tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr,measurementSelectionPtr};
   dDa = DisplayData{tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr, batteryStatePtrr};
-  wAD = WarningAlarmData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, batteryStatePtrr};
+  wAD = WarningAlarmData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr, batteryStatePtrr};
   sD = StatusData{batteryStatePtrr};
   kD = KeypadData{localFunctionSelectPtr, measurementSelectionPtr, alarmAcknowledgePtr, commandPtr, remoteFunctionSelectPtr, measurementResultSelectionPtr};
   comD = CommunicationsData{tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr};

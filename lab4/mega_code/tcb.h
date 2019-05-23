@@ -139,6 +139,7 @@ typedef struct
     unsigned int* temperatureRawBuf;
     unsigned int* bloodPressRawBuf;
     unsigned int* pulseRateRawBuf;
+    unsigned int* rrRawBuf;
     unsigned short* batteryStatePtr; 
 } WarningAlarmData;
 
