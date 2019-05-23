@@ -2,7 +2,7 @@
 // #include <Elegoo_TFTLCD.h> // Hardware-specific library
 #include "tcb.h"
 const byte interruptPin = 2;   // Arbitrary pin. Fix later.
-#define delayTimeSec 2
+#define delayTimeSec 5
 unsigned int pulseCount = 0;
 unsigned int pulsePrevious = 0;
 // initialize raw values
@@ -68,7 +68,7 @@ void communications() {
         }
         if(incoming = 'r') {
           //TODO: Add respirrate
-          Serial.write(100);
+          Serial.write(13);
           if(meR) { meR = false; } else { meR = true; }
         }
         incoming = Serial.read();
@@ -84,7 +84,7 @@ unsigned int rawPulseRate = 0;
 int getRawPulseRate() {
     // pulseCount = 0;
     Serial.println(pulseCount);
-    delay(1000 * delayTimeSec);
+    delay(100 * delayTimeSec);
     unsigned int temp2 = pulseCount - pulsePrevious;
     pulsePrevious = pulseCount;
     // Serial.println(temp2);

@@ -46,6 +46,7 @@ void Measure(void* dataPtr)
 
     if(dispBP) { 
         Serial1.write('b'); 
+        delay(500);
         int newSys = Serial1.read();
         int newDia = Serial1.read();
         shift(newSys, 16, (md.bloodPressRawBuf));
@@ -75,29 +76,37 @@ void Measure(void* dataPtr)
 *    April 24, 2019 by Kaiser Sun
 */
 void Compute(void* dataPtr) {
-    // TODO : change by disp values
-  ComputeData comd = *((ComputeData*) dataPtr);
-      int correctedTemp = (*(comd.temperatureRawBuf)) * 0.75 + 5;
-      int correctedDia = (*(comd.bloodPressRawBuf)) * 1.5 + 6;
-      int correctedSys = (*(comd.bloodPressRawBuf + 1)) * 2 + 9;
-      int correctedPr = (*(comd.pulseRateRawBuf)) * 3 + 8; 
-      Serial.print("Corrected pulse rate");
-      Serial.println(correctedPr);
-      shiftChar(correctedTemp, 8, (comd.tempCorrectedBuf));
-      shiftChar(correctedPr, 8, (comd.prCorrectedBuf));
-      shiftChar(correctedSys, 16, (comd.bloodPressCorrectedBuf));
-      shiftChar(correctedDia, 16, (comd.bloodPressCorrectedBuf));
-     return;
+    ComputeData comd = *((ComputeData*) dataPtr);
+    if(dispT) {
+        int correctedTemp = (*(comd.temperatureRawBuf)) * 0.75 + 5;
+        shiftChar(correctedTemp, 8, (comd.tempCorrectedBuf));
+    }
+    if(dispBP) {
+        int correctedDia = (*(comd.bloodPressRawBuf)) * 1.5 + 6;
+        int correctedSys = (*(comd.bloodPressRawBuf + 1)) * 2 + 9;
+        shiftChar(correctedSys, 16, (comd.bloodPressCorrectedBuf));
+        shiftChar(correctedDia, 16, (comd.bloodPressCorrectedBuf));
+    } 
+    if(dispPR) {
+        int correctedPr = (*(comd.pulseRateRawBuf)) * 3 + 8; 
+        shiftChar(correctedPr, 8, (comd.prCorrectedBuf));
+        Serial.print("Corrected pulse rate");
+        Serial.println(correctedPr);
+    }
+    if(dispRR) {
+        shiftChar(*(comd.respirationRateRawBuf), 8, (comd.respirationRateCorBufPtr));
+    }    
+    return;
 }
 
 int countt = 0;
+
 /*
 *    @para: generic pointer dataPtr;
 *    Assume the data pointer is of type DisplayData
 *    Display the data on the TFT display
 *    April 23, 2019 by Kaiser Sun
 */
-
 void Display(void* dataPtr) {
     // TODO: change the color of display!
 
@@ -217,26 +226,26 @@ void Display(void* dataPtr) {
 */
 void WarningAlarm(void* dataPtr) {
     WarningAlarmData wad = *((WarningAlarmData*) dataPtr);
-    if (*(wad.temperatureRawBuf) > 37.8 || *(wad.temperatureRawBuf) < 36.1) {
+    if (*(wad.temperatureRawBuf) > 39.69 || *(wad.temperatureRawBuf) < 34.295) {
         tempOutOfRange = 1;
         tempHigh = isTHight(float(*(wad.temperatureRawBuf)));
     } else {
         tempOutOfRange = 0;
     }
-    if(*(wad.bloodPressRawBuf + 1) < 130 || *(wad.bloodPressRawBuf) > 80 || *(wad.bloodPressRawBuf + 1) < 120 || *(wad.bloodPressRawBuf) < 70) {
+    if(*(wad.bloodPressRawBuf + 1) < 136.5 || *(wad.bloodPressRawBuf) > 84 || *(wad.bloodPressRawBuf + 1) < 114 || *(wad.bloodPressRawBuf) < 66.5) {
         bpOutOfRange = 1;
         //sys: 1, Dia: 0
         bpHigh = isBPHigh(*(wad.bloodPressRawBuf + 1), *(wad.bloodPressRawBuf));
     } else {
         bpOutOfRange = 0;
     }
-    if(*(wad.pulseRateRawBuf) < 60 || *(wad.pulseRateRawBuf) > 100) {
+    if(*(wad.pulseRateRawBuf) < 57 || *(wad.pulseRateRawBuf) > 105) {
         pulseOutOfRange = 1;
         prHigh = isPRHigh(float(*(wad.pulseRateRawBuf)));
     } else {
         pulseOutOfRange = 0;
     }
-    if(*(wad.rrRawBuf) < 12 || *(wad.rrRawBuf) > 25) {
+    if(*(wad.rrRawBuf) < 11.4 || *(wad.rrRawBuf) > 26.25) {
         rrOutOfRange = 1;
         rrHigh = isRRHigh(float(*(wad.rrRawBuf)));
     }
