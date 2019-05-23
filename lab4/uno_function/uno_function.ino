@@ -43,30 +43,8 @@ void setup() {
 char incoming;
 
 void loop() {
-  // Serial.print(15);
-  
   Measure(&meaD);
-  communications();
-  // incoming = Serial.read();
-  // if (incoming == (char)0x03) {
-  //   Serial.write(*pulseRateRawPtrr);
-  //   //Serial.println(*pulseRateRawPtrr);
-  //   incoming = Serial.read();
-  // }
-  // if (incoming == (char)0x00) {
-  //   Serial.write(*temperatureRawPtrr);
-  //   // Serial.println(*pulseRateRawPtrr);
-  //   incoming = Serial.read();
-  // } 
-  // if (incoming == (char)0x01) {
-  //   Serial.write(*systolicPressRawPtrr);
-  //   incoming = Serial.read();
-  // } 
-  // if (incoming == (char)0x02) {
-  //   Serial.write(*diastolicPressRawPtrr);
-  //   incoming = Serial.read();
-  // } 
-   
+  communications();   
 }
 
 void communications() {
