@@ -1,34 +1,14 @@
- #include "tcb.h"
+#include "tcb.h"
+#include "helpers.h"
 
 bool dispBP = TRUE;
 bool dispT = TRUE;
 bool dispPR = TRUE;
 bool dispRR = TRUE;
 
-
-
 Bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
 
 
-void shift(int newVal,int Bufsize,unsigned int* Buf) {
-  for (int i = 1; i <= Bufsize-1; i++) { 
-    //if ( (*Buff)[Bufsize - (i+1)] != null)
-   // if ( Buf[Bufsize - (i+1)] != NULL) { //if element 6 is not null
-      *(Buf + (Bufsize - i)) =  *(Buf + (Bufsize - (i+1)));  //element 7 = element 6
-    }
-    *Buf = newVal;
-  //}
-}
-
-void shiftChar(int newVal,int Bufsize,unsigned char* Buf) {
-  for (int i = 1; i <= Bufsize-1; i++) { 
-    //if ( (*Buff)[Bufsize - (i+1)] != null)
-   // if ( Buf[Bufsize - (i+1)] != NULL) { //if element 6 is not null
-      *(Buf + (Bufsize - i)) =  *(Buf + (Bufsize - (i+1)));  //element 7 = element 6    //}
-  }
-    *Buf = newVal;
-  
-}
 
 /*
 *    @para: void* dataPtr, we assume it's MeasureData pointer; integer isEven, check if it's even;
@@ -45,26 +25,52 @@ void Measure(void* dataPtr)
       MeasureData md = *((MeasureData*) dataPtr);
       //retrieve serial new values from uno
       //if (*(md.measurementSelectionPtr) == 1) {
-      Serial1.write((char)0x00);
-      int newTemp = Serial1.read();
-      Serial1.write((char)0x03);
-      int newPr = Serial1.read();
-      Serial1.write((char)0x01);
-      int newSys = Serial1.read();
-      Serial1.write((char)0x02);
-      int newDia = Serial1.read();
+    //   Serial1.write((char)0x00);
+    //   int newTemp = Serial1.read();
+    //   Serial1.write((char)0x03);
+    //   int newPr = Serial1.read();
+    //   Serial1.write((char)0x01);
+    //   int newSys = Serial1.read();
+    //   Serial1.write((char)0x02);
+    //   int newDia = Serial1.read();
 
-      Serial.println(newPr);
-      //put the new values into the buffers
-      shift(newTemp, 8, (md.temperatureRawBuf));
-      shift(newPr, 8, (md.pulseRateRawBuf));
-      shift(newSys, 16, (md.bloodPressRawBuf));
-      shift(newDia, 16, (md.bloodPressRawBuf));
-    //}
+    //   Serial.println(newPr);
+    //   //put the new values into the buffers
+    //   shift(newTemp, 8, (md.temperatureRawBuf));
+    //   shift(newPr, 8, (md.pulseRateRawBuf));
+    //   shift(newSys, 16, (md.bloodPressRawBuf));
+    //   shift(newDia, 16, (md.bloodPressRawBuf));
+
+    Serial1.write('s');
+    if(dispT) { 
+        Serial1.write('t'); 
+        // Uncomment the delay if we are measuring using interrupt
+        // delay(500);
+        int newTemp = Serial1.read();
+        shift(newTemp, 8, (md.temperatureRawBuf));
+    }
+
+    if(dispBP) { 
+        Serial1.write('b'); 
+        int newSys = Serial1.read();
+        int newDia = Serial1.read();
+        shift(newSys, 16, (md.bloodPressRawBuf));
+        shift(newDia, 16, (md.bloodPressRawBuf));
+    }
+    if(dispPR) { 
+        Serial1.write('p');
+        int newPr = Serial1.read();
+        shift(newPr, 8, (md.pulseRateRawBuf)); 
+    }
+    if(dispRR) { 
+        Serial1.write('r'); 
+        int newRR = Serial1.read();
+        shift(newRR, 8, (md.respirationRateRawBuf));
+    }
+    Serial1.write('e');
+    
     return;
 }
-
-
 
 /*
 *    @para: generic pointer dataPtr;
@@ -148,6 +154,11 @@ void Display(void* dataPtr) {
         tft.print(*(dd.prCorrectedBuf));
         tft.println("BPM");
     }
+
+    // Display respiration rate
+    tft.print("Respiration Rate: ");
+    tft.print(*(dd.respirationRateCorrectedBuf));
+    tft.println(" /s");
 
     // Display battery status
     if(*(dd.batteryStatePtr) > 20) {
@@ -234,33 +245,7 @@ void Status(void* dataPtr) {
     return;
 }
 
-/*
-*    @para: take in x, y, the center of the rectangle
-*           bool d, to see whether it is unselected
-*    Draw the buttons
-*    (700, 250) -> T
-*    (700, 500) -> BP
-*    (700, 750) -> PR
-*/
-void drawSub(int x, int y, bool d) {
-    Serial.print("Entered drawSub");
-    if(!d) {
-        tft.fillRect(x, y, 260, 80, RED);
-    } else {
-        tft.fillRect(x, y, 260, 80, GREEN);
-    }
-    // See Line595 of Elegoo_GFX.cpp
-    tft.setTextSize(2);
-    tft.setTextColor(BLACK);
-    tft.setCursor(x + 10, y + 10);
-    if(y == 0) {
-        tft.print("BloodPressure");
-    } else if(y == 80) {
-        tft.print("PulseRate");
-    } else if(y == 160) {
-        tft.print("Temperature");
-    }
-}
+
 
 /*
 *   This function is called when the TFT is in menu mode
@@ -468,24 +453,12 @@ void Communications(void* dataPtr) {
                     Serial.println(" ");
                     if(dispRR) {dispRR = false; } else { dispRR = true; }
                 }
-                i ++;
                 t = Serial.read();
             }
         }
         t = 'e';
     }
     return;
-}
-
-/*
-*    @param: int index, TCB* taskQ;
-*    pre: index < length(taskQ);
-*    helper method of sechdule function;
-*    April 23, 2019 by Kaiser Sun
-*/
-void run(TCB* taskQ) {
-    // Call the function in the taskQ;
-    (*taskQ->myTask)(taskQ->taskDataPtr);
 }
 
 
@@ -504,4 +477,42 @@ void sechdulerTest() {
             run(taskQueue);
             taskQueue = taskQueue->next;
         }
+}
+
+
+/*
+*    Execute only at the Setup function once
+*    Start the system timer, arrange the taskQueue
+*    May 22, 2019 by Kaiser
+*/
+void startUp() {
+    // Setup the data structs
+  meaD = MeasureData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr, measurementSelectionPtr};
+  cD = ComputeData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr,tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr,measurementSelectionPtr};
+  dDa = DisplayData{tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr, batteryStatePtrr};
+  wAD = WarningAlarmData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, batteryStatePtrr};
+  sD = StatusData{batteryStatePtrr};
+  kD = KeypadData{localFunctionSelectPtr, measurementSelectionPtr, alarmAcknowledgePtr, commandPtr, remoteFunctionSelectPtr, measurementResultSelectionPtr};
+  comD = CommunicationsData{tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr};
+// Setup the TCBs
+  meas = {&Measure, &meaD};
+  comp = {&Compute, &cD};
+  disp = {&Display, &dDa};
+  alar = {&WarningAlarm, &wAD};
+  stat = {&Status, &sD};
+  keyp = {&Select, &kD};
+  com = {&Communications, &comD};
+  
+  // Setup task queue
+  insertLast(&meas);
+  insertLast(&comp);
+  insertLast(&stat);
+  insertLast(&alar);
+  insertLast(&com);
+  //insertLast(&keyp);
+  time1 = millis();
+  timeb = time1;
+  // taskQueue[4] = disp;
+  run(&keyp);
+
 }

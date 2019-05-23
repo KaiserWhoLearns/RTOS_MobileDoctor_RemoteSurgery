@@ -120,35 +120,7 @@ void setup() {
     }
     tft.begin(identifier);
     tft.setRotation(1);
-
-  // Setup the data structs
-  meaD = MeasureData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr, measurementSelectionPtr};
-  cD = ComputeData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr,tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr,measurementSelectionPtr};
-  dDa = DisplayData{tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr, batteryStatePtrr};
-  wAD = WarningAlarmData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, batteryStatePtrr};
-  sD = StatusData{batteryStatePtrr};
-  kD = KeypadData{localFunctionSelectPtr, measurementSelectionPtr, alarmAcknowledgePtr, commandPtr, remoteFunctionSelectPtr, measurementResultSelectionPtr};
-  comD = CommunicationsData{tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr};
-// Setup the TCBs
-  meas = {&Measure, &meaD};
-  comp = {&Compute, &cD};
-  disp = {&Display, &dDa};
-  alar = {&WarningAlarm, &wAD};
-  stat = {&Status, &sD};
-  keyp = {&Select, &kD};
-  com = {&Communications, &comD};
-  
-  // Setup task queue
-  insertLast(&meas);
-  insertLast(&comp);
-  insertLast(&stat);
-  insertLast(&alar);
-  insertLast(&com);
-  //insertLast(&keyp);
-  time1 = millis();
-  // taskQueue[4] = disp;
-  run(&keyp);
-  
+    startUp();
 }
 
 

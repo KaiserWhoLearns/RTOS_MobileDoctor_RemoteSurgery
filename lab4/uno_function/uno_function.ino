@@ -18,6 +18,10 @@ unsigned int* systolicPressRawPtrr = &systolicPressRaw;
 unsigned int* diastolicPressRawPtrr = &diastolicPressRaw;
 unsigned int* pulseRateRawPtrr = &pulseRateRaw;
 
+bool meT = true;
+bool meB = true;
+bool meR = true;
+bool mePR = true;
 
 
 Bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
@@ -42,111 +46,124 @@ void loop() {
   // Serial.print(15);
   
   Measure(&meaD);
-  incoming = Serial.read();
-  if (incoming == (char)0x03) {
-    Serial.write(*pulseRateRawPtrr);
-    //Serial.println(*pulseRateRawPtrr);
-    incoming = Serial.read();
-  }
-  if (incoming == (char)0x00) {
-    Serial.write(*temperatureRawPtrr);
-    // Serial.println(*pulseRateRawPtrr);
-    incoming = Serial.read();
-  } 
-  if (incoming == (char)0x01) {
-    Serial.write(*systolicPressRawPtrr);
-    incoming = Serial.read();
-  } 
-  if (incoming == (char)0x02) {
-    Serial.write(*diastolicPressRawPtrr);
-    incoming = Serial.read();
-  } 
+  communications();
+  // incoming = Serial.read();
+  // if (incoming == (char)0x03) {
+  //   Serial.write(*pulseRateRawPtrr);
+  //   //Serial.println(*pulseRateRawPtrr);
+  //   incoming = Serial.read();
+  // }
+  // if (incoming == (char)0x00) {
+  //   Serial.write(*temperatureRawPtrr);
+  //   // Serial.println(*pulseRateRawPtrr);
+  //   incoming = Serial.read();
+  // } 
+  // if (incoming == (char)0x01) {
+  //   Serial.write(*systolicPressRawPtrr);
+  //   incoming = Serial.read();
+  // } 
+  // if (incoming == (char)0x02) {
+  //   Serial.write(*diastolicPressRawPtrr);
+  //   incoming = Serial.read();
+  // } 
    
 }
+
+void communications() {
+    incoming = Serial.read();
+    if(incoming == 's') {
+      incoming = Serial.read();
+      while(incoming != 'e') {
+        
+        if(incoming = 't') {
+          Serial.write(*temperatureRawPtrr);
+          if(meT) { meT = false; } else { meT = true; }
+        }
+        if(incoming = 'b') {
+          Serial.write(*systolicPressRawPtrr);
+          Serial.write(*diastolicPressRawPtrr);
+          if(meB) { meB = false; } else { meB = true; }
+        }
+        if(incoming = 'p') {
+          Serial.write(*pulseRateRawPtrr);
+          if(mePR) { mePR = false; } else { mePR = true; }
+        }
+        if(incoming = 'r') {
+          //TODO: Add respirrate
+          Serial.write(100);
+          if(meR) { meR = false; } else { meR = true; }
+        }
+        incoming = Serial.read();
+      }
+    }
+}
+
+
 void incrementPulseCount() {
-  pulseCount += 1;
+    pulseCount += 1;
 }
 unsigned int rawPulseRate = 0;
 int getRawPulseRate() {
-  // pulseCount = 0;
-  Serial.println(pulseCount);
-  delay(1000 * delayTimeSec);
-  unsigned int temp2 = pulseCount - pulsePrevious;
-  pulsePrevious = pulseCount;
-  // Serial.println(temp2);
-  if(temp2 != 0){
-  rawPulseRate = int(float(temp2 / delayTimeSec) * 60);
-  }
-
-  return rawPulseRate;
+    // pulseCount = 0;
+    Serial.println(pulseCount);
+    delay(1000 * delayTimeSec);
+    unsigned int temp2 = pulseCount - pulsePrevious;
+    pulsePrevious = pulseCount;
+    // Serial.println(temp2);
+    if(temp2 != 0){
+    rawPulseRate = int(float(temp2 / delayTimeSec) * 60);
+    }
+    return rawPulseRate;
 }
 // dereference the data pointer;
 void Measure(void* dataPtr)
 {   
     // dereference the data pointer;
     MeasureData md = *((MeasureData*) dataPtr);  
-        // When the function is executed even times;
-        // Update the data;
+      // When the function is executed even times;
+      // Update the data;
         
-        int newPR = getRawPulseRate();
-        *(md.pulseRateRawPtr) = newPR;   
+      int newPR = getRawPulseRate();
+      *(md.pulseRateRawPtr) = newPR;   
         
-        if(isEven) {
-            if(*(md.systolicPressRawPtr) <= 100) {
-                *(md.systolicPressRawPtr) += 3;
-            }
-            if(*(md.diastolicPressRawPtr) >= 40) {
-                *(md.diastolicPressRawPtr) -= 2;
-            }
-            if(!trIsReverse) {
-                *(md.temperatureRawPtr) += 2;
-            } else {
-                *(md.temperatureRawPtr) -= 2;
-            }
-//            if(!prIsReverse) {
-//                *(md.pulseRateRawPtr) -= 1;
-//            } else {
-//                *(md.pulseRateRawPtr) += 1;
-//            }
-        } else {
-            if(*(md.systolicPressRawPtr) <= 100) {
-                *(md.systolicPressRawPtr) -= 1;
-            }
-            if(*(md.diastolicPressRawPtr) >= 40) {
-                *(md.diastolicPressRawPtr) += 1;
-            }
-            if(!trIsReverse) {
-                *(md.temperatureRawPtr) -= 1;
-            } else {
-                *(md.temperatureRawPtr) += 1;
-            }
-//            if(!prIsReverse) {
-//                *(md.pulseRateRawPtr) += 3;
-//            } else {
-//                *(md.pulseRateRawPtr) -= 3;
-//            }
-        }
+      if(isEven) {
+          if(*(md.systolicPressRawPtr) <= 100) {
+              *(md.systolicPressRawPtr) += 3;
+          }
+          if(*(md.diastolicPressRawPtr) >= 40) {
+              *(md.diastolicPressRawPtr) -= 2;
+          }
+          if(!trIsReverse) {
+              *(md.temperatureRawPtr) += 2;
+          } else {
+              *(md.temperatureRawPtr) -= 2;
+          }
+      } else {
+          if(*(md.systolicPressRawPtr) <= 100) {
+              *(md.systolicPressRawPtr) -= 1;
+          }
+          if(*(md.diastolicPressRawPtr) >= 40) {
+              *(md.diastolicPressRawPtr) += 1;
+          }
+          if(!trIsReverse) {
+              *(md.temperatureRawPtr) -= 1;
+          } else {
+              *(md.temperatureRawPtr) += 1;
+          }
+      }
+      // Update isReverse;
+      if(*(md.temperatureRawPtr) > 50) {
+          trIsReverse = TRUE;
+      } else if (*(md.temperatureRawPtr) < 15)
+      {
+          trIsReverse = FALSE;
+      }
 
-        // Update isReverse;
-        if(*(md.temperatureRawPtr) > 50) {
-            trIsReverse = TRUE;
-        } else if (*(md.temperatureRawPtr) < 15)
-        {
-            trIsReverse = FALSE;
-        }
-
-//        if(*(md.pulseRateRawPtr) > 40) {
-//            prIsReverse = TRUE;
-//        } else if (*(md.pulseRateRawPtr) < 15)
-//        {
-//            prIsReverse = FALSE;
-//        }
-
-        // Update isEven;
-        if(isEven) {
-            isEven = FALSE;
-        } else {
-            isEven = TRUE;
-        }
-        return;
-    }
+      // Update isEven;
+      if(isEven) {
+          isEven = FALSE;
+      } else {
+          isEven = TRUE;
+      }
+      return;
+}
