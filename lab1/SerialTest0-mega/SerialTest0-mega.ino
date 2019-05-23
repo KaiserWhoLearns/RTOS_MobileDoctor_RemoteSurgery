@@ -33,19 +33,22 @@ void setup()
 {
   // running on the mega - connect to tx1 and rx1 on the mega and to rx and tx on the uno
   // start serial1 port at 9600 bps and wait for serial1 port to open:
-  Serial1.begin(9600);
+  Serial.begin(9600);
+  Serial1.begin(4800);
 
 }
-
+int s;
 void loop()
 {
-  //  send some test characters from the mega to the uno
-  Serial1.println("A");
-  delay(1000);
-  Serial1.println("B");
-  delay(1000);
-  Serial1.println("C");
-  delay(1000);
+      Serial1.write((char)0x00);
+      int newTemp = Serial1.read();
+      Serial1.write((char)0x03);
+      int newPr = Serial1.read();
+      Serial1.write((char)0x01);
+      int newSys = Serial1.read();
+      Serial1.write((char)0x02);
+      int newDia = Serial1.read();
+  Serial.println(newPr);
 
 }
 
