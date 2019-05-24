@@ -1,10 +1,13 @@
 // #include <Elegoo_GFX.h>    // Core graphics library
 // #include <Elegoo_TFTLCD.h> // Hardware-specific library
 #include "tcb.h"
+
 const byte interruptPin = 2;   // Arbitrary pin. Fix later.
 #define delayTimeSec 2
 unsigned int pulseCount = 0;
 unsigned int pulsePrevious = 0;
+
+
 // initialize raw values
 unsigned int temperatureRaw = 30;
     // there're problem of initial value of temp!
@@ -39,7 +42,9 @@ void setup() {
 char incoming;
 
 void loop() {
+
   // Serial.print(15);
+
   
   Measure(&meaD);
   incoming = Serial.read();
@@ -66,6 +71,8 @@ void loop() {
 void incrementPulseCount() {
   pulseCount += 1;
 }
+
+
 unsigned int rawPulseRate = 0;
 int getRawPulseRate() {
   // pulseCount = 0;
@@ -78,6 +85,7 @@ int getRawPulseRate() {
   rawPulseRate = int(float(temp2 / delayTimeSec) * 60);
   }
 
+
   return rawPulseRate;
 }
 // dereference the data pointer;
@@ -88,8 +96,10 @@ void Measure(void* dataPtr)
         // When the function is executed even times;
         // Update the data;
         
+
         int newPR = getRawPulseRate();
         *(md.pulseRateRawPtr) = newPR;   
+
         
         if(isEven) {
             if(*(md.systolicPressRawPtr) <= 100) {

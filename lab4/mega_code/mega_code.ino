@@ -2,20 +2,33 @@
 // #include <Elegoo_TFTLCD.h> // Hardware-specific library
 #include "tcb.h"
 #include "task.h"
+//#include "helpers.h"
+//
+//bool dispBP = TRUE;
+//bool dispT = TRUE;
+//bool dispPR = TRUE;
+//bool dispRR = TRUE;
+
+//bool refSelect = TRUE;
+//bool refMenu = TRUE;
+//bool refAnnu = TRUE;
 
 // initialization started!
 unsigned int temperatureRawBuf[8]= {30, 0, 0, 0, 0, 0, 0, 0};
 unsigned int bloodPressRawBuf[16]= {80, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 unsigned int pulseRateRawBuf[8] = {70, 0, 0, 0, 0, 0, 0, 0};
 unsigned int respirationRateRawBuf[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+
 unsigned char tempCorrectedBuf[8]= {28, 0, 0, 0, 0, 0, 0, 0};
 unsigned char bloodPressCorrectedBuf[16] = {126, 169, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 unsigned char pulseRateCorrectedBuf[8]= {218, 0, 0, 0, 0, 0, 0, 0};
 unsigned char respirationRateCorBuf[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
+unsigned short Mode = 0;
 unsigned short batteryState = 200;
 unsigned long time1;
 unsigned long time2;
+unsigned long time3;
 
 // initialize raw value pointers
 unsigned int* temperatureRawPtrr = temperatureRawBuf;
@@ -23,6 +36,7 @@ unsigned int* bloodPressRawPtrr = bloodPressRawBuf;
 unsigned int* pulseRateRawPtrr = pulseRateRawBuf;
 unsigned int* respirationRateRawPtr = respirationRateRawBuf;
 //initialize corrected pointers
+unsigned short* ModePtrr = &Mode;
 unsigned char* tempCorrectedPtrr = tempCorrectedBuf;
 unsigned char* bloodPressCorrectedPtrr = bloodPressCorrectedBuf;
 unsigned char* pulseRateCorrectedPtrr = pulseRateCorrectedBuf;
@@ -36,6 +50,8 @@ unsigned short alarmAcknowledge = 0;
 unsigned short command = 0;
 unsigned short remoteFunctionSelect = 0;
 unsigned short measurementResultSelection = 0;
+unsigned short displaySelection = 0;
+unsigned short* displaySelectionPtr = &displaySelection;
 unsigned short* localFunctionSelectPtr = &localFunctionSelect;
 unsigned short* measurementSelectionPtr = &measurementSelection;
 unsigned short* alarmAcknowledgePtr = &alarmAcknowledge;
@@ -116,22 +132,59 @@ void setup() {
 
 
 
-
 void loop()
 {
-    //sechdulerTest();
     time2 = millis();
-    // Serial.print(time1);
-    //Serial.print(" ");
-    //Serial.println(time2);
-    if(time2 - time1 > 900) {
-      insertLast(&keyp);
+    time3 = millis();
+    
+    
+//    if (time2 - time1 > 1) {
+//      if(*(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {
+//        Select((void*)&kD);
+//      }
+//      if(*(measurementSelectionPtr) == 1) {
+//        
+//        menu(&kD);
+//        
+//      } else if(*(alarmAcknowledgePtr) == 1) {
+//            Serial.println("Announciation mode");
+//            *ModePtrr = 0;
+//            anno(&kD);    
+//      } else if (*(displaySelectionPtr) == 1) {
+//         *ModePtrr = 1;
+//          Measurement(&kD);
+//      }
+//       
+//    }
+
+    if(time3 - time1 > 900) {
+
       sechdulerTest();
-      deleteNode(&keyp);
-      time1 = time2;
+      
     } else {
-      // sechdulerTest();
+   
     }
+    
+    if (time2 - time1 > 1) {
+      if(*(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {
+        Select((void*)&kD);
+      }
+      if(*(measurementSelectionPtr) == 1) {
+        
+        menu(&kD);
+        
+      } else if(*(alarmAcknowledgePtr) == 1) {
+            Serial.println("Announciation mode");
+            *ModePtrr = 0;
+            anno(&kD);    
+      } else if (*(displaySelectionPtr) == 1) {
+         *ModePtrr = 1;
+          Measurement(&kD);
+      }
+      time1 = time3; 
+    }
+    
+    
     
     
     
