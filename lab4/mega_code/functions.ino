@@ -41,12 +41,16 @@ void Measure(void* dataPtr)
         // Uncomment the delay if we are measuring using interrupt
         // delay(500);
         int newTemp = Serial1.read();
+        Serial.write("Temp raw: ");
+        Serial.println(newTemp);
+        Serial.write(newTemp);
+        Serial.println(" ");
         shift(newTemp, 8, (md.temperatureRawBuf));
     }
-
     if(dispBP) { 
         Serial1.write('b'); 
         delay(500);
+
         int newSys = Serial1.read();
         int newDia = Serial1.read();
         shift(newSys, 16, (md.bloodPressRawBuf));
