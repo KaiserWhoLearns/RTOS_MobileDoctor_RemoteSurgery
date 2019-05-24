@@ -176,10 +176,14 @@ void loop()
       } else if(*(alarmAcknowledgePtr) == 1) {
             Serial.println("Announciation mode");
             *ModePtrr = 0;
-            anno(&kD);    
+            
+            anno(&kD); 
+            //(*disp.myTask)(disp.taskDataPtr);   
       } else if (*(displaySelectionPtr) == 1) {
          *ModePtrr = 1;
+         //(*disp.myTask)(disp.taskDataPtr);
           Measurement(&kD);
+          //(*disp.myTask)(disp.taskDataPtr);
       }
       time1 = time3; 
     }

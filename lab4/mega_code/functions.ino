@@ -17,7 +17,7 @@ bool BPSelected = FALSE;
 bool PRSelected = FALSE;
 bool RRSelected = FALSE;
 bool Disp = TRUE;
-//bool Disp2 = TRUE;
+bool Disp2 = TRUE;
 
 // By high we mean 15% out of range
 bool bpHigh = FALSE;
@@ -55,16 +55,12 @@ void Measure(void* dataPtr)
         // Uncomment the delay if we are measuring using interrupt
         // delay(500);
         int newTemp = Serial1.read();
-        Serial.write("Temp raw: ");
-        Serial.println(newTemp);
-        Serial.write(newTemp);
-        Serial.println(" ");
         shift(newTemp, 8, (md.temperatureRawBuf));
     }
+
     if(dispBP) { 
         Serial1.write('b'); 
         delay(500);
-
         int newSys = Serial1.read();
         int newDia = Serial1.read();
         shift(newSys, 16, (md.bloodPressRawBuf));
@@ -152,11 +148,6 @@ void Display(void* dataPtr) {
     tft.fillRect(225,15,400,102,BLACK);
     tft.setTextSize(2);
 
-    
-    
-    // Starter
-    
-    //tft.setTextSize(2);
     // Display Pressure
     if(dispBP) {
         if(bpOutOfRange == 0) {
@@ -455,14 +446,14 @@ void anno(KeypadData* dataPtr) {
             
         }
     } 
-    (*disp.myTask)(disp.taskDataPtr);
 //    else if (Disp) {
-//            Disp = false;
-//            (*disp.myTask)(disp.taskDataPtr);
+//        Disp = false;
+//        (*disp.myTask)(disp.taskDataPtr);
 //            
 //    } else {
-//      Disp = true;
+//        Disp = true;
 //    }
+    (*disp.myTask)(disp.taskDataPtr);
 
     return;
 }
