@@ -70,8 +70,8 @@
 #define RR(x, y) (x > 70) && (y < 320) && (y > 240)
 #define QUIT2(x, y) (x > 0) && (y > 180) 
 #define QUIT3(x, y) (x > 0) && (y > 180) 
-//Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
-Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
+Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
+//Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
 
