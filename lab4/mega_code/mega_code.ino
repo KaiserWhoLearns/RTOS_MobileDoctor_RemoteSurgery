@@ -135,35 +135,15 @@ void setup() {
 void loop()
 {
     time2 = millis();
-    time3 = millis();
     
-    
-//    if (time2 - time1 > 1) {
-//      if(*(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {
-//        Select((void*)&kD);
-//      }
-//      if(*(measurementSelectionPtr) == 1) {
-//        
-//        menu(&kD);
-//        
-//      } else if(*(alarmAcknowledgePtr) == 1) {
-//            Serial.println("Announciation mode");
-//            *ModePtrr = 0;
-//            anno(&kD);    
-//      } else if (*(displaySelectionPtr) == 1) {
-//         *ModePtrr = 1;
-//          Measurement(&kD);
-//      }
-//       
+//    if(time2 - time1 > 2000) {
+//
+//      sechdulerTest();
+//      time1 = time2; 
+//      
+//    } else {
+//   
 //    }
-
-    if(time3 - time1 > 900) {
-
-      sechdulerTest();
-      
-    } else {
-   
-    }
     
     if (time2 - time1 > 1) {
       if(*(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {
@@ -178,18 +158,28 @@ void loop()
             *ModePtrr = 0;
             
             anno(&kD); 
-            //(*disp.myTask)(disp.taskDataPtr);   
+            if (time2 - time1 > 1000) {
+              (*disp.myTask)(disp.taskDataPtr);
+            }
+   
       } else if (*(displaySelectionPtr) == 1) {
+          Serial.println("Display mode");
          *ModePtrr = 1;
-         //(*disp.myTask)(disp.taskDataPtr);
           Measurement(&kD);
-          //(*disp.myTask)(disp.taskDataPtr);
+          if (time2 - time1 > 1000) {
+              (*disp.myTask)(disp.taskDataPtr);
+          }
+   
       }
-      time1 = time3; 
+      
     }
-    
-    
-    
-    
-    
+
+    if(time2 - time1 > 1000) {
+
+      sechdulerTest();
+      time1 = time2; 
+      
+    } else {
+   
+    }
 }
