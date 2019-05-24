@@ -3,6 +3,8 @@
 #include <Elegoo_GFX.h>    // Core graphics library
 #include <Elegoo_TFTLCD.h> // Hardware-specific library
 #include <TouchScreen.h> // TouchScreen library
+#include <Adafruit_TFTLCD.h> 
+#include <Adafruit_GFX.h> 
 // April 23th by Kaiser Sun
 // May 8th modified by Kaiser Sun, add touch screen
 
@@ -35,11 +37,11 @@
 #define XP 9   // can be a digital pin
 
 //Touch For New ILI9341 TP
-#define TS_MINX 70
-#define TS_MAXX 920
+#define TS_MINX 115
+#define TS_MAXX 960
 
-#define TS_MINY 120
-#define TS_MAXY 900
+#define TS_MINY 125
+#define TS_MAXY 920
 // We have a status line for like, is FONA working
 #define STATUS_X 65
 #define STATUS_Y 10
@@ -49,14 +51,16 @@
 #define MAXPRESSURE 1000
 
 // Macro for location on screen
-#define MENU(x, y) (y > 0) && (y < 240) && (x > 0) && (x < 165)
-#define ANN(x, y) (y > 0) && (y < 240) && (x > 165) && (x < 330)
+#define MENU(x, y) (y > 0) && (y < 240) && (x > 0) && (x < 200)
+#define ANN(x, y) (y > 0) && (y < 240) && (x > 200) //&& (x < 330)
+#define MEAS(x, y) 
 #define QUIT1(x, y) (y > 0) && (y < 240) && (x > 0) && (x < 70)
-#define T(x, y) (x < 330) && (x > 70) && (y < 240) && (y > 160)
-#define BP(x, y) (x < 330) && (x > 70) && (y < 80) && (y > 0)
-#define PR(x, y) (x < 330) && (x > 70) && (y < 160) && (y > 80)
-#define QUIT2(x, y) (x > 0) && (x < 330) && (y > 180) && (y < 240)
-Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
+#define T(x, y) (x < 330) && (x > 70) && (y < 300) && (y > 200)
+#define BP(x, y) (x < 330) && (x > 70) && (y < 100) && (y > 0)
+#define PR(x, y) (x < 330) && (x > 70) && (y < 200) && (y > 100)
+#define QUIT2(x, y) (x > 0) && (y > 180) //&& (y < 240)
+//Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
+Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
 
@@ -97,7 +101,8 @@ TCB* deleteNode(TCB* node);
     void WarningAlarm(void* dataPtr);
     void Display(void* dataPtr);
     void Scheduler(TCB* taskQueue);
-    void sechdulerTest(TCB* taskQ);
+    void sechdulerTest();
+    void startUp();
 typedef struct
 {
     unsigned int* temperatureRawBuf;
@@ -127,6 +132,7 @@ typedef struct
 
 typedef struct
 {
+  unsigned short* Mode;
   unsigned char* tempCorrectedBuf;
   unsigned char* bloodPressCorrectedBuf;
   unsigned char* prCorrectedBuf;
