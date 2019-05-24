@@ -18,12 +18,13 @@ unsigned int temperatureRawBuf[8]= {30, 0, 0, 0, 0, 0, 0, 0};
 unsigned int bloodPressRawBuf[16]= {80, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 unsigned int pulseRateRawBuf[8] = {70, 0, 0, 0, 0, 0, 0, 0};
 unsigned int respirationRateRawBuf[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-unsigned short Mode = 0;
+
 unsigned char tempCorrectedBuf[8]= {28, 0, 0, 0, 0, 0, 0, 0};
 unsigned char bloodPressCorrectedBuf[16] = {126, 169, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 unsigned char pulseRateCorrectedBuf[8]= {218, 0, 0, 0, 0, 0, 0, 0};
 unsigned char respirationRateCorBuf[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
+unsigned short Mode = 0;
 unsigned short batteryState = 200;
 unsigned long time1;
 unsigned long time2;
@@ -49,6 +50,8 @@ unsigned short alarmAcknowledge = 0;
 unsigned short command = 0;
 unsigned short remoteFunctionSelect = 0;
 unsigned short measurementResultSelection = 0;
+unsigned short displaySelection = 0;
+unsigned short* displaySelectionPtr = &displaySelection;
 unsigned short* localFunctionSelectPtr = &localFunctionSelect;
 unsigned short* measurementSelectionPtr = &measurementSelection;
 unsigned short* alarmAcknowledgePtr = &alarmAcknowledge;
@@ -133,25 +136,50 @@ void loop()
 {
     time2 = millis();
     time3 = millis();
+    
+    
+//    if (time2 - time1 > 1) {
+//      if(*(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {
+//        Select((void*)&kD);
+//      }
+//      if(*(measurementSelectionPtr) == 1) {
+//        
+//        menu(&kD);
+//        
+//      } else if(*(alarmAcknowledgePtr) == 1) {
+//            Serial.println("Announciation mode");
+//            *ModePtrr = 0;
+//            anno(&kD);    
+//      } else if (*(displaySelectionPtr) == 1) {
+//         *ModePtrr = 1;
+//          Measurement(&kD);
+//      }
+//       
+//    }
+
     if(time3 - time1 > 900) {
 
       sechdulerTest();
-    
+      
     } else {
    
     }
     
     if (time2 - time1 > 1) {
-      if(*(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0) {
+      if(*(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {
         Select((void*)&kD);
       }
       if(*(measurementSelectionPtr) == 1) {
+        
         menu(&kD);
         
-      }
-      if(*(alarmAcknowledgePtr) == 1) {
+      } else if(*(alarmAcknowledgePtr) == 1) {
             Serial.println("Announciation mode");
+            *ModePtrr = 0;
             anno(&kD);    
+      } else if (*(displaySelectionPtr) == 1) {
+         *ModePtrr = 1;
+          Measurement(&kD);
       }
       time1 = time3; 
     }

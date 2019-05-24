@@ -101,19 +101,22 @@ void run(TCB* taskQ) {
 void drawSub(int x, int y, bool d) {
     Serial.print("Entered drawSub");
     if(!d) {
-        tft.fillRect(x, y, 260, 80, RED);
+        tft.fillRect(x, y, 260, 60, RED);
     } else {
-        tft.fillRect(x, y, 260, 80, GREEN);
+        tft.fillRect(x, y, 260, 60, GREEN);
     }
     // See Line595 of Elegoo_GFX.cpp
     tft.setTextSize(2);
     tft.setTextColor(BLACK);
-    tft.setCursor(x + 10, y + 10);
+//    tft.setCursor(x + 10, y + 10);
+     tft.setCursor(x + 10, y + 10);
     if(y == 0) {
         tft.print("BloodPressure");
-    } else if(y == 80) {
+    } else if(y == 60) {
         tft.print("PulseRate");
-    } else if(y == 160) {
+    } else if(y == 120) {
         tft.print("Temperature");
+    } else {
+        tft.print("RespirationRate");
     }
 }

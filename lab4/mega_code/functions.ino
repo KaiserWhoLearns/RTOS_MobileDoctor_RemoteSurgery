@@ -9,11 +9,15 @@ bool dispRR = TRUE;
 bool refSelect = TRUE;
 bool refMenu = TRUE;
 bool refAnnu = TRUE;
+bool refMeas = TRUE;
+bool refDisp = TRUE;
 
 bool TSelected = FALSE;
 bool BPSelected = FALSE;
 bool PRSelected = FALSE;
+bool RRSelected = FALSE;
 bool Disp = TRUE;
+//bool Disp2 = TRUE;
 
 // By high we mean 15% out of range
 bool bpHigh = FALSE;
@@ -117,37 +121,58 @@ int countt = 0;
 *    Assume the data pointer is of type DisplayData
 *    Display the data on the TFT display
 *    April 23, 2019 by Kaiser Sun
+*    May 24, 2019 modified by Xinyu
 */
+
 void Display(void* dataPtr) {
     // TODO: change the color of display!
-
-    // Setup of tft display
-    tft.fillRect(0,0,400,180,GREY);
-    tft.setCursor(0, 0);
-    // Pointer dereference
     DisplayData dd = *((DisplayData*) dataPtr);
+    // Setup of tft display
+    if (refDisp) {
+      tft.setCursor(0, 0);
+      tft.setTextColor(CYAN);
+      tft.setTextSize(2);
+      tft.println("   Mobile Doctor");
+      tft.setTextColor(WHITE);
+      tft.println("Systolic Pressure: ");
+      tft.println("Diastolic Pressure: ");
+      tft.println("Temperature: ");
+      tft.println("Pulse Rate: ");
+      tft.println("Respiration Rate: ");
+      if (*(dd.Mode) == 0) {
+        tft.print("Battery: ");
+      }
+      refDisp = false;
+    }
+    
+    tft.fillRect(225,15,400,102,BLACK);
+    tft.setTextSize(2);
+
+    
+    
     // Starter
-    tft.setTextColor(CYAN);
-    tft.setTextSize(2);
-    tft.println("   Mobile Doctor");
-    tft.setTextSize(2);
+    
+    //tft.setTextSize(2);
     // Display Pressure
     if(dispBP) {
         if(bpOutOfRange == 0) {
             tft.setTextColor(GREEN);
         } else {
             if(bpHigh) {
-            tft.setTextColor(RED);
+              tft.setTextColor(RED);
             } else {
-                tft.setTextColor(YELLOW);
+               tft.setTextColor(YELLOW);
             }
         }
-        tft.print("Systolic Pressure: ");
+//        tft.print("Systolic Pressure: ");
+        
+        tft.setCursor(225, 15);
         tft.print(*(dd.bloodPressCorrectedBuf + 1));
-        tft.println(" mmHg");
-        tft.print("Diastolic Pressure: ");
+        tft.print(" mmHg");
+//        tft.print("Diastolic Pressure: ");
+        tft.setCursor(225, 31);
         tft.print(*(dd.bloodPressCorrectedBuf));
-        tft.println(" mmHg");
+        tft.print(" mmHg");
     }
 
     // print temperature
@@ -156,14 +181,15 @@ void Display(void* dataPtr) {
             tft.setTextColor(GREEN);
         } else {
             if(tempHigh) {
-            tft.setTextColor(RED);
+              tft.setTextColor(RED);
             } else {
-            tft.setTextColor(YELLOW);
+              tft.setTextColor(YELLOW);
             }
         }
-        tft.print("Temperature: ");
+//        tft.print("Temperature: ");
+        tft.setCursor(225, 47);
         tft.print(*(dd.tempCorrectedBuf));
-        tft.println(" C");
+        tft.print(" C");
     }
 
     // Display pulse
@@ -172,14 +198,15 @@ void Display(void* dataPtr) {
             tft.setTextColor(GREEN);
         } else {
             if(prHigh) {
-            tft.setTextColor(RED);
+              tft.setTextColor(RED);
             } else {
-            tft.setTextColor(YELLOW);
+              tft.setTextColor(YELLOW);
             }
         }
-        tft.print("Pulse Rate: ");
+//        tft.print("Pulse Rate: ");
+        tft.setCursor(225, 63);
         tft.print(*(dd.prCorrectedBuf));
-        tft.println("BPM");
+        tft.print("BPM");
     }
 
     // Display respiration rate
@@ -188,15 +215,16 @@ void Display(void* dataPtr) {
             tft.setTextColor(GREEN);
         } else {
             if(rrHigh) {
-            tft.setTextColor(RED);
+              tft.setTextColor(RED);
             } else {
-            tft.setTextColor(YELLOW);
+              tft.setTextColor(YELLOW);
             }
         }
+        tft.setCursor(225, 79);
+        tft.print(*(dd.respirationRateCorrectedBuf));
+        tft.print(" /s");
     }
-    tft.print("Respiration Rate: ");
-    tft.print(*(dd.respirationRateCorrectedBuf));
-    tft.println(" /s");
+    
 
     // Display battery status
     if(*(dd.batteryStatePtr) > 20) {
@@ -204,26 +232,32 @@ void Display(void* dataPtr) {
     } else {
         tft.setTextColor(RED);
     }
-    tft.print("Battery: ");
-    tft.println(*(dd.batteryStatePtr)); 
-    // Display too high or low warnings
-    tft.setTextSize(1.5);
-    tft.setTextColor(RED);
-    if(tempHigh) {
-        tft.println("Your body temperature is too high! Calm down QWQ");
-    }
 
-    if (bpHigh) {
-        tft.println("Your blood pressure is too high! Calm down QWQ");
-    }
-    
-    if(prHigh) {
-        tft.println("Your heart beat is too slow. Do something exciting 0w0");
+    if (*(dd.Mode) == 0) {
+//      tft.print("Battery: ");
+      tft.setCursor(225, 95);
+      tft.println(*(dd.batteryStatePtr)); 
+      tft.setTextSize(1.5);
+      tft.setTextColor(RED);
+      tft.fillRect(0,120,400,25,BLACK);
+      tft.setCursor(0, 120);
+      if(tempHigh) {
+          tft.println("Your body temperature is too high! Calm down QWQ");
+      }
+  
+      if (bpHigh) {
+          tft.println("Your blood pressure is too high! Calm down QWQ");
+      }
+      
+      if(prHigh) {
+          tft.println("Your heart beat is too slow. Do something exciting 0w0");
+      }
     }
 
     // End
     tft.setTextSize(1.4);
     tft.setTextColor(CYAN);
+    tft.setCursor(0, 150);
     tft.println("                  CSE 474 Inc.");
     return;
 }
@@ -286,18 +320,14 @@ void Status(void* dataPtr) {
 void menu(KeypadData* dataPtr) {
     //refMenu = false;
     KeypadData d = *dataPtr;
-    // // Test 
-    // Serial.print("Entered menu mode");
-    // Serial.print("Measure: ");
-    // Serial.println(*(d.measurementSelectionPtr));
-    // Serial.println(*(d.alarmAcknowledgePtr));
-    // Draw menu
+
     if (refMenu) {
       tft.setCursor(0, 0);
       tft.fillScreen(BLACK);
       drawSub(70, 0, dispBP);
-      drawSub(70, 80, dispPR);
-      drawSub(70, 160, dispT);
+      drawSub(70, 60, dispPR);
+      drawSub(70, 120, dispT);
+      drawSub(70, 180, dispRR);
       tft.fillRect(0, 0, 70, 240, MAGENTA);
       tft.setTextSize(2);
       tft.setTextColor(BLACK);
@@ -306,7 +336,7 @@ void menu(KeypadData* dataPtr) {
       refMenu = false;
     }
     if (TSelected) {
-      drawSub(70, 160, dispT);
+      drawSub(70, 120, dispT);
       TSelected = false;
     }
     if (BPSelected) {
@@ -314,8 +344,12 @@ void menu(KeypadData* dataPtr) {
       BPSelected = false;
     }
     if (PRSelected) {
-      drawSub(70, 80, dispPR);
+      drawSub(70, 60, dispPR);
       PRSelected = false;
+    }
+    if (RRSelected) {
+      drawSub(70, 180, dispRR);
+      RRSelected = false;
     }
 
     // Get point
@@ -332,7 +366,7 @@ void menu(KeypadData* dataPtr) {
         Serial.print(p.x);
         Serial.print(", ");
         Serial.println(p.y);
-        // while(!T(p.x, p.y) && !BP(p.x, p.y) && !PR(p.x, p.y) && !QUIT(p.x, p.y)) {
+  
         if(T(p.x, p.y)) {
             TSelected = true;
             if(dispT) {
@@ -357,9 +391,18 @@ void menu(KeypadData* dataPtr) {
                 dispPR = TRUE;
             }
         }
+        if(RR(p.x, p.y)) {
+            RRSelected = true;
+            if(dispRR) {
+                dispRR = FALSE;
+            } else {
+                dispRR = TRUE;
+            }
+        }
         if(QUIT1(p.x, p.y)) {
             *(d.measurementSelectionPtr) = 0;
             refSelect = true;
+            refDisp = true;
             //Select((void*) &d);
         }
     }
@@ -379,13 +422,13 @@ void anno(KeypadData* dataPtr) {
     // Draw exit button
     
     if (refAnnu) {
-      tft.fillScreen(GREY);
+      tft.fillScreen(BLACK);
       tft.fillRect(0, 180, 330, 60, RED);
       tft.setTextSize(2);
       tft.setTextColor(BLUE);
       tft.setCursor(150, 200);
-      tft.print("Exit");
-      //(*disp.myTask)(disp.taskDataPtr);
+      tft.print("Exit2");
+  
       refAnnu = false;
     }
     //(*disp.myTask)(disp.taskDataPtr);
@@ -404,14 +447,18 @@ void anno(KeypadData* dataPtr) {
         if(QUIT2(p.x, p.y)) {
             *(d.alarmAcknowledgePtr) = 0;
             refSelect = true;
-            //Select((void*) &d);
+            refDisp = true;
+            
         }
-    } else if (Disp) {
-            (*disp.myTask)(disp.taskDataPtr);
-            Disp = false;
-    } else {
-      Disp = true;
-    }
+    } 
+    (*disp.myTask)(disp.taskDataPtr);
+//    else if (Disp) {
+//            Disp = false;
+//            (*disp.myTask)(disp.taskDataPtr);
+//            
+//    } else {
+//      Disp = true;
+//    }
 
     return;
 }
@@ -429,22 +476,25 @@ void Select(void* dataPtr) {
     //refSelect = false;
     KeypadData kd = *((KeypadData*) dataPtr);
     // When it's select mode
-   //if(*(kd.measurementSelectionPtr) == 0 && *(kd.alarmAcknowledgePtr) == 0) {
-        if (refSelect) {
-          tft.fillScreen(BLACK);
-          tft.fillRect(0, 0, 165, 120, GREEN);
+
+       if (refSelect) {
+          tft.fillScreen(WHITE);
+          tft.fillCircle(55, 60, 50, GREEN);
           // Not used button
-          tft.fillRect(0, 120, 165, 240, BLUE);
+          tft.fillCircle(160, 60, 50, CYAN);
           // Upper: not used button
           tft.setTextSize(2);
           tft.setTextColor(BLACK);
-          tft.setCursor(10, 100);
+          tft.setCursor(30, 55);
           tft.print("MENU");
-          tft.fillRect(165, 0, 165, 120, YELLOW);
+          tft.fillCircle(265, 60, 50, YELLOW);
           // Not used button
-          tft.fillRect(165, 120, 165, 240, CYAN);
+          tft.setCursor(140, 55);
+          tft.print("Meas");
+          tft.fillCircle(110, 180, 50, PINK);
+          tft.fillCircle(220, 180, 50, ORANGE);
           // Upper: not used button
-          tft.setCursor(230, 100);
+          tft.setCursor(230, 55);
           tft.print("Announ");
           refSelect = false; 
         }
@@ -462,22 +512,80 @@ void Select(void* dataPtr) {
                 // If it's announciation, turn to display
                 *(kd.alarmAcknowledgePtr) = 1;
                 refAnnu = true;
-                Serial.print("ANN pressed");
-                Serial.print(p.x);
-                Serial.print(", ");
-                Serial.println(p.y);
-                Serial.println(*(kd.alarmAcknowledgePtr));
+                refDisp = true;
+//                Serial.print("ANN pressed");
+//                Serial.print(p.x);
+//                Serial.print(", ");
+//                Serial.println(p.y);
+//                Serial.println(*(kd.alarmAcknowledgePtr));
             }
             if(MENU(p.x, p.y)) {
                 *(kd.measurementSelectionPtr) = 1;
                 refMenu = true;
-                Serial.print("MENU pressed");
-                Serial.print(p.x);
-                Serial.print(", ");
-                Serial.println(p.y);
+                refDisp = true;
+//                Serial.print("MENU pressed");
+//                Serial.print(p.x);
+//                Serial.print(", ");
+//                Serial.println(p.y);
             } 
+            if (MEAS(p.x, p.y)) {
+               *(kd.displaySelectionPtr) = 1;
+               refDisp = true;
+               refMeas = true;
+            }
         }
     
+    return;
+}
+
+
+/*
+*    @param: KeypadData pointer, dataPtr
+*    Submethod of select; when called, goes into display mode
+*    May 24th by Xinyu
+*/
+void Measurement(KeypadData* dataPtr) {
+   
+    KeypadData d = *dataPtr;
+    // Draw exit button
+    
+    if (refMeas) {
+      tft.fillScreen(BLACK);
+      tft.fillRect(0, 180, 330, 60, RED);
+      tft.setTextSize(2);
+      tft.setTextColor(BLUE);
+      tft.setCursor(150, 200);
+      tft.print("Exit3");
+      refMeas = false;
+    }
+
+    // getPoint
+    digitalWrite(13, HIGH);
+    TSPoint p = ts.getPoint();
+    digitalWrite(13, LOW);
+    pinMode(XM, OUTPUT);
+    pinMode(YP, OUTPUT);
+    
+    // If we have point selected
+    if (p.z > ts.pressureThreshhold) {
+        // scale from 0->1023 to tft.width
+        p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
+        p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
+        if(QUIT3(p.x, p.y)) {
+            *(d.displaySelectionPtr) = 0;
+            refSelect = true;
+            refDisp = true;
+        }
+    } 
+//    else if (Disp2) {
+//            Disp2 = false;
+//            (*disp.myTask)(disp.taskDataPtr);
+//    } else {
+//      Disp2 = true;
+//    }
+    (*disp.myTask)(disp.taskDataPtr);
+
+
     return;
 }
 
@@ -566,7 +674,7 @@ void startUp() {
   dDa = DisplayData{ModePtrr, tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr, batteryStatePtrr};
   wAD = WarningAlarmData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr, batteryStatePtrr};
   sD = StatusData{batteryStatePtrr};
-  kD = KeypadData{localFunctionSelectPtr, measurementSelectionPtr, alarmAcknowledgePtr, commandPtr, remoteFunctionSelectPtr, measurementResultSelectionPtr};
+  kD = KeypadData{localFunctionSelectPtr, measurementSelectionPtr, alarmAcknowledgePtr, commandPtr, remoteFunctionSelectPtr, measurementResultSelectionPtr, displaySelectionPtr};
   comD = CommunicationsData{tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr};
 // Setup the TCBs
   meas = {&Measure, &meaD};
