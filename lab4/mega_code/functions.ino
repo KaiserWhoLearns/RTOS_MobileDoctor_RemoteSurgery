@@ -32,6 +32,8 @@ unsigned char pulseOutOfRange = 0;
 unsigned char rrOutOfRange = 0;
 
 unsigned long time4;
+unsigned long time5;
+
 bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
 
 

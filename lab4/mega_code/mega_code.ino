@@ -136,14 +136,6 @@ void loop()
 {
     time2 = millis();
     
-//    if(time2 - time1 > 2000) {
-//
-//      sechdulerTest();
-//      time1 = time2; 
-//      
-//    } else {
-//   
-//    }
     
     if (time2 - time1 > 1) {
       if(*(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {
@@ -158,7 +150,7 @@ void loop()
             *ModePtrr = 0;
             
             anno(&kD); 
-            if (time2 - time1 > 1000) {
+            if (time2 - time1 > 2000) {
               (*disp.myTask)(disp.taskDataPtr);
             }
    
@@ -166,7 +158,7 @@ void loop()
           Serial.println("Display mode");
          *ModePtrr = 1;
           Measurement(&kD);
-          if (time2 - time1 > 1000) {
+          if (time2 - time1 > 2000) {
               (*disp.myTask)(disp.taskDataPtr);
           }
    
@@ -174,7 +166,7 @@ void loop()
       
     }
 
-    if(time2 - time1 > 1000) {
+    if(time2 - time1 > 2000) {
 
       sechdulerTest();
       time1 = time2; 
