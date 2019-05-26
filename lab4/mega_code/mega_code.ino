@@ -29,6 +29,10 @@ unsigned short batteryState = 200;
 unsigned long time1;
 unsigned long time2;
 unsigned long time3;
+unsigned long timec;
+unsigned long timeb;
+
+unsigned int counter = 0;
 
 // initialize raw value pointers
 unsigned int* temperatureRawPtrr = temperatureRawBuf;
@@ -135,7 +139,13 @@ void setup() {
 void loop()
 {
     time2 = millis();
-    
+
+    timec = millis();
+
+    if (timec - timeb > 500) {
+      counter++;
+      timeb = timec;
+    }
     
     if (time2 - time1 > 1) {
       if(*(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {

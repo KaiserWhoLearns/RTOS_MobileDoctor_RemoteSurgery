@@ -6,6 +6,10 @@ bool dispT = TRUE;
 bool dispPR = TRUE;
 bool dispRR = TRUE;
 
+bool flashBP = FALSE;
+bool flashT = TRUE;
+bool flashPR = TRUE;
+
 bool refSelect = TRUE;
 bool refMenu = TRUE;
 bool refAnnu = TRUE;
@@ -31,8 +35,12 @@ unsigned char tempOutOfRange = 0;
 unsigned char pulseOutOfRange = 0;
 unsigned char rrOutOfRange = 0;
 
-unsigned long time4;
-unsigned long time5;
+//unsigned long timeBP;
+//unsigned long timePR;
+//unsigned long timeT;
+//unsigned long time4;
+
+
 
 bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
 
@@ -136,7 +144,7 @@ void Display(void* dataPtr) {
       tft.setCursor(0, 0);
       tft.setTextColor(CYAN);
       tft.setTextSize(2);
-      tft.println("           Mobile Doctor");
+      tft.println("        Mobile Doctor");
       tft.setTextColor(WHITE);
       //tft.setTextSize(1.9);
       if (dispBP) {
@@ -165,12 +173,19 @@ void Display(void* dataPtr) {
     if(dispBP) {
         if(bpOutOfRange == 0) {
             tft.setTextColor(GREEN);
+            flashBP = false;
+        } else if (bpHigh) { 
+          tft.setTextColor(RED);
+          flashBP = false;
         } else {
-            if(bpHigh) {
-              tft.setTextColor(RED);
-            } else {
-               tft.setTextColor(YELLOW);
-            }
+          // time4 = millis();
+           tft.setTextColor(YELLOW);
+           if (counter % 1 == 0) {
+               flashBP = true;
+           } else {
+               flashBP = false; 
+           }
+
         }
         
         tft.setCursor(225, index);
@@ -180,6 +195,9 @@ void Display(void* dataPtr) {
         tft.setCursor(225, index);
         tft.print(*(dd.bloodPressCorrectedBuf));
         tft.print(" mmHg");
+        if (flashBP) {
+          system("clear");
+        }
     }
 
     // print temperature
