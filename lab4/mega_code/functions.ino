@@ -65,7 +65,8 @@ void Measure(void* dataPtr)
     MeasureData md = *((MeasureData*) dataPtr);
     Serial1.write('s');
     if(dispT) { 
-        Serial1.write('t'); 
+        Serial1.write('t');
+        Serial1.write('p'); 
         if(Serial1.available()) {
         int newTemp = Serial1.read();
         if(moreThan15(newTemp, md.temperatureRawBuf)) {
@@ -76,6 +77,7 @@ void Measure(void* dataPtr)
 
     if(dispBP) { 
         Serial1.write('b'); 
+        Serial1.write('u');
         if(Serial1.available()) {
         int newSys = Serial1.read();
         int newDia = Serial1.read();
@@ -87,6 +89,7 @@ void Measure(void* dataPtr)
     }
     if(dispPR) { 
         Serial1.write('p');
+        Serial1.write('l');
         if(Serial1.available()) {
         int newPr = Serial1.read();
         if(moreThan15(newPr, md.pulseRateRawBuf)) {
@@ -95,6 +98,7 @@ void Measure(void* dataPtr)
         }
     }
     if(dispRR) { 
+        Serial1.write('r');
         Serial1.write('r');
         if(Serial1.available()) { 
         int newRR = Serial1.read();
@@ -496,14 +500,7 @@ void anno(KeypadData* dataPtr) {
             
         }
     }
-//    else if (Disp) {
-//        Disp = false;
-//        (*disp.myTask)(disp.taskDataPtr);
-//            
-//    } else {
-//        Disp = true;
-//    }
-    //(*disp.myTask)(disp.taskDataPtr);
+
 
     return;
 }

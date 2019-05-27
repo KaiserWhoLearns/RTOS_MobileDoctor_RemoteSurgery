@@ -16,6 +16,7 @@ int buttonVal = 0; //if buttonVal = 0 blood pressure doesn't change
 int increment = 1; //if increment=1 buttonval=1 the cuff inflates
                    //if increment=0 and buttonval=1 the cuff deflates
 char incoming;
+char fun;
 
 int temperatureRaw = 30;
 int systolicPressRaw = 80;
@@ -55,27 +56,35 @@ void communications() {
       while(incoming != 'e') {
         
         if(incoming == 't') {
+          fun = Serial.read();
+          // Read in function name
+          if(fun == 'p'){
           Serial.write(temperatureRaw);
-          // Serial.println("temp");
-          // Serial.println(temperatureRaw);
-          // Serial.println(int(char(temperatureRaw)));
-          // if(meT) { meT = false; } else { meT = true; }
+          }
         }
         if(incoming == 'b') {
+          fun = Serial.read();
+          // Read in function name
+          if(fun == 'u'){
           Serial.write(systolicPressRaw);
-          // Serial.println(systolicPressRaw);
-          // Serial.print(systolicPressRaw);
           Serial.write(diastolicPressRaw);
-          // if(meB) { meB = false; } else { meB = true; }
+          }
         }
         if(incoming == 'p') {
+          fun = Serial.read();
+          // Read in function name
+          if(fun == 'l'){
           Serial.write(pulseRateRaw);
+          }
           // if(mePR) { mePR = false; } else { mePR = true; }
         }
         if(incoming == 'r') {
-          //TODO: Add respirrate
+          fun = Serial.read();
+          // Read in function name
+          if(fun == 'l'){
           Serial.write(respRate);
           // if(meR) { meR = false; } else { meR = true; }
+          }
         }
         // if(Serial.available()) {
             incoming = Serial.read();
