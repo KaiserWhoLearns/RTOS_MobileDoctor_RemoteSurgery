@@ -37,27 +37,27 @@ void shiftChar(int newVal,int Bufsize,unsigned char* Buf) {
 *    May23, 2019 Kaiser
 */
 bool isBPHigh(int sys, int dia) {
-    if(sys > 130) {
-        if(float(sys - 130)/130 > 0.15) { 
+    if(sys > 60.5) {
+        if(float(sys - 60.5)/60.5 > 0.2) { 
           
           return true; 
         }
         else { return false; }
-    } else if(sys < 120) {
-        if(float(120 - sys)/120 > 0.15) { 
+    } else if(sys < 55.5) {
+        if(float(55.5 - sys)/55.5 > 0.2) { 
           
           return true; 
         }
         else { return false; }
     }
-    if(dia > 80) {
-        if(float(dia - 80)/80 > 0.15) { 
+    if(dia > 49.3) {
+        if(float(dia - 49.3)/49.3 > 0.2) { 
           
           return true; 
         }
         else { return false; }
     } else {
-        if(float(70 - dia)/70 > 0.15) { 
+        if(float(42.7 - dia)/42.7 > 0.2) { 
           
           return true; 
         }
@@ -71,8 +71,8 @@ bool isBPHigh(int sys, int dia) {
 *   return true if Temperature high; false otherwise
 */
 bool isTHight(float t) {
-    return t > 37.8 && (t - 37.8)/37.8 > 0.15 
-            || t < 36.1 && (36.1 - 7)/36.1 > 0.15;
+    return t > 43.7 && (t - 43.7)/43.7 > 0.15 
+            || t < 41.5 && (41.5 - t)/41.5 > 0.15;
 }
 
 /*
@@ -80,8 +80,8 @@ bool isTHight(float t) {
 *    return true if it's too out of range(0.15); false otherwise
 */
 bool isPRHigh(float pr) {
-    return (pr > 100) && (pr - 100) / 100 > 0.15
-            || (pr < 60) && (60 - pr) / 60 > 0.15;
+    return (pr > 30.7) && (pr - 30.7) / 30.7 > 0.15
+            || (pr < 17.3) && (17.3 - pr) / 17.3 > 0.15;
 }
 
 /*
@@ -89,20 +89,11 @@ bool isPRHigh(float pr) {
 *   return true if it's too out of range(0.15); false otherwise
 */
 bool isRRHigh(float rr) {
-    return (rr > 25) && (rr - 25) / 25 > 0.15
-        || (rr < 12) && (12 - rr) / 12 > 0.15;
+    return (rr > 6) && (rr - 6) / 6 > 0.15
+        || (rr < 1.67) && (1.67 - rr) / 1.67 > 0.15;
 }
 
-/*
-*    @param: int index, TCB* taskQ;
-*    pre: index < length(taskQ);
-*    helper method of sechdule function;
-*    April 23, 2019 by Kaiser Sun
-*/
-void run(TCB* taskQ) {
-    // Call the function in the taskQ;
-    (*taskQ->myTask)(taskQ->taskDataPtr);
-}
+
 
 /*
 *    @para: take in x, y, the center of the rectangle

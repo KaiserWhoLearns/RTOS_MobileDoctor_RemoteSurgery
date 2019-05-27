@@ -170,17 +170,26 @@ void loop()
     
     if (time2 - time1 > 1) {
       if(*(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {
-        Select((void*)&kD);
+        TCB temp = {&Select, &kD};
+        insertLast(&temp);
+        run(&temp);
+        deleteNode(&temp);
       }
       if(*(measurementSelectionPtr) == 1) {
-        
-        menu(&kD);
+        TCB temp2 = {&menu, &kD};
+        insertLast(&temp2);
+        run(&temp2);
+        deleteNode(&temp2);
+        // menu(&kD);
         
       } else if(*(alarmAcknowledgePtr) == 1) {
             Serial.println("Announciation mode");
             *ModePtrr = 0;
-            
-            anno(&kD); 
+            TCB temp3 = {&anno, &kD};
+            insertLast(&temp3);
+            run(&temp3);
+            deleteNode(&temp3);
+            // anno(&kD); 
             if (time2 - time1 > 2000) {
               (*disp.myTask)(disp.taskDataPtr);
               startF = true;
@@ -207,7 +216,7 @@ void loop()
 
     if(time2 - time1 > 2000) {
 
-      sechdulerTest();
+      schedulerTest();
       time1 = time2; 
       
     } else {

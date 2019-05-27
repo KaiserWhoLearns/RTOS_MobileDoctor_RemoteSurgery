@@ -141,10 +141,12 @@ int getTemp() {
   return temp;
   
 }
+
 unsigned int SysP = 50;
 unsigned int DiaP = 29;
 unsigned int previousbuttonVal = 0;
 int getBP (boolean sys) {
+  // delay(5);
   buttonVal = digitalRead(buttonPin);
   increment = digitalRead(switchPin);
   if (previousbuttonVal == 0 & buttonVal == 1) {
