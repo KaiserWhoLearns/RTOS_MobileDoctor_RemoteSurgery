@@ -150,7 +150,6 @@ void setup() {
 void loop()
 {
     time2 = millis();
-
     timec = millis();
 
     if (timec - timeb > 500) {
@@ -159,14 +158,6 @@ void loop()
       counterPR++;
       timeb = timec;  
     } 
-//    if (timec - timeb > 1000) {
-//      counterT++;
-//    } 
-//    if (timec - timeb > 2000) {
-//      counterPR++;
-//      timeb = timec;
-//    }
-
     if (counterT == 5) {
       counterT = 1;
     }

@@ -66,32 +66,45 @@ void Measure(void* dataPtr)
     Serial1.write('s');
     if(dispT) { 
         Serial1.write('t'); 
-        // Uncomment the delay if we are measuring using interrupt
-        // delay(500);
+        if(Serial1.available()) {
         int newTemp = Serial1.read();
+        if(moreThan15(newTemp, md.temperatureRawBuf)) {
         shift(newTemp, 8, (md.temperatureRawBuf));
+        }
+    }
     }
 
     if(dispBP) { 
         Serial1.write('b'); 
-        delay(500);
+        if(Serial1.available()) {
         int newSys = Serial1.read();
         int newDia = Serial1.read();
+        if(moreThan15(newSys, (md.bloodPressRawBuf) + 1) && moreThan15(newDia, md.bloodPressRawBuf)){
         shift(newSys, 16, (md.bloodPressRawBuf));
         shift(newDia, 16, (md.bloodPressRawBuf));
+        }
+        }
     }
     if(dispPR) { 
         Serial1.write('p');
+        if(Serial1.available()) {
         int newPr = Serial1.read();
+        if(moreThan15(newPr, md.pulseRateRawBuf)) {
         shift(newPr, 8, (md.pulseRateRawBuf)); 
+        }
+        }
     }
     if(dispRR) { 
-        Serial1.write('r'); 
+        Serial1.write('r');
+        if(Serial1.available()) { 
         int newRR = Serial1.read();
+        if(moreThan15(newRR, md.pulseRateRawBuf)) {
         shift(newRR, 8, (md.respirationRateRawBuf));
+        }
+        }
     }
     Serial1.write('e');
-    
+    delay(200);
     return;
 }
 
@@ -119,11 +132,9 @@ void Compute(void* dataPtr) {
     if(dispPR) {
         int correctedPr = (*(comd.pulseRateRawBuf)) * 3 + 8; 
         shiftChar(correctedPr, 8, (comd.prCorrectedBuf));
-        Serial.print("Corrected pulse rate");
-        Serial.println(correctedPr);
     }
     if(dispRR) {
-        shiftChar(*(comd.respirationRateRawBuf), 8, (comd.respirationRateCorBufPtr));
+        shiftChar((*(comd.respirationRateRawBuf))*3 + 7, 8, (comd.respirationRateCorBufPtr));
     }    
     return;
 }
@@ -140,7 +151,7 @@ int countt = 0;
 int index = 15;
 void Display(void* dataPtr) {
     // TODO: change the color of display!
-    Serial.println("run display");
+    // Serial.println("run display");
     index = 15;
     DisplayData dd = *((DisplayData*) dataPtr);
     // Setup of tft display
@@ -305,7 +316,7 @@ void Display(void* dataPtr) {
 */
 void WarningAlarm(void* dataPtr) {
     WarningAlarmData wad = *((WarningAlarmData*) dataPtr);
-    if (*(wad.temperatureRawBuf) > 37.8 || *(wad.temperatureRawBuf) < 36.1) {
+    if (*(wad.temperatureRawBuf) > 43.7 || *(wad.temperatureRawBuf) < 41.5) {
         tempOutOfRange = 1;
         tempHigh = isTHight(float(*(wad.temperatureRawBuf)));
     } else {
@@ -547,20 +558,11 @@ void Select(void* dataPtr) {
                 *(kd.alarmAcknowledgePtr) = 1;
                 refAnnu = true;
                 refDisp = true;
-//                Serial.print("ANN pressed");
-//                Serial.print(p.x);
-//                Serial.print(", ");
-//                Serial.println(p.y);
-//                Serial.println(*(kd.alarmAcknowledgePtr));
             }
             if(MENU(p.x, p.y)) {
                 *(kd.measurementSelectionPtr) = 1;
                 refMenu = true;
                 refDisp = true;
-//                Serial.print("MENU pressed");
-//                Serial.print(p.x);
-//                Serial.print(", ");
-//                Serial.println(p.y);
             } 
             if (MEAS(p.x, p.y)) {
                *(kd.displaySelectionPtr) = 1;
@@ -611,14 +613,6 @@ void Measurement(KeypadData* dataPtr) {
             refDisp = true;
         }
     } 
-//    else if (Disp2) {
-//            Disp2 = false;
-//            (*disp.myTask)(disp.taskDataPtr);
-//    } else {
-//      Disp2 = true;
-//    }
-    //(*disp.myTask)(disp.taskDataPtr);
-
 
     return;
 }
@@ -686,7 +680,7 @@ void Communications(void* dataPtr) {
 *    April 23, 2019 by Kaiser Sun
 *    May 12, 2019 modified by Xinyu
 */
-void sechdulerTest() {
+void schedulerTest() {
         TCB* taskQueue = front;
 
         while (taskQueue != NULL) {
@@ -734,7 +728,7 @@ void startUp() {
 }
 
 void flash() {
-  if (flashBP) {
+  if (dispBP && flashBP) {
     if (counterBP == 1) {
       tft.fillRect(225, BPindex, 400, 30, BLACK);
     } else {
@@ -750,7 +744,7 @@ void flash() {
     }
   }
   
-  if (flashPR) {
+  if (dispPR && flashPR) {
     if (counterPR == 4) {
       tft.fillRect(225, PRindex, 400, 15, BLACK);
     } else if (counterPR == 8){
@@ -762,7 +756,7 @@ void flash() {
       tft.print("BPM");
     }
   }
-  if (flashT) {
+  if (dispT && flashT) {
     if (counterT == 2) {
       tft.fillRect(225, Tindex, 400, 15, BLACK);
     } else if (counterT == 4) {
