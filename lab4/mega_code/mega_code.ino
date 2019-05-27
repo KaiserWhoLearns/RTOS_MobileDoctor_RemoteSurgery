@@ -8,6 +8,15 @@
 //bool dispT = TRUE;
 //bool dispPR = TRUE;
 //bool dispRR = TRUE;
+//bool flashBP = FALSE;
+//bool flashT = FALSE;
+//bool flashPR = FALSE;
+
+bool startF = FALSE;
+
+unsigned int BPindex = 0;
+unsigned int PRindex = 0;
+unsigned int Tindex = 0;
 
 //bool refSelect = TRUE;
 //bool refMenu = TRUE;
@@ -32,7 +41,9 @@ unsigned long time3;
 unsigned long timec;
 unsigned long timeb;
 
-unsigned int counter = 0;
+unsigned int counterBP = 0;
+unsigned int counterT = 0;
+unsigned int counterPR = 0;
 
 // initialize raw value pointers
 unsigned int* temperatureRawPtrr = temperatureRawBuf;
@@ -143,8 +154,27 @@ void loop()
     timec = millis();
 
     if (timec - timeb > 500) {
-      counter++;
-      timeb = timec;
+      counterBP++; 
+      counterT++;
+      counterPR++;
+      timeb = timec;  
+    } 
+//    if (timec - timeb > 1000) {
+//      counterT++;
+//    } 
+//    if (timec - timeb > 2000) {
+//      counterPR++;
+//      timeb = timec;
+//    }
+
+    if (counterT == 5) {
+      counterT = 0;
+    }
+    if (counterPR == 9) {
+      counterPR = 0;
+    }
+    if (counterBP == 3) {
+      counterBP = 0;
     }
     
     if (time2 - time1 > 1) {
@@ -162,7 +192,12 @@ void loop()
             anno(&kD); 
             if (time2 - time1 > 2000) {
               (*disp.myTask)(disp.taskDataPtr);
+              startF = true;
             }
+            if (startF == true) {
+              flash();
+            }
+            
    
       } else if (*(displaySelectionPtr) == 1) {
           Serial.println("Display mode");
@@ -170,8 +205,11 @@ void loop()
           Measurement(&kD);
           if (time2 - time1 > 2000) {
               (*disp.myTask)(disp.taskDataPtr);
+              startF = true;
           }
-   
+          if (startF == true) {
+              flash();
+          }
       }
       
     }

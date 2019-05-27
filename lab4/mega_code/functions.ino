@@ -7,8 +7,12 @@ bool dispPR = TRUE;
 bool dispRR = TRUE;
 
 bool flashBP = FALSE;
-bool flashT = TRUE;
-bool flashPR = TRUE;
+bool flashT = FALSE;
+bool flashPR = FALSE;
+
+//bool flashBP = FALSE;
+//bool flashT = TRUE;
+//bool flashPR = TRUE;
 
 bool refSelect = TRUE;
 bool refMenu = TRUE;
@@ -178,41 +182,38 @@ void Display(void* dataPtr) {
           tft.setTextColor(RED);
           flashBP = false;
         } else {
-          // time4 = millis();
            tft.setTextColor(YELLOW);
-           if (counter % 1 == 0) {
-               flashBP = true;
-           } else {
-               flashBP = false; 
-           }
-
+           flashBP = true;
         }
         
         tft.setCursor(225, index);
+        BPindex = index;
         tft.print(*(dd.bloodPressCorrectedBuf + 1));
         tft.print(" mmHg");
         index += 16;
         tft.setCursor(225, index);
         tft.print(*(dd.bloodPressCorrectedBuf));
         tft.print(" mmHg");
-        if (flashBP) {
-          system("clear");
-        }
+      
     }
 
     // print temperature
     if(dispT) {
         if(tempOutOfRange == 0) {
             tft.setTextColor(GREEN);
+            flashT = false;
         } else {
             if(tempHigh) {
               tft.setTextColor(RED);
+              flashT = false;
             } else {
               tft.setTextColor(YELLOW);
+              flashT = true;
             }
         }
 
         index += 16;
+        Tindex = index;
         tft.setCursor(225, index);
         tft.print(*(dd.tempCorrectedBuf));
         tft.print(" C");
@@ -222,15 +223,19 @@ void Display(void* dataPtr) {
     if(dispPR) {
         if(pulseOutOfRange == 0) {
             tft.setTextColor(GREEN);
+            flashPR = false;
         } else {
             if(prHigh) {
               tft.setTextColor(RED);
+              flashPR = false;
             } else {
               tft.setTextColor(YELLOW);
+              flashPR = true;
             }
         }
 
         index += 16;
+        PRindex = index;
         tft.setCursor(225, index);
         tft.print(*(dd.prCorrectedBuf));
         tft.print("BPM");
@@ -726,4 +731,50 @@ void startUp() {
   // taskQueue[4] = disp;
   //run(&keyp);
 
+}
+
+void flash() {
+  if (flashBP) {
+    if (counterBP <= 1) {
+      tft.fillRect(225, BPindex, 400, 30, BLACK);
+    } else {
+      tft.setTextColor(YELLOW);
+      tft.fillRect(225, BPindex, 400, 30, BLACK);
+      tft.setTextSize(2);
+      tft.setCursor(225, BPindex);
+      tft.print(*(bloodPressCorrectedBuf + 1));
+      tft.print(" mmHg");
+      tft.setCursor(225, BPindex + 16);
+      tft.print(*(bloodPressCorrectedBuf));
+      tft.print(" mmHg");
+    }
+  }
+  
+  if (flashPR) {
+    if (counterPR <= 4) {
+      tft.fillRect(225, PRindex, 400, 15, BLACK);
+    } else {
+      tft.setTextColor(YELLOW);
+      tft.fillRect(225, PRindex, 400, 15, BLACK);
+      tft.setTextSize(2);
+      tft.setCursor(225, PRindex);
+      tft.print(*(pulseRateCorrectedPtrr));
+      tft.print("BPM");
+    }
+  }
+  if (flashT) {
+    if (counterT <= 2) {
+      tft.fillRect(225, Tindex, 400, 15, BLACK);
+    } else {
+      tft.setTextColor(YELLOW);
+      tft.fillRect(225, Tindex, 400, 15, BLACK);
+      tft.setTextSize(2);
+      tft.setCursor(225, Tindex);
+      Serial.println(Tindex);
+        
+      tft.print(*(tempCorrectedBuf));
+      tft.print(" C");
+    }
+  }
+  
 }

@@ -39,26 +39,26 @@ void shiftChar(int newVal,int Bufsize,unsigned char* Buf) {
 bool isBPHigh(int sys, int dia) {
     if(sys > 130) {
         if(float(sys - 130)/130 > 0.15) { 
-          timeBP = millis();
+          
           return true; 
         }
         else { return false; }
     } else if(sys < 120) {
         if(float(120 - sys)/120 > 0.15) { 
-          timeBP = millis();
+          
           return true; 
         }
         else { return false; }
     }
     if(dia > 80) {
         if(float(dia - 80)/80 > 0.15) { 
-          timeBP = millis();
+          
           return true; 
         }
         else { return false; }
     } else {
         if(float(70 - dia)/70 > 0.15) { 
-          timeBP = millis();
+          
           return true; 
         }
         else { return false; }
