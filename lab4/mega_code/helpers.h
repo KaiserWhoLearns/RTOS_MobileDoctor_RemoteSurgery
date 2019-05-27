@@ -80,7 +80,7 @@ bool isTHight(float t) {
 *    return true if it's too out of range(0.15); false otherwise
 */
 bool isPRHigh(float pr) {
-    return (pr > 30) && (pr - 30) / 30 > 0.15
+    return (pr > 30.7) && (pr - 30.7) / 30.7 > 0.15
             || (pr < 17.33) && (17.33 - pr) / 17.33 > 0.15;
 }
 

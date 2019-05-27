@@ -302,26 +302,26 @@ void Display(void* dataPtr) {
 */
 void WarningAlarm(void* dataPtr) {
     WarningAlarmData wad = *((WarningAlarmData*) dataPtr);
-    if (*(wad.temperatureRawBuf) > 43.7*1.05 || *(wad.temperatureRawBuf) < 41.5*1.05) {
+    if (*(wad.temperatureRawBuf) > 43.7*1.05 || *(wad.temperatureRawBuf) < 41.5*0.95) {
         tempOutOfRange = 1;
         tempHigh = isTHight(float(*(wad.temperatureRawBuf)));
     } else {
         tempOutOfRange = 0;
     }
-    if(*(wad.bloodPressRawBuf + 1) > 60.5*1.05 || *(wad.bloodPressRawBuf) > 49.3*1.05 || *(wad.bloodPressRawBuf + 1) < 55.5*1.05 || *(wad.bloodPressRawBuf) < 42.7*1.05) {
+    if(*(wad.bloodPressRawBuf + 1) > 60.5*1.05 || *(wad.bloodPressRawBuf) > 49.3*1.05 || *(wad.bloodPressRawBuf + 1) < 55.5*0.95 || *(wad.bloodPressRawBuf) < 42.7*0.95) {
         bpOutOfRange = 1;
         //sys: 1, Dia: 0
         bpHigh = isBPHigh(*(wad.bloodPressRawBuf + 1), *(wad.bloodPressRawBuf));
     } else {
         bpOutOfRange = 0;
     }
-    if(*(wad.pulseRateRawBuf) < 17.3*1.05 || *(wad.pulseRateRawBuf) > 30.7*1.05) {
+    if(*(wad.pulseRateRawBuf) < 17.3*0.95 || *(wad.pulseRateRawBuf) > 30.7*1.05) {
         pulseOutOfRange = 1;
         prHigh = isPRHigh(float(*(wad.pulseRateRawBuf)));
     } else {
         pulseOutOfRange = 0;
     }
-    if(*(wad.rrRawBuf) < 1.67*1.05 || *(wad.rrRawBuf) > 6*1.05) {
+    if(*(wad.rrRawBuf) < 1.67*0.95 || *(wad.rrRawBuf) > 6*1.05) {
         rrOutOfRange = 1;
         rrHigh = isRRHigh(float(*(wad.rrRawBuf)));
     }
