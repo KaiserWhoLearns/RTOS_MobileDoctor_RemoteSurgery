@@ -6,6 +6,14 @@ bool dispT = TRUE;
 bool dispPR = TRUE;
 bool dispRR = TRUE;
 
+bool flashBP = FALSE;
+bool flashT = FALSE;
+bool flashPR = FALSE;
+
+//bool flashBP = FALSE;
+//bool flashT = TRUE;
+//bool flashPR = TRUE;
+
 bool refSelect = TRUE;
 bool refMenu = TRUE;
 bool refAnnu = TRUE;
@@ -17,7 +25,7 @@ bool BPSelected = FALSE;
 bool PRSelected = FALSE;
 bool RRSelected = FALSE;
 bool Disp = TRUE;
-//bool Disp2 = TRUE;
+bool Disp2 = TRUE;
 
 // By high we mean 15% out of range
 bool bpHigh = FALSE;
@@ -31,7 +39,13 @@ unsigned char tempOutOfRange = 0;
 unsigned char pulseOutOfRange = 0;
 unsigned char rrOutOfRange = 0;
 
-unsigned long time4;
+//unsigned long timeBP;
+//unsigned long timePR;
+//unsigned long timeT;
+//unsigned long time4;
+
+
+
 bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
 
 
@@ -123,22 +137,33 @@ int countt = 0;
 *    April 23, 2019 by Kaiser Sun
 *    May 24, 2019 modified by Xinyu
 */
-
+int index = 15;
 void Display(void* dataPtr) {
     // TODO: change the color of display!
+    Serial.println("run display");
+    index = 15;
     DisplayData dd = *((DisplayData*) dataPtr);
     // Setup of tft display
     if (refDisp) {
       tft.setCursor(0, 0);
       tft.setTextColor(CYAN);
       tft.setTextSize(2);
-      tft.println("   Mobile Doctor");
+      tft.println("        Mobile Doctor");
       tft.setTextColor(WHITE);
-      tft.println("Systolic Pressure: ");
-      tft.println("Diastolic Pressure: ");
-      tft.println("Temperature: ");
-      tft.println("Pulse Rate: ");
-      tft.println("Respiration Rate: ");
+      //tft.setTextSize(1.9);
+      if (dispBP) {
+        tft.println("Systolic Pressure: ");
+        tft.println("Diastolic Pressure: ");
+      }
+      if (dispT) {
+        tft.println("Temperature: ");
+      }
+      if (dispPR) {
+        tft.println("Pulse Rate: "); 
+      }
+      if (dispRR) {
+        tft.println("Respiration Rate: ");
+      }
       if (*(dd.Mode) == 0) {
         tft.print("Battery: ");
       }
@@ -148,46 +173,48 @@ void Display(void* dataPtr) {
     tft.fillRect(225,15,400,102,BLACK);
     tft.setTextSize(2);
 
-    
-    
-    // Starter
-    
-    //tft.setTextSize(2);
     // Display Pressure
     if(dispBP) {
         if(bpOutOfRange == 0) {
             tft.setTextColor(GREEN);
+            flashBP = false;
+        } else if (bpHigh) { 
+          tft.setTextColor(RED);
+          flashBP = false;
         } else {
-            if(bpHigh) {
-              tft.setTextColor(RED);
-            } else {
-               tft.setTextColor(YELLOW);
-            }
+           tft.setTextColor(YELLOW);
+           flashBP = true;
         }
-//        tft.print("Systolic Pressure: ");
         
-        tft.setCursor(225, 15);
+        tft.setCursor(225, index);
+        BPindex = index;
         tft.print(*(dd.bloodPressCorrectedBuf + 1));
         tft.print(" mmHg");
-//        tft.print("Diastolic Pressure: ");
-        tft.setCursor(225, 31);
+        index += 16;
+        tft.setCursor(225, index);
         tft.print(*(dd.bloodPressCorrectedBuf));
         tft.print(" mmHg");
+      
     }
 
     // print temperature
     if(dispT) {
         if(tempOutOfRange == 0) {
             tft.setTextColor(GREEN);
+            flashT = false;
         } else {
             if(tempHigh) {
               tft.setTextColor(RED);
+              flashT = false;
             } else {
               tft.setTextColor(YELLOW);
+              flashT = true;
             }
         }
-//        tft.print("Temperature: ");
-        tft.setCursor(225, 47);
+
+        index += 16;
+        Tindex = index;
+        tft.setCursor(225, index);
         tft.print(*(dd.tempCorrectedBuf));
         tft.print(" C");
     }
@@ -196,15 +223,20 @@ void Display(void* dataPtr) {
     if(dispPR) {
         if(pulseOutOfRange == 0) {
             tft.setTextColor(GREEN);
+            flashPR = false;
         } else {
             if(prHigh) {
               tft.setTextColor(RED);
+              flashPR = false;
             } else {
               tft.setTextColor(YELLOW);
+              flashPR = true;
             }
         }
-//        tft.print("Pulse Rate: ");
-        tft.setCursor(225, 63);
+
+        index += 16;
+        PRindex = index;
+        tft.setCursor(225, index);
         tft.print(*(dd.prCorrectedBuf));
         tft.print("BPM");
     }
@@ -220,7 +252,8 @@ void Display(void* dataPtr) {
               tft.setTextColor(YELLOW);
             }
         }
-        tft.setCursor(225, 79);
+        index += 16;
+        tft.setCursor(225, index);
         tft.print(*(dd.respirationRateCorrectedBuf));
         tft.print(" /s");
     }
@@ -235,7 +268,8 @@ void Display(void* dataPtr) {
 
     if (*(dd.Mode) == 0) {
 //      tft.print("Battery: ");
-      tft.setCursor(225, 95);
+      index += 16;
+      tft.setCursor(225, index);
       tft.println(*(dd.batteryStatePtr)); 
       tft.setTextSize(1.5);
       tft.setTextColor(RED);
@@ -271,26 +305,26 @@ void Display(void* dataPtr) {
 */
 void WarningAlarm(void* dataPtr) {
     WarningAlarmData wad = *((WarningAlarmData*) dataPtr);
-    if (*(wad.temperatureRawBuf) > 37.8 || *(wad.temperatureRawBuf) < 36.1) {
+    if (*(wad.temperatureRawBuf) > 43.7 || *(wad.temperatureRawBuf) < 41.5) {
         tempOutOfRange = 1;
         tempHigh = isTHight(float(*(wad.temperatureRawBuf)));
     } else {
         tempOutOfRange = 0;
     }
-    if(*(wad.bloodPressRawBuf + 1) > 130 || *(wad.bloodPressRawBuf) > 80 || *(wad.bloodPressRawBuf + 1) < 120 || *(wad.bloodPressRawBuf) < 70) {
+    if(*(wad.bloodPressRawBuf + 1) > 60.5 || *(wad.bloodPressRawBuf) > 49.3 || *(wad.bloodPressRawBuf + 1) < 55.5 || *(wad.bloodPressRawBuf) < 42.7) {
         bpOutOfRange = 1;
         //sys: 1, Dia: 0
         bpHigh = isBPHigh(*(wad.bloodPressRawBuf + 1), *(wad.bloodPressRawBuf));
     } else {
         bpOutOfRange = 0;
     }
-    if(*(wad.pulseRateRawBuf) < 60 || *(wad.pulseRateRawBuf) > 100) {
+    if(*(wad.pulseRateRawBuf) < 17.3 || *(wad.pulseRateRawBuf) > 30.7) {
         pulseOutOfRange = 1;
         prHigh = isPRHigh(float(*(wad.pulseRateRawBuf)));
     } else {
         pulseOutOfRange = 0;
     }
-    if(*(wad.rrRawBuf) < 12 || *(wad.rrRawBuf) > 25) {
+    if(*(wad.rrRawBuf) < 1.67 || *(wad.rrRawBuf) > 6) {
         rrOutOfRange = 1;
         rrHigh = isRRHigh(float(*(wad.rrRawBuf)));
     }
@@ -363,9 +397,9 @@ void menu(KeypadData* dataPtr) {
     // scale from 0->1023 to tft.width
         p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
         p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
-        Serial.print(p.x);
-        Serial.print(", ");
-        Serial.println(p.y);
+//        Serial.print(p.x);
+//        Serial.print(", ");
+//        Serial.println(p.y);
   
         if(T(p.x, p.y)) {
             TSelected = true;
@@ -406,7 +440,7 @@ void menu(KeypadData* dataPtr) {
             //Select((void*) &d);
         }
     }
-    //refMenu = true;
+    
     return;
 }
 
@@ -431,7 +465,6 @@ void anno(KeypadData* dataPtr) {
   
       refAnnu = false;
     }
-    //(*disp.myTask)(disp.taskDataPtr);
     
     // getPoint
     digitalWrite(13, HIGH);
@@ -450,15 +483,8 @@ void anno(KeypadData* dataPtr) {
             refDisp = true;
             
         }
-    } 
-    (*disp.myTask)(disp.taskDataPtr);
-//    else if (Disp) {
-//            Disp = false;
-//            (*disp.myTask)(disp.taskDataPtr);
-//            
-//    } else {
-//      Disp = true;
-//    }
+    }
+
 
     return;
 }
@@ -507,7 +533,7 @@ void Select(void* dataPtr) {
         // scale from 0->1023 to tft.width
             p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
             p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
-            Serial.println(MENU(p.x, p.y));
+            //Serial.println(MENU(p.x, p.y));
             if(ANN(p.x, p.y)) {
                 // If it's announciation, turn to display
                 *(kd.alarmAcknowledgePtr) = 1;
@@ -577,13 +603,6 @@ void Measurement(KeypadData* dataPtr) {
             refDisp = true;
         }
     } 
-//    else if (Disp2) {
-//            Disp2 = false;
-//            (*disp.myTask)(disp.taskDataPtr);
-//    } else {
-//      Disp2 = true;
-//    }
-    (*disp.myTask)(disp.taskDataPtr);
 
 
     return;
@@ -697,4 +716,56 @@ void startUp() {
   // taskQueue[4] = disp;
   //run(&keyp);
 
+}
+
+
+/*
+*    Flash certain elements if values out of range more than 5%
+*    
+*    May 26, 2019 by Xinyu
+*/
+void flash() {
+  if (flashBP) {
+    if (counterBP == 1) {
+      tft.fillRect(225, BPindex, 400, 30, BLACK);
+    } else {
+      tft.setTextColor(YELLOW);
+      tft.fillRect(225, BPindex, 400, 30, BLACK);
+      tft.setTextSize(2);
+      tft.setCursor(225, BPindex);
+      tft.print(*(bloodPressCorrectedBuf + 1));
+      tft.print(" mmHg");
+      tft.setCursor(225, BPindex + 16);
+      tft.print(*(bloodPressCorrectedBuf));
+      tft.print(" mmHg");
+    }
+  }
+  
+  if (flashPR) {
+    if (counterPR == 4) {
+      tft.fillRect(225, PRindex, 400, 15, BLACK);
+    } else if (counterPR == 8){
+      tft.setTextColor(YELLOW);
+      tft.fillRect(225, PRindex, 400, 15, BLACK);
+      tft.setTextSize(2);
+      tft.setCursor(225, PRindex);
+      tft.print(*(pulseRateCorrectedPtrr));
+      tft.print("BPM");
+    }
+  }
+  if (flashT) {
+    if (counterT == 2) {
+      tft.fillRect(225, Tindex, 400, 15, BLACK);
+    } else if (counterT == 4) {
+      tft.setTextColor(YELLOW);
+      tft.fillRect(225, Tindex, 400, 15, BLACK);
+      tft.setTextSize(2);
+      tft.setCursor(225, Tindex);
+      Serial.println(Tindex);
+        
+      tft.print(*(tempCorrectedBuf));
+      tft.print(" C");
+    }
+  }
+  
 }
