@@ -12,11 +12,11 @@ unsigned int systolicPressRaw = 80;
 unsigned int diastolicPressRaw = 80;
 unsigned int pulseRateRaw = 70;
 
-// initialize raw value pointers
-unsigned int* temperatureRawPtrr = &temperatureRaw;
-unsigned int* systolicPressRawPtrr = &systolicPressRaw;
-unsigned int* diastolicPressRawPtrr = &diastolicPressRaw;
-unsigned int* pulseRateRawPtrr = &pulseRateRaw;
+// // initialize raw value pointers
+// unsigned int* temperatureRawPtrr = &temperatureRaw;
+// unsigned int* systolicPressRawPtrr = &systolicPressRaw;
+// unsigned int* diastolicPressRawPtrr = &diastolicPressRaw;
+// unsigned int* pulseRateRawPtrr = &pulseRateRaw;
 
 bool meT = true;
 bool meB = true;
@@ -30,11 +30,12 @@ Bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
 //MeasureData meaD;
 
 //set up data struct
-MeasureData meaD = MeasureData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr};
+// MeasureData meaD = MeasureData{temperatureRawPtrr, systolicPressRawPtrr, diastolicPressRawPtrr, pulseRateRawPtrr};
  
 
 void setup() {
   // put your setup code here, to run once:
+  //Serial.begin(4800);
   Serial.begin(4800);
   pinMode(interruptPin, INPUT);
   attachInterrupt(digitalPinToInterrupt(interruptPin), incrementPulseCount, RISING);
@@ -43,7 +44,7 @@ void setup() {
 char incoming;
 
 void loop() {
-  Measure(&meaD);
+  Measure();
   communications();   
 }
 
@@ -54,16 +55,19 @@ void communications() {
       while(incoming != 'e') {
         
         if(incoming = 't') {
-          Serial.write(*temperatureRawPtrr);
+          // Serial.write(int(temperatureRaw));
+          // Serial.println("temp");
+          // Serial.println(temperatureRaw);
+          // Serial.println(int(char(temperatureRaw)));
           if(meT) { meT = false; } else { meT = true; }
         }
         if(incoming = 'b') {
-          Serial.write(*systolicPressRawPtrr);
-          Serial.write(*diastolicPressRawPtrr);
+          Serial.write(systolicPressRaw);
+          Serial.write(diastolicPressRaw);
           if(meB) { meB = false; } else { meB = true; }
         }
         if(incoming = 'p') {
-          Serial.write(*pulseRateRawPtrr);
+          Serial.write(pulseRateRaw);
           if(mePR) { mePR = false; } else { mePR = true; }
         }
         if(incoming = 'r') {
@@ -83,7 +87,7 @@ void incrementPulseCount() {
 unsigned int rawPulseRate = 0;
 int getRawPulseRate() {
     // pulseCount = 0;
-    Serial.println(pulseCount);
+    // Serial.println(pulseCount);
     delay(100 * delayTimeSec);
     unsigned int temp2 = pulseCount - pulsePrevious;
     pulsePrevious = pulseCount;
@@ -94,45 +98,46 @@ int getRawPulseRate() {
     return rawPulseRate;
 }
 // dereference the data pointer;
-void Measure(void* dataPtr)
+void Measure()
 {   
     // dereference the data pointer;
-    MeasureData md = *((MeasureData*) dataPtr);  
+    // MeasureData md = *((MeasureData*) dataPtr);  
       // When the function is executed even times;
       // Update the data;
         
       int newPR = getRawPulseRate();
-      *(md.pulseRateRawPtr) = newPR;   
+      // *(md.pulseRateRawPtr) = newPR;   
+      pulseRateRaw = newPR;
         
       if(isEven) {
-          if(*(md.systolicPressRawPtr) <= 100) {
-              *(md.systolicPressRawPtr) += 3;
+          if(systolicPressRaw <= 100) {
+              systolicPressRaw += 3;
           }
-          if(*(md.diastolicPressRawPtr) >= 40) {
-              *(md.diastolicPressRawPtr) -= 2;
+          if(diastolicPressRaw >= 40) {
+              diastolicPressRaw -= 2;
           }
           if(!trIsReverse) {
-              *(md.temperatureRawPtr) += 2;
+              temperatureRaw += 2;
           } else {
-              *(md.temperatureRawPtr) -= 2;
+              temperatureRaw -= 2;
           }
       } else {
-          if(*(md.systolicPressRawPtr) <= 100) {
-              *(md.systolicPressRawPtr) -= 1;
+          if(systolicPressRaw <= 100) {
+              systolicPressRaw -= 1;
           }
-          if(*(md.diastolicPressRawPtr) >= 40) {
-              *(md.diastolicPressRawPtr) += 1;
+          if(diastolicPressRaw >= 40) {
+              diastolicPressRaw += 1;
           }
           if(!trIsReverse) {
-              *(md.temperatureRawPtr) -= 1;
+              temperatureRaw -= 1;
           } else {
-              *(md.temperatureRawPtr) += 1;
+              temperatureRaw += 1;
           }
       }
       // Update isReverse;
-      if(*(md.temperatureRawPtr) > 50) {
+      if(temperatureRaw > 50) {
           trIsReverse = TRUE;
-      } else if (*(md.temperatureRawPtr) < 15)
+      } else if (temperatureRaw < 15)
       {
           trIsReverse = FALSE;
       }

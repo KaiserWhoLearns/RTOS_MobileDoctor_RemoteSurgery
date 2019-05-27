@@ -61,8 +61,8 @@
 
 // Macro for location on screen
 #define MENU(x, y) (y > 0) && (y < 110) && (x > 0) && (x < 115)
-#define ANN(x, y) (y > 0) && (y < 110) && (x > 245)
-#define MEAS(x, y) (y > 0) && (y < 110) && (x > 120) && (x < 240)
+#define ANN(x, y) (y > 0) && (y < 110) && (x > 250)
+#define MEAS(x, y) (y > 0) && (y < 110) && (x > 120) && (x < 245)
 #define QUIT1(x, y) (y > 0) && (y < 240) && (x > 0) && (x < 70)
 #define T(x, y) (x > 70) && (y < 240) && (y > 160)
 #define BP(x, y) (x > 70) && (y < 80) && (y > 0)
@@ -108,6 +108,7 @@ TCB* deleteNode(TCB* node);
     void Scheduler(TCB* taskQueue);
     void sechdulerTest();
     void startUp();
+    //void Select(void* dataPtr);
 typedef struct
 {
     unsigned int* temperatureRawBuf;

@@ -4,8 +4,10 @@
 // the number of recording time; be int, count how many 0.5 sec has passed
 int halfsec = 0;
 
+
 // Time values, to determine whether to blink
-unsigned long timef, timeb;
+unsigned long timef;
+
 
 
 void shift(int newVal,int Bufsize,unsigned int* Buf) {
@@ -36,17 +38,29 @@ void shiftChar(int newVal,int Bufsize,unsigned char* Buf) {
 */
 bool isBPHigh(int sys, int dia) {
     if(sys > 130) {
-        if(float(sys - 130)/130 > 0.15) { return true; }
+        if(float(sys - 130)/130 > 0.15) { 
+          
+          return true; 
+        }
         else { return false; }
     } else if(sys < 120) {
-        if(float(120 - sys)/120 > 0.15) { return true; }
+        if(float(120 - sys)/120 > 0.15) { 
+          
+          return true; 
+        }
         else { return false; }
     }
     if(dia > 80) {
-        if(float(dia - 80)/80 > 0.15) { return true; }
+        if(float(dia - 80)/80 > 0.15) { 
+          
+          return true; 
+        }
         else { return false; }
     } else {
-        if(float(70 - dia)/70 > 0.15) { return true; }
+        if(float(70 - dia)/70 > 0.15) { 
+          
+          return true; 
+        }
         else { return false; }
     }
     return false;
