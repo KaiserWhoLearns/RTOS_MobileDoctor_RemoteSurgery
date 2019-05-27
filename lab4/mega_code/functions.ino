@@ -10,9 +10,6 @@ bool flashBP = FALSE;
 bool flashT = FALSE;
 bool flashPR = FALSE;
 
-//bool flashBP = FALSE;
-//bool flashT = TRUE;
-//bool flashPR = TRUE;
 
 bool refSelect = TRUE;
 bool refMenu = TRUE;

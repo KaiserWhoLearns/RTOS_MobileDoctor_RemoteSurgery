@@ -3,11 +3,13 @@
 #include "tcb.h"
 #include "task.h"
 //#include "helpers.h"
-//
-//bool dispBP = TRUE;
-//bool dispT = TRUE;
-//bool dispPR = TRUE;
-//bool dispRR = TRUE;
+
+
+bool startF = FALSE;
+
+unsigned int BPindex = 0;
+unsigned int PRindex = 0;
+unsigned int Tindex = 0;
 
 //bool refSelect = TRUE;
 //bool refMenu = TRUE;
@@ -29,6 +31,12 @@ unsigned short batteryState = 200;
 unsigned long time1;
 unsigned long time2;
 unsigned long time3;
+unsigned long timec;
+unsigned long timeb;
+
+unsigned int counterBP = 0;
+unsigned int counterT = 0;
+unsigned int counterPR = 0;
 
 // initialize raw value pointers
 unsigned int* temperatureRawPtrr = temperatureRawBuf;
@@ -135,34 +143,31 @@ void setup() {
 void loop()
 {
     time2 = millis();
-    time3 = millis();
-    
-    
-//    if (time2 - time1 > 1) {
-//      if(*(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {
-//        Select((void*)&kD);
-//      }
-//      if(*(measurementSelectionPtr) == 1) {
-//        
-//        menu(&kD);
-//        
-//      } else if(*(alarmAcknowledgePtr) == 1) {
-//            Serial.println("Announciation mode");
-//            *ModePtrr = 0;
-//            anno(&kD);    
-//      } else if (*(displaySelectionPtr) == 1) {
-//         *ModePtrr = 1;
-//          Measurement(&kD);
-//      }
-//       
+
+    timec = millis();
+
+    if (timec - timeb > 500) {
+      counterBP++; 
+      counterT++;
+      counterPR++;
+      timeb = timec;  
+    } 
+//    if (timec - timeb > 1000) {
+//      counterT++;
+//    } 
+//    if (timec - timeb > 2000) {
+//      counterPR++;
+//      timeb = timec;
 //    }
 
-    if(time3 - time1 > 900) {
-
-      sechdulerTest();
-      
-    } else {
-   
+    if (counterT == 5) {
+      counterT = 1;
+    }
+    if (counterPR == 9) {
+      counterPR = 1;
+    }
+    if (counterBP == 3) {
+      counterBP = 1;
     }
     
     if (time2 - time1 > 1) {
@@ -176,16 +181,38 @@ void loop()
       } else if(*(alarmAcknowledgePtr) == 1) {
             Serial.println("Announciation mode");
             *ModePtrr = 0;
-            anno(&kD);    
+            
+            anno(&kD); 
+            if (time2 - time1 > 2000) {
+              (*disp.myTask)(disp.taskDataPtr);
+              startF = true;
+            }
+            if (startF == true) {
+              flash();
+            }
+            
+   
       } else if (*(displaySelectionPtr) == 1) {
+          Serial.println("Display mode");
          *ModePtrr = 1;
           Measurement(&kD);
+          if (time2 - time1 > 2000) {
+              (*disp.myTask)(disp.taskDataPtr);
+              startF = true;
+          }
+          if (startF == true) {
+              flash();
+          }
       }
-      time1 = time3; 
+      
     }
-    
-    
-    
-    
-    
+
+    if(time2 - time1 > 2000) {
+
+      sechdulerTest();
+      time1 = time2; 
+      
+    } else {
+   
+    }
 }
