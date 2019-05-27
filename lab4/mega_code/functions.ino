@@ -735,7 +735,7 @@ void startUp() {
 
 void flash() {
   if (flashBP) {
-    if (counterBP <= 1) {
+    if (counterBP == 1) {
       tft.fillRect(225, BPindex, 400, 30, BLACK);
     } else {
       tft.setTextColor(YELLOW);
@@ -751,9 +751,9 @@ void flash() {
   }
   
   if (flashPR) {
-    if (counterPR <= 4) {
+    if (counterPR == 4) {
       tft.fillRect(225, PRindex, 400, 15, BLACK);
-    } else {
+    } else if (counterPR == 8){
       tft.setTextColor(YELLOW);
       tft.fillRect(225, PRindex, 400, 15, BLACK);
       tft.setTextSize(2);
@@ -763,9 +763,9 @@ void flash() {
     }
   }
   if (flashT) {
-    if (counterT <= 2) {
+    if (counterT == 2) {
       tft.fillRect(225, Tindex, 400, 15, BLACK);
-    } else {
+    } else if (counterT == 4) {
       tft.setTextColor(YELLOW);
       tft.fillRect(225, Tindex, 400, 15, BLACK);
       tft.setTextSize(2);

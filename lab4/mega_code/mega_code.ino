@@ -168,13 +168,13 @@ void loop()
 //    }
 
     if (counterT == 5) {
-      counterT = 0;
+      counterT = 1;
     }
     if (counterPR == 9) {
-      counterPR = 0;
+      counterPR = 1;
     }
     if (counterBP == 3) {
-      counterBP = 0;
+      counterBP = 1;
     }
     
     if (time2 - time1 > 1) {
