@@ -71,8 +71,8 @@ bool isBPHigh(int sys, int dia) {
 *   return true if Temperature high; false otherwise
 */
 bool isTHight(float t) {
-    return t > 37.8 && (t - 37.8)/37.8 > 0.15 
-            || t < 36.1 && (36.1 - 7)/36.1 > 0.15;
+    return t > 43.7 && (t - 43.7)/43.7 > 0.15 
+            || t < 41.5 && (41.5 - t)/41.5 > 0.15;
 }
 
 /*
@@ -80,8 +80,8 @@ bool isTHight(float t) {
 *    return true if it's too out of range(0.15); false otherwise
 */
 bool isPRHigh(float pr) {
-    return (pr > 100) && (pr - 100) / 100 > 0.15
-            || (pr < 60) && (60 - pr) / 60 > 0.15;
+    return (pr > 30) && (pr - 30) / 30 > 0.15
+            || (pr < 17.33) && (17.33 - pr) / 17.33 > 0.15;
 }
 
 /*
@@ -89,8 +89,8 @@ bool isPRHigh(float pr) {
 *   return true if it's too out of range(0.15); false otherwise
 */
 bool isRRHigh(float rr) {
-    return (rr > 25) && (rr - 25) / 25 > 0.15
-        || (rr < 12) && (12 - rr) / 12 > 0.15;
+    return (rr > 6) && (rr - 6) / 6 > 0.15
+        || (rr < 1.67) && (1.67 - rr) / 1.67 > 0.15;
 }
 
 /*

@@ -10,9 +10,6 @@ bool flashBP = FALSE;
 bool flashT = FALSE;
 bool flashPR = FALSE;
 
-//bool flashBP = FALSE;
-//bool flashT = TRUE;
-//bool flashPR = TRUE;
 
 bool refSelect = TRUE;
 bool refMenu = TRUE;
@@ -485,6 +482,7 @@ void anno(KeypadData* dataPtr) {
         }
     }
 
+
     return;
 }
 
@@ -724,7 +722,7 @@ void startUp() {
 *    May 26, 2019 by Xinyu
 */
 void flash() {
-  if (flashBP) {
+  if (dispBP && flashBP) {
     if (counterBP == 1) {
       tft.fillRect(225, BPindex, 400, 30, BLACK);
     } else {
@@ -740,7 +738,7 @@ void flash() {
     }
   }
   
-  if (flashPR) {
+  if (dispPR && flashPR) {
     if (counterPR == 4) {
       tft.fillRect(225, PRindex, 400, 15, BLACK);
     } else if (counterPR == 8){
@@ -752,7 +750,7 @@ void flash() {
       tft.print("BPM");
     }
   }
-  if (flashT) {
+  if (dispT && flashT) {
     if (counterT == 2) {
       tft.fillRect(225, Tindex, 400, 15, BLACK);
     } else if (counterT == 4) {
