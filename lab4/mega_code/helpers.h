@@ -37,27 +37,27 @@ void shiftChar(int newVal,int Bufsize,unsigned char* Buf) {
 *    May23, 2019 Kaiser
 */
 bool isBPHigh(int sys, int dia) {
-    if(sys > 130) {
-        if(float(sys - 130)/130 > 0.15) { 
+    if(sys > 60.5) {
+        if(float(sys - 60.5)/60.5 > 0.2) { 
           
           return true; 
         }
         else { return false; }
-    } else if(sys < 120) {
-        if(float(120 - sys)/120 > 0.15) { 
+    } else if(sys < 55.5) {
+        if(float(55.5 - sys)/55.5 > 0.2) { 
           
           return true; 
         }
         else { return false; }
     }
-    if(dia > 80) {
-        if(float(dia - 80)/80 > 0.15) { 
+    if(dia > 49.3) {
+        if(float(dia - 49.3)/49.3 > 0.2) { 
           
           return true; 
         }
         else { return false; }
     } else {
-        if(float(70 - dia)/70 > 0.15) { 
+        if(float(42.7 - dia)/42.7 > 0.2) { 
           
           return true; 
         }
