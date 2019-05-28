@@ -64,11 +64,7 @@ void Measure(void* dataPtr)
 {
     MeasureData md = *((MeasureData*) dataPtr);
     Serial1.write('s');
-    
     if(dispT) { 
-        // Uncomment this to run the version with more msg
-        // requestMSG("t", "getTemp", "temperature");
-        // int newTemp = parseControl(Serial1.readString());
         Serial1.write('t');
         Serial1.write('p'); 
         if(Serial1.available()) {
@@ -79,11 +75,7 @@ void Measure(void* dataPtr)
     }
     }
 
-    if(dispBP) {
-        // Uncomment this to run the version with more msg
-        // requestMSG("b", "getBP", "bloodPressure");
-        // int newSys = parseControl(Serial1.readString()); 
-        // int newDia = parseControl(Serial1.readString());
+    if(dispBP) { 
         Serial1.write('b'); 
         Serial1.write('u');
         if(Serial1.available()) {
@@ -96,9 +88,6 @@ void Measure(void* dataPtr)
         }
     }
     if(dispPR) { 
-        // Uncomment this to run the version with more msg
-        // requestMSG("p", "getPR", "pulseRate");
-        // int newPR = parseControl(Serial1.readString());
         Serial1.write('p');
         Serial1.write('l');
         if(Serial1.available()) {
@@ -109,9 +98,6 @@ void Measure(void* dataPtr)
         }
     }
     if(dispRR) { 
-        // Uncomment this to run the version with more msg
-        // requestMSG("r", "getRR", "respRate");
-        // int newRR = parseControl(Serial1.readString());
         Serial1.write('r');
         Serial1.write('r');
         if(Serial1.available()) { 
@@ -794,33 +780,4 @@ void flash() {
 void run(TCB* taskQ) {
     // Call the function in the taskQ;
     (*taskQ->myTask)(taskQ->taskDataPtr);
-}
-
-/*
-*    @param: ident: task identifier; fun: function name; data: data requested
-*    Generate the message and send the message to UNO
-*    May 28, 2019, Kaiser
-*/
-void requestMSG(String ident, String fun, String data) {
-    Serial1.println(("+" + ident + "-" + fun + ":" + data + ".").c_str());
-    return;
-}
-
-/*
-*   @param: msg: the response message from UNO
-*   Parse the response message, return the data required.
-*   May 28, 2019, Kaiser
-*/
-int parseControl(String msg) {
-    int data = 0;
-    // Data start at length - 2
-    int iter = sizeof(msg) - 2;
-    int count = 0;
-    while(msg[iter] != ':') {
-        // Convert the integer to ASCII
-        data += (int(msg[iter]) - 48) * ten(count);
-        iter--;
-        count++;
-    }
-    return data;
 }

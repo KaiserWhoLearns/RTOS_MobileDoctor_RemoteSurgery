@@ -129,13 +129,3 @@ void drawSub(int x, int y, bool d) {
 bool moreThan15(int val, unsigned int* Buf) {
     return float(abs(val - *Buf))/(*(Buf))> 0.15;
 }
-
-/*
-*   Calculate 10 to the c times
-*/
-int ten(int c) {
-    int ans = 1;
-    for(int i = 1; i <= c; i ++) {
-        ans *= 10;
-    }
-}

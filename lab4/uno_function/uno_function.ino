@@ -51,9 +51,6 @@ void communications() {
     }
     if(incoming == 's') {
     if(Serial.available()) {
-      // Uncomment this to run the version with more msg
-      // msg = Serial.readString();
-      // char incoming = parsePeri();
       incoming = Serial.read();
     }
       while(incoming != 'e') {
@@ -63,38 +60,37 @@ void communications() {
           // Read in function name
           if(fun == 'p'){
           Serial.write(temperatureRaw);
-          // responseMSG("t", "getTemp", String(temperatureRaw));
           }
         }
         if(incoming == 'b') {
           fun = Serial.read();
           // Read in function name
           if(fun == 'u'){
-            // responseMSG("b", "getBP", String(systolicPressRaw));
-            // responseMSG("b", "getBP", String(diastolicPressRaw));
           Serial.write(systolicPressRaw);
           Serial.write(diastolicPressRaw);
           }
         }
         if(incoming == 'p') {
-          // responseMSG("p", "getRawPulseRate", String(pulseRateRaw));
           fun = Serial.read();
           // Read in function name
           if(fun == 'l'){
           Serial.write(pulseRateRaw);
           }
+          // if(mePR) { mePR = false; } else { mePR = true; }
         }
         if(incoming == 'r') {
-          // responseMSG("r", "getRespirationRate", String(respRate));
           fun = Serial.read();
           // Read in function name
           if(fun == 'l'){
           Serial.write(respRate);
+          // if(meR) { meR = false; } else { meR = true; }
           }
         }
+        // if(Serial.available()) {
             incoming = Serial.read();
-            // Uncomment this to run the version with more msg
-            incoming = 'e';
+        // } else {
+        //    break;
+        // }
       }
     }
 }
@@ -189,27 +185,4 @@ int getBP (boolean sys) {
     return SysP;
   }
   else return DiaP;
-}
-
-
-/*
-*    @param: ident: task identifier; fun: function name; data: data requested
-*    Generate the message and send the message to MEGA
-*    May 28, 2019, Kaiser
-*/
-void responseMSG(String ident, String fun, String data) {
-    Serial1.println("+" + ident + "-" + fun + ":" + data + ".");
-    return;
-}
-
-/*
-*   @param: msg: the request message from Mega
-*   Parse the request message, return the data
-*   May 28, 2019, Kaiser 
-*/
-char parsePeri(String msg) {
-    for(int i = 0; i < sizeof(msg) - 1; i ++) {
-        if(msg[i] == '+') 
-            return msg[i+1];
-    }
 }
