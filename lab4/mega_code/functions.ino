@@ -62,33 +62,50 @@ void Measure(void* dataPtr)
     MeasureData md = *((MeasureData*) dataPtr);
     Serial1.write('s');
     if(dispT) { 
-        Serial1.write('t'); 
-        // Uncomment the delay if we are measuring using interrupt
-        // delay(500);
+        Serial1.write('t');
+        Serial1.write('p'); 
+        if(Serial1.available()) {
         int newTemp = Serial1.read();
+        if(moreThan15(newTemp, md.temperatureRawBuf)) {
         shift(newTemp, 8, (md.temperatureRawBuf));
+        }
+    }
     }
 
     if(dispBP) { 
         Serial1.write('b'); 
-        delay(500);
+        Serial1.write('u');
+        if(Serial1.available()) {
         int newSys = Serial1.read();
         int newDia = Serial1.read();
+        if(moreThan15(newSys, (md.bloodPressRawBuf) + 1) && moreThan15(newDia, md.bloodPressRawBuf)){
         shift(newSys, 16, (md.bloodPressRawBuf));
         shift(newDia, 16, (md.bloodPressRawBuf));
+        }
+        }
     }
     if(dispPR) { 
         Serial1.write('p');
+        Serial1.write('l');
+        if(Serial1.available()) {
         int newPr = Serial1.read();
+        if(moreThan15(newPr, md.pulseRateRawBuf)) {
         shift(newPr, 8, (md.pulseRateRawBuf)); 
+        }
+        }
     }
     if(dispRR) { 
-        Serial1.write('r'); 
+        Serial1.write('r');
+        Serial1.write('r');
+        if(Serial1.available()) { 
         int newRR = Serial1.read();
+        if(moreThan15(newRR, md.pulseRateRawBuf)) {
         shift(newRR, 8, (md.respirationRateRawBuf));
+        }
+        }
     }
     Serial1.write('e');
-    
+    delay(200);
     return;
 }
 
@@ -116,11 +133,9 @@ void Compute(void* dataPtr) {
     if(dispPR) {
         int correctedPr = (*(comd.pulseRateRawBuf)) * 3 + 8; 
         shiftChar(correctedPr, 8, (comd.prCorrectedBuf));
-        Serial.print("Corrected pulse rate");
-        Serial.println(correctedPr);
     }
     if(dispRR) {
-        shiftChar(*(comd.respirationRateRawBuf), 8, (comd.respirationRateCorBufPtr));
+        shiftChar((*(comd.respirationRateRawBuf))*3 + 7, 8, (comd.respirationRateCorBufPtr));
     }    
     return;
 }
@@ -137,7 +152,7 @@ int countt = 0;
 int index = 15;
 void Display(void* dataPtr) {
     // TODO: change the color of display!
-    Serial.println("run display");
+    // Serial.println("run display");
     index = 15;
     DisplayData dd = *((DisplayData*) dataPtr);
     // Setup of tft display
@@ -315,7 +330,7 @@ void WarningAlarm(void* dataPtr) {
     } else {
         bpOutOfRange = 0;
     }
-    if(*(wad.pulseRateRawBuf) < 17.3*0.95 || *(wad.pulseRateRawBuf) > 30.7*1.05) {
+    if(*(wad.pulseRateRawBuf) < 17.3*1.05 || *(wad.pulseRateRawBuf) > 30.7*0.95) {
         pulseOutOfRange = 1;
         prHigh = isPRHigh(float(*(wad.pulseRateRawBuf)));
     } else {
@@ -536,20 +551,11 @@ void Select(void* dataPtr) {
                 *(kd.alarmAcknowledgePtr) = 1;
                 refAnnu = true;
                 refDisp = true;
-//                Serial.print("ANN pressed");
-//                Serial.print(p.x);
-//                Serial.print(", ");
-//                Serial.println(p.y);
-//                Serial.println(*(kd.alarmAcknowledgePtr));
             }
             if(MENU(p.x, p.y)) {
                 *(kd.measurementSelectionPtr) = 1;
                 refMenu = true;
                 refDisp = true;
-//                Serial.print("MENU pressed");
-//                Serial.print(p.x);
-//                Serial.print(", ");
-//                Serial.println(p.y);
             } 
             if (MEAS(p.x, p.y)) {
                *(kd.displaySelectionPtr) = 1;
@@ -600,7 +606,6 @@ void Measurement(KeypadData* dataPtr) {
             refDisp = true;
         }
     } 
-
 
     return;
 }
@@ -668,7 +673,7 @@ void Communications(void* dataPtr) {
 *    April 23, 2019 by Kaiser Sun
 *    May 12, 2019 modified by Xinyu
 */
-void sechdulerTest() {
+void schedulerTest() {
         TCB* taskQueue = front;
 
         while (taskQueue != NULL) {
@@ -765,4 +770,16 @@ void flash() {
     }
   }
   
+}
+
+
+/*
+*    @param: int index, TCB* taskQ;
+*    pre: index < length(taskQ);
+*    helper method of sechdule function;
+*    April 23, 2019 by Kaiser Sun
+*/
+void run(TCB* taskQ) {
+    // Call the function in the taskQ;
+    (*taskQ->myTask)(taskQ->taskDataPtr);
 }

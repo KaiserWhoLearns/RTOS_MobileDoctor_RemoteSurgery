@@ -81,7 +81,7 @@ bool isTHight(float t) {
 */
 bool isPRHigh(float pr) {
     return (pr > 30.7) && (pr - 30.7) / 30.7 > 0.15
-            || (pr < 17.33) && (17.33 - pr) / 17.33 > 0.15;
+            || (pr < 17.3) && (17.3 - pr) / 17.3 > 0.15;
 }
 
 /*
@@ -93,16 +93,7 @@ bool isRRHigh(float rr) {
         || (rr < 1.67) && (1.67 - rr) / 1.67 > 0.15;
 }
 
-/*
-*    @param: int index, TCB* taskQ;
-*    pre: index < length(taskQ);
-*    helper method of sechdule function;
-*    April 23, 2019 by Kaiser Sun
-*/
-void run(TCB* taskQ) {
-    // Call the function in the taskQ;
-    (*taskQ->myTask)(taskQ->taskDataPtr);
-}
+
 
 /*
 *    @para: take in x, y, the center of the rectangle
@@ -133,4 +124,8 @@ void drawSub(int x, int y, bool d) {
     } else {
         tft.print("RespirationRate");
     }
+}
+
+bool moreThan15(int val, unsigned int* Buf) {
+    return float(abs(val - *Buf))/(*(Buf))> 0.15;
 }

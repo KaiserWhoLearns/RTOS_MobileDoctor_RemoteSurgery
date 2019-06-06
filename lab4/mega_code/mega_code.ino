@@ -126,14 +126,75 @@ void loop()
 {
     //sechdulerTest();
     time2 = millis();
-    // Serial.print(time1);
-    //Serial.print(" ");
-    //Serial.println(time2);
-    if(time2 - time1 > 900) {
-      insertLast(&keyp);
-      sechdulerTest();
-      deleteNode(&keyp);
-      time1 = time2;
+    timec = millis();
+
+    if (timec - timeb > 500) {
+      counterBP++; 
+      counterT++;
+      counterPR++;
+      timeb = timec;  
+    } 
+    if (counterT == 5) {
+      counterT = 1;
+    }
+    if (counterPR == 9) {
+      counterPR = 1;
+    }
+    if (counterBP == 3) {
+      counterBP = 1;
+    }
+    
+    if (time2 - time1 > 1) {
+      if(*(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {
+        TCB temp = {&Select, &kD};
+        insertLast(&temp);
+        run(&temp);
+        deleteNode(&temp);
+      }
+      if(*(measurementSelectionPtr) == 1) {
+        TCB temp2 = {&menu, &kD};
+        insertLast(&temp2);
+        run(&temp2);
+        deleteNode(&temp2);
+        // menu(&kD);
+        
+      } else if(*(alarmAcknowledgePtr) == 1) {
+            Serial.println("Announciation mode");
+            *ModePtrr = 0;
+            TCB temp3 = {&anno, &kD};
+            insertLast(&temp3);
+            run(&temp3);
+            deleteNode(&temp3);
+            // anno(&kD); 
+            if (time2 - time1 > 2000) {
+              (*disp.myTask)(disp.taskDataPtr);
+              startF = true;
+            }
+            if (startF == true) {
+              flash();
+            }
+            
+   
+      } else if (*(displaySelectionPtr) == 1) {
+          Serial.println("Display mode");
+         *ModePtrr = 1;
+          Measurement(&kD);
+          if (time2 - time1 > 2000) {
+              (*disp.myTask)(disp.taskDataPtr);
+              startF = true;
+          }
+          if (startF == true) {
+              flash();
+          }
+      }
+      
+    }
+
+    if(time2 - time1 > 2000) {
+
+      schedulerTest();
+      time1 = time2; 
+      
     } else {
       // sechdulerTest();
     }
