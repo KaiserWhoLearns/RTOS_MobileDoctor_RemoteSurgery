@@ -3,14 +3,8 @@
 #include "tcb.h"
 #include "task.h"
 //#include "helpers.h"
-//
-//bool dispBP = TRUE;
-//bool dispT = TRUE;
-//bool dispPR = TRUE;
-//bool dispRR = TRUE;
-//bool flashBP = FALSE;
-//bool flashT = FALSE;
-//bool flashPR = FALSE;
+
+
 
 bool startF = FALSE;
 
@@ -18,15 +12,16 @@ unsigned int BPindex = 0;
 unsigned int PRindex = 0;
 unsigned int Tindex = 0;
 
-//bool refSelect = TRUE;
-//bool refMenu = TRUE;
-//bool refAnnu = TRUE;
 
 // initialization started!
 unsigned int temperatureRawBuf[8]= {30, 0, 0, 0, 0, 0, 0, 0};
 unsigned int bloodPressRawBuf[16]= {80, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 unsigned int pulseRateRawBuf[8] = {70, 0, 0, 0, 0, 0, 0, 0};
 unsigned int respirationRateRawBuf[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+signed int EKGRawBuf[256];
+signed int EKGImgBuf[256] = {0};
+
+unsigned char EKGFreqBuf[16] = {0};
 
 unsigned char tempCorrectedBuf[8]= {28, 0, 0, 0, 0, 0, 0, 0};
 unsigned char bloodPressCorrectedBuf[16] = {126, 169, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -50,6 +45,9 @@ unsigned int* temperatureRawPtrr = temperatureRawBuf;
 unsigned int* bloodPressRawPtrr = bloodPressRawBuf;
 unsigned int* pulseRateRawPtrr = pulseRateRawBuf;
 unsigned int* respirationRateRawPtr = respirationRateRawBuf;
+unsigned int* EKGRawBufPtr = EKGRawBuf;
+unsigned int* EKGImgBufPtr = EKGImgBuf;
+unsigned char* EKGFreqBufPtr = EKGFreqBuf;
 //initialize corrected pointers
 unsigned short* ModePtrr = &Mode;
 unsigned char* tempCorrectedPtrr = tempCorrectedBuf;
@@ -78,6 +76,7 @@ unsigned short* measurementResultSelectionPtr = &measurementResultSelection;
 //TCB taskQueue;
 TCB meas, comp, disp, alar, stat, keyp, com;
 MeasureData meaD;
+//EKGData EKGD;
 ComputeData cD;
 DisplayData dDa;
 WarningAlarmData wAD;

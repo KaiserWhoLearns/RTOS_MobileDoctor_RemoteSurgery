@@ -3,8 +3,8 @@
 #include <Elegoo_GFX.h>    // Core graphics library
 #include <Elegoo_TFTLCD.h> // Hardware-specific library
 #include <TouchScreen.h> // TouchScreen library
-// #include <Adafruit_TFTLCD.h> 
-// #include <Adafruit_GFX.h> 
+#include <Adafruit_TFTLCD.h> 
+#include <Adafruit_GFX.h> 
 // April 23th by Kaiser Sun
 // May 8th modified by Kaiser Sun, add touch screen
 // May 24, 2019 modified by Xinyu
@@ -64,17 +64,18 @@
 #define ANN(x, y) (y > 0) && (y < 110) && (x > 250)
 #define MEAS(x, y) (y > 0) && (y < 110) && (x > 120) && (x < 245)
 #define QUIT1(x, y) (y > 0) && (y < 240) && (x > 0) && (x < 70)
-#define T(x, y) (x > 70) && (y < 240) && (y > 160)
-#define BP(x, y) (x > 70) && (y < 80) && (y > 0)
-#define PR(x, y) (x > 70) && (y < 160) && (y > 80)
-#define RR(x, y) (x > 70) && (y < 320) && (y > 240)
+#define T(x, y) (x > 70) && (y < 192) && (y > 128)
+#define BP(x, y) (x > 70) && (y < 64) && (y > 0)
+#define PR(x, y) (x > 70) && (y < 128) && (y > 64)
+#define RR(x, y) (x > 70) && (y < 256) && (y > 192)
+#define EKG(x,y) (x > 70) && (y > 256)
 #define QUIT2(x, y) (x > 0) && (y > 180) 
 #define QUIT3(x, y) (x > 0) && (y > 180) 
-Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
-// Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
+//Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
+Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
-
+#define M_PI acos(-1.0)
 
 // Define bool tyoe
 enum myBool {FALSE = 0, TRUE = 1};
@@ -109,6 +110,13 @@ TCB* deleteNode(TCB* node);
     void sechdulerTest();
     void startUp();
     //void Select(void* dataPtr);
+typedef struct 
+{
+    signed int EKGRawBuf; 
+    signed int EKGImgBuf; 
+    unsigned char EKGFreqBuf;
+} EKGData;
+
 typedef struct
 {
     unsigned int* temperatureRawBuf;
@@ -124,6 +132,9 @@ typedef struct
     unsigned int* bloodPressRawBuf;
     unsigned int* pulseRateRawBuf;
     unsigned int* respirationRateRawBuf;
+    unsigned int* EKGRawBuf;
+    unsigned int* EKGImgBuf;
+    unsigned char* EKGFreqBuf;
     unsigned char* tempCorrectedBuf;
     unsigned char* bloodPressCorrectedBuf;
     unsigned char* prCorrectedBuf;
@@ -143,6 +154,7 @@ typedef struct
   unsigned char* bloodPressCorrectedBuf;
   unsigned char* prCorrectedBuf;
   unsigned char* respirationRateCorrectedBuf;
+  unsigned char* EKGFreqBuf;
   unsigned short* batteryStatePtr;
 } DisplayData;
 
@@ -152,6 +164,7 @@ typedef struct
     unsigned int* bloodPressRawBuf;
     unsigned int* pulseRateRawBuf;
     unsigned int* rrRawBuf;
+    unsigned char* EKGFreqBuf;
     unsigned short* batteryStatePtr; 
 } WarningAlarmData;
 
@@ -172,6 +185,7 @@ typedef struct
     unsigned char* bloodPressCorrectedBuf;
     unsigned char* prCorrectedBuf;
     unsigned char* respirationRateCorBufPtr;
+    unsigned char* EKGFreqBuf;
 } CommunicationsData;
 
 

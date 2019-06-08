@@ -5,6 +5,7 @@ bool dispBP = TRUE;
 bool dispT = TRUE;
 bool dispPR = TRUE;
 bool dispRR = TRUE;
+bool dispEKG = TRUE;
 
 bool flashBP = FALSE;
 bool flashT = FALSE;
@@ -24,6 +25,7 @@ bool TSelected = FALSE;
 bool BPSelected = FALSE;
 bool PRSelected = FALSE;
 bool RRSelected = FALSE;
+bool EKGSelected = FALSE;
 bool Disp = TRUE;
 bool Disp2 = TRUE;
 
@@ -33,16 +35,17 @@ bool tempHigh = FALSE;
 bool prHigh = FALSE;
 bool rrLow = FALSE;
 bool rrHigh = FALSE;
+bool EKGHigh = FALSE;
 
 unsigned char bpOutOfRange = 0;
 unsigned char tempOutOfRange = 0;
 unsigned char pulseOutOfRange = 0;
 unsigned char rrOutOfRange = 0;
+unsigned char EKGOutOfRange = 0;
 
-//unsigned long timeBP;
-//unsigned long timePR;
-//unsigned long timeT;
-//unsigned long time4;
+unsigned int f0 = 0;
+unsigned int* f0ptr;
+
 
 
 
@@ -65,52 +68,83 @@ void Measure(void* dataPtr)
     MeasureData md = *((MeasureData*) dataPtr);
     Serial1.write('s');
     if(dispT) { 
-        Serial1.write('t');
-        Serial1.write('p'); 
-        if(Serial1.available()) {
-        int newTemp = Serial1.read();
-        if(moreThan15(newTemp, md.temperatureRawBuf)) {
-        shift(newTemp, 8, (md.temperatureRawBuf));
-        }
-    }
+            Serial1.write('t');
+            Serial1.write('p'); 
+            if(Serial1.available()) {
+                int newTemp = Serial1.read();
+                if(moreThan15(newTemp, md.temperatureRawBuf)) {
+                    shift(newTemp, 8, (md.temperatureRawBuf));
+                }
+            }
     }
 
     if(dispBP) { 
         Serial1.write('b'); 
         Serial1.write('u');
         if(Serial1.available()) {
-        int newSys = Serial1.read();
-        int newDia = Serial1.read();
-        if(moreThan15(newSys, (md.bloodPressRawBuf) + 1) && moreThan15(newDia, md.bloodPressRawBuf)){
-        shift(newSys, 16, (md.bloodPressRawBuf));
-        shift(newDia, 16, (md.bloodPressRawBuf));
-        }
+            int newSys = Serial1.read();
+            int newDia = Serial1.read();
+            if(moreThan15(newSys, (md.bloodPressRawBuf) + 1) && moreThan15(newDia, md.bloodPressRawBuf)){
+                shift(newSys, 16, (md.bloodPressRawBuf));
+                shift(newDia, 16, (md.bloodPressRawBuf));
+            }
         }
     }
     if(dispPR) { 
         Serial1.write('p');
         Serial1.write('l');
         if(Serial1.available()) {
-        int newPr = Serial1.read();
-        if(moreThan15(newPr, md.pulseRateRawBuf)) {
-        shift(newPr, 8, (md.pulseRateRawBuf)); 
-        }
+            int newPr = Serial1.read();
+            if(moreThan15(newPr, md.pulseRateRawBuf)) {
+                shift(newPr, 8, (md.pulseRateRawBuf)); 
+            }
         }
     }
     if(dispRR) { 
         Serial1.write('r');
         Serial1.write('r');
         if(Serial1.available()) { 
-        int newRR = Serial1.read();
-        if(moreThan15(newRR, md.pulseRateRawBuf)) {
-        shift(newRR, 8, (md.respirationRateRawBuf));
-        }
+            int newRR = Serial1.read();
+            if(moreThan15(newRR, md.pulseRateRawBuf)) {
+                shift(newRR, 8, (md.respirationRateRawBuf));
+            }
         }
     }
     Serial1.write('e');
     delay(200);
+    generateEKG();
     return;
 }
+
+int Fs = 0;
+int Ts;
+int i;
+int fft = 0;
+void generateEKG() {
+//    EKGData EKGD = *((EKGData*) data);
+    f0 = 100;
+    Fs = 3 * f0;
+    Ts = 1/Fs;
+    //Serial.println(Ts);
+    
+//    int t = Ts;
+    
+    for (i = 0; i < 256; i++) {
+        EKGRawBuf[i] = 32*sin(2*3.14*f0*i/Fs);
+        //Serial.println(EKGRawBuf[i]);
+        //EKGImgBuf[i] = 0;
+        //t += Ts;
+        //Serial.println(t); 
+    }
+    delay(1000);
+    Serial.println(EKGRawBuf[0]);
+    fft = optfft(EKGRawBuf, EKGImgBuf);
+    Serial.println(fft);
+    shiftChar(fft, 16, EKGFreqBuf);
+    
+}
+
+
 
 /*
 *    @para: generic pointer dataPtr;
@@ -123,6 +157,7 @@ void Measure(void* dataPtr)
 */
 void Compute(void* dataPtr) {
     ComputeData comd = *((ComputeData*) dataPtr);
+    //EKGData EKGD = *((EKGData*) data);
     if(dispT) {
         int correctedTemp = (*(comd.temperatureRawBuf)) * 0.75 + 5;
         shiftChar(correctedTemp, 8, (comd.tempCorrectedBuf));
@@ -139,7 +174,7 @@ void Compute(void* dataPtr) {
     }
     if(dispRR) {
         shiftChar((*(comd.respirationRateRawBuf))*3 + 7, 8, (comd.respirationRateCorBufPtr));
-    }    
+    }  
     return;
 }
 
@@ -179,13 +214,16 @@ void Display(void* dataPtr) {
       if (dispRR) {
         tft.println("Respiration Rate: ");
       }
+      if (dispEKG) {
+        tft.println("EKG: ");
+      }
       if (*(dd.Mode) == 0) {
         tft.print("Battery: ");
       }
       refDisp = false;
     }
     
-    tft.fillRect(225,15,400,102,BLACK);
+    tft.fillRect(225,15,400,118,BLACK);
     tft.setTextSize(2);
 
     // Display Pressure
@@ -272,6 +310,23 @@ void Display(void* dataPtr) {
         tft.print(*(dd.respirationRateCorrectedBuf));
         tft.print(" /s");
     }
+
+    if (dispEKG) {
+        if (EKGOutOfRange == 0) {
+            tft.setTextColor(GREEN);
+        } else {
+            if (EKGHigh) {
+                tft.setTextColor(RED);
+            } else {
+                tft.setTextColor(YELLOW);
+            }
+        }
+        index += 16;
+        tft.setCursor(225, index);
+        tft.print(*(dd.EKGFreqBuf));
+        tft.print("Hz");
+
+    }
     
 
     // Display battery status
@@ -288,8 +343,8 @@ void Display(void* dataPtr) {
       tft.println(*(dd.batteryStatePtr)); 
       tft.setTextSize(1.5);
       tft.setTextColor(RED);
-      tft.fillRect(0,120,400,25,BLACK);
-      tft.setCursor(0, 120);
+      tft.fillRect(0,130,400,30,BLACK);
+      tft.setCursor(0, 135);
       if(tempHigh) {
           tft.println("Your body temperature is too high! Calm down QWQ");
       }
@@ -306,8 +361,8 @@ void Display(void* dataPtr) {
     // End
     tft.setTextSize(1.4);
     tft.setTextColor(CYAN);
-    tft.setCursor(0, 150);
-    tft.println("                  CSE 474 Inc.");
+    tft.setCursor(0, 163);
+    tft.println("                   CSE 474 Inc.");
     return;
 }
 
@@ -342,6 +397,14 @@ void WarningAlarm(void* dataPtr) {
     if(*(wad.rrRawBuf) < 1.67*0.95 || *(wad.rrRawBuf) > 6*1.05) {
         rrOutOfRange = 1;
         rrHigh = isRRHigh(float(*(wad.rrRawBuf)));
+    } else {
+        rrOutOfRange = 0;
+    }
+    if(*(wad.EKGFreqBuf) < 35*0.95 || *(wad.EKGFreqBuf) > 3750*1.05) {
+        EKGOutOfRange = 1;
+        EKGHigh = isEKGHigh(float(*(wad.EKGFreqBuf)));
+    } else {
+      EKGOutOfRange = 0;
     }
     return;  
 }
@@ -374,9 +437,10 @@ void menu(KeypadData* dataPtr) {
       tft.setCursor(0, 0);
       tft.fillScreen(BLACK);
       drawSub(70, 0, dispBP);
-      drawSub(70, 60, dispPR);
-      drawSub(70, 120, dispT);
-      drawSub(70, 180, dispRR);
+      drawSub(70, 48, dispPR);
+      drawSub(70, 96, dispT);
+      drawSub(70, 144, dispRR);
+      drawSub(70, 192, dispEKG);
       tft.fillRect(0, 0, 70, 240, MAGENTA);
       tft.setTextSize(2);
       tft.setTextColor(BLACK);
@@ -385,7 +449,7 @@ void menu(KeypadData* dataPtr) {
       refMenu = false;
     }
     if (TSelected) {
-      drawSub(70, 120, dispT);
+      drawSub(70, 96, dispT);
       TSelected = false;
     }
     if (BPSelected) {
@@ -393,12 +457,16 @@ void menu(KeypadData* dataPtr) {
       BPSelected = false;
     }
     if (PRSelected) {
-      drawSub(70, 60, dispPR);
+      drawSub(70, 48, dispPR);
       PRSelected = false;
     }
     if (RRSelected) {
-      drawSub(70, 180, dispRR);
+      drawSub(70, 144, dispRR);
       RRSelected = false;
+    }
+    if (EKGSelected) {
+      drawSub(70, 192, dispEKG);
+      EKGSelected = false;
     }
 
     // Get point
@@ -446,6 +514,14 @@ void menu(KeypadData* dataPtr) {
                 dispRR = FALSE;
             } else {
                 dispRR = TRUE;
+            }
+        }
+        if (EKG(p.x, p.y)) {
+            EKGSelected = true;
+            if (dispEKG) {
+              dispEKG = false;
+            } else {
+              dispEKG = true;
             }
         }
         if(QUIT1(p.x, p.y)) {
@@ -695,14 +771,16 @@ void schedulerTest() {
 void startUp() {
     // Setup the data structs
   meaD = MeasureData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr, measurementSelectionPtr};
-  cD = ComputeData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr,tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr,measurementSelectionPtr};
-  dDa = DisplayData{ModePtrr, tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr, batteryStatePtrr};
-  wAD = WarningAlarmData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr, batteryStatePtrr};
+  //EKGD = EKGData{EKGRawBuf, EKGImgBuf, EKGFreqBuf};
+  cD = ComputeData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr, EKGRawBufPtr, EKGImgBufPtr, EKGFreqBufPtr, tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr,measurementSelectionPtr};
+  dDa = DisplayData{ModePtrr, tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr, EKGFreqBufPtr, batteryStatePtrr};
+  wAD = WarningAlarmData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr, EKGFreqBufPtr, batteryStatePtrr};
   sD = StatusData{batteryStatePtrr};
   kD = KeypadData{localFunctionSelectPtr, measurementSelectionPtr, alarmAcknowledgePtr, commandPtr, remoteFunctionSelectPtr, measurementResultSelectionPtr, displaySelectionPtr};
-  comD = CommunicationsData{tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr};
+  comD = CommunicationsData{tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr, EKGFreqBufPtr};
 // Setup the TCBs
   meas = {&Measure, &meaD};
+  //gene = {&generateEKG, &EKGD};
   comp = {&Compute, &cD};
   disp = {&Display, &dDa};
   alar = {&WarningAlarm, &wAD};
@@ -713,6 +791,7 @@ void startUp() {
   // Setup task queue
   insertLast(&meas);
   insertLast(&comp);
+  //insertLast(&gene);
   insertLast(&stat);
   insertLast(&alar);
   insertLast(&com);
@@ -721,6 +800,7 @@ void startUp() {
   timeb = time1;
   // taskQueue[4] = disp;
   //run(&keyp);
+  //generateEKG();
 
 }
 

@@ -93,6 +93,11 @@ bool isRRHigh(float rr) {
         || (rr < 1.67) && (1.67 - rr) / 1.67 > 0.15;
 }
 
+bool isEKGHigh(float ekg) {
+    return ekg > 3750 && (ekg - 3750)/3750 > 0.15 
+            || ekg < 35 && (35 - ekg)/35 > 0.15;
+}
+
 
 
 /*
@@ -106,9 +111,9 @@ bool isRRHigh(float rr) {
 void drawSub(int x, int y, bool d) {
     Serial.print("Entered drawSub");
     if(!d) {
-        tft.fillRect(x, y, 260, 60, RED);
+        tft.fillRect(x, y, 260, 48, RED);
     } else {
-        tft.fillRect(x, y, 260, 60, GREEN);
+        tft.fillRect(x, y, 260, 48, GREEN);
     }
     // See Line595 of Elegoo_GFX.cpp
     tft.setTextSize(2);
@@ -117,12 +122,14 @@ void drawSub(int x, int y, bool d) {
      tft.setCursor(x + 10, y + 10);
     if(y == 0) {
         tft.print("BloodPressure");
-    } else if(y == 60) {
+    } else if(y == 48) {
         tft.print("PulseRate");
-    } else if(y == 120) {
+    } else if(y == 96) {
         tft.print("Temperature");
-    } else {
+    } else if (y == 144) {
         tft.print("RespirationRate");
+    } else {
+        tft.print("EKG");
     }
 }
 
