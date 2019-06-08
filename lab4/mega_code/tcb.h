@@ -1,8 +1,8 @@
 #ifndef STRUCTDEF
 #define STRUCTDEF
-#include <Elegoo_GFX.h>    // Core graphics library
-#include <Elegoo_TFTLCD.h> // Hardware-specific library
-#include <TouchScreen.h> // TouchScreen library
+#include "Elegoo_GFX.h"    // Core graphics library
+#include "Elegoo_TFTLCD.h" // Hardware-specific library
+#include "TouchScreen.h" // TouchScreen library
 // #include <Adafruit_TFTLCD.h> 
 // #include <Adafruit_GFX.h> 
 // April 23th by Kaiser Sun
