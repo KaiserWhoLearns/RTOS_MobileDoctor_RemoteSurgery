@@ -3,8 +3,8 @@
 #include <Elegoo_GFX.h>    // Core graphics library
 #include <Elegoo_TFTLCD.h> // Hardware-specific library
 #include <TouchScreen.h> // TouchScreen library
-#include <Adafruit_TFTLCD.h> 
-#include <Adafruit_GFX.h> 
+// #include <Adafruit_TFTLCD.h> 
+// #include <Adafruit_GFX.h> 
 // April 23th by Kaiser Sun
 // May 8th modified by Kaiser Sun, add touch screen
 // May 24, 2019 modified by Xinyu
@@ -71,8 +71,8 @@
 #define EKG(x,y) (x > 70) && (y > 256)
 #define QUIT2(x, y) (x > 0) && (y > 180) 
 #define QUIT3(x, y) (x > 0) && (y > 180) 
-//Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
-Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
+Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
+// Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
 #define M_PI acos(-1.0)
@@ -80,8 +80,6 @@ TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 // Define bool tyoe
 enum myBool {FALSE = 0, TRUE = 1};
 typedef enum myBool Bool;
-
-
 
 struct MyStruct
 {
@@ -106,6 +104,7 @@ TCB* deleteNode(TCB* node);
     void Status(void* dataPtr);
     void WarningAlarm(void* dataPtr);
     void Display(void* dataPtr);
+    void Communications(void* dataPtr);
     void Scheduler(TCB* taskQueue);
     void sechdulerTest();
     void startUp();

@@ -2,7 +2,7 @@
 // #include <Elegoo_TFTLCD.h> // Hardware-specific library
 #include "tcb.h"
 #include "task.h"
-//#include "helpers.h"
+// #include "helpers.h"
 
 
 
@@ -35,6 +35,11 @@ unsigned long time2;
 unsigned long time3;
 unsigned long timec;
 unsigned long timeb;
+unsigned long timeRD1;
+unsigned long timeRD2;
+// Emergency data
+unsigned long timeEmer1;
+unsigned long timeEmer2;
 
 unsigned int counterBP = 0;
 unsigned int counterT = 0;
@@ -72,9 +77,12 @@ unsigned short* commandPtr = &command;
 unsigned short* remoteFunctionSelectPtr = &remoteFunctionSelect;
 unsigned short* measurementResultSelectionPtr = &measurementResultSelection;
 
+// Count the number of emergencies
+int tWCounter = 0, bpWCounter = 0, rrWCounter = 0, ekgWCounter = 0, prWCounter = 0;
+
 // initialize taskQueue and TCBs
 //TCB taskQueue;
-TCB meas, comp, disp, alar, stat, keyp, com;
+TCB meas, comp, disp, alar, stat, keyp, com, remDisp;
 MeasureData meaD;
 //EKGData EKGD;
 ComputeData cD;
@@ -150,6 +158,26 @@ void loop()
 {
     time2 = millis();
     timec = millis();
+    timeRD2 = millis();
+    timeEmer2 = millis();
+    // Check if there is an emergency
+    if(timeEmer2 - timeEmer1 > 28800000) {
+      if(bpWCounter > 100 || tWCounter > 100 || rrWCounter > 100||  ekgWCounter > 100 || prWCounter > 0) {
+          emergency();
+      }
+      bpWCounter = 0;
+      tWCounter = 0;
+      rrWCounter = 0;
+      ekgWCounter = 0;
+      timeEmer1 = timeEmer2;
+    }
+    // Call remote display every 5 seconds
+    if(timeRD2 - timeRD1 > 5000) {
+      insertLast(&remDisp);
+      schedulerTest();
+      timeRD1 = timeRD2;
+      deleteNode(&remDisp);
+    }
 
     if (timec - timeb > 500) {
       counterBP++; 
@@ -182,7 +210,6 @@ void loop()
         // menu(&kD);
         
       } else if(*(alarmAcknowledgePtr) == 1) {
-            Serial.println("Announciation mode");
             *ModePtrr = 0;
             TCB temp3 = {&anno, &kD};
             insertLast(&temp3);
@@ -199,7 +226,6 @@ void loop()
             
    
       } else if (*(displaySelectionPtr) == 1) {
-          Serial.println("Display mode");
          *ModePtrr = 1;
           Measurement(&kD);
           if (time2 - time1 > 2000) {

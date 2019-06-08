@@ -136,3 +136,4 @@ void drawSub(int x, int y, bool d) {
 bool moreThan15(int val, unsigned int* Buf) {
     return float(abs(val - *Buf))/(*(Buf))> 0.15;
 }
+

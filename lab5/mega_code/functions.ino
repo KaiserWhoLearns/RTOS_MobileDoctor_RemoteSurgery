@@ -46,9 +46,6 @@ unsigned char EKGOutOfRange = 0;
 unsigned int f0 = 0;
 unsigned int* f0ptr;
 
-
-
-
 bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
 
 
@@ -137,9 +134,9 @@ void generateEKG() {
         //Serial.println(t); 
     }
     delay(1000);
-    Serial.println(EKGRawBuf[0]);
+    //Serial.println(EKGRawBuf[0]);
     fft = optfft(EKGRawBuf, EKGImgBuf);
-    Serial.println(fft);
+    //Serial.println(fft);
     shiftChar(fft, 16, EKGFreqBuf);
     
 }
@@ -378,6 +375,7 @@ void WarningAlarm(void* dataPtr) {
     if (*(wad.temperatureRawBuf) > 43.7*1.05 || *(wad.temperatureRawBuf) < 41.5*0.95) {
         tempOutOfRange = 1;
         tempHigh = isTHight(float(*(wad.temperatureRawBuf)));
+        if(tempHigh) { tWCounter++; }
     } else {
         tempOutOfRange = 0;
     }
@@ -385,24 +383,28 @@ void WarningAlarm(void* dataPtr) {
         bpOutOfRange = 1;
         //sys: 1, Dia: 0
         bpHigh = isBPHigh(*(wad.bloodPressRawBuf + 1), *(wad.bloodPressRawBuf));
+        if(bpHigh) { bpWCounter++; }
     } else {
         bpOutOfRange = 0;
     }
     if(*(wad.pulseRateRawBuf) < 17.3*1.05 || *(wad.pulseRateRawBuf) > 30.7*0.95) {
         pulseOutOfRange = 1;
         prHigh = isPRHigh(float(*(wad.pulseRateRawBuf)));
+        if(prHigh) { prWCounter++; }
     } else {
         pulseOutOfRange = 0;
     }
     if(*(wad.rrRawBuf) < 1.67*0.95 || *(wad.rrRawBuf) > 6*1.05) {
         rrOutOfRange = 1;
         rrHigh = isRRHigh(float(*(wad.rrRawBuf)));
+        if(rrHigh) {rrWCounter++;}
     } else {
         rrOutOfRange = 0;
     }
     if(*(wad.EKGFreqBuf) < 35*0.95 || *(wad.EKGFreqBuf) > 3750*1.05) {
         EKGOutOfRange = 1;
         EKGHigh = isEKGHigh(float(*(wad.EKGFreqBuf)));
+        if(EKGHigh) {ekgWCounter++;}
     } else {
       EKGOutOfRange = 0;
     }
@@ -650,7 +652,7 @@ void Select(void* dataPtr) {
 
 /*
 *    @param: KeypadData pointer, dataPtr
-*    Submethod of select; when called, goes into display mode
+*    Submethod of select; when called, goes into 
 *    May 24th by Xinyu
 */
 void Measurement(KeypadData* dataPtr) {
@@ -762,6 +764,66 @@ void schedulerTest() {
         }
 }
 
+char* doctorName = "Kaiser";
+char* patientName = "Shouta";
+/*
+*    Display data on remote system
+*    Share the data with display
+*    TODO: Will be called each 5 seconds
+*/
+void remoteCommunicationDisplay(void* dataPtr) {
+  // Print out product name, doctor name, and patient name
+  Serial.println("__________________Mobile__Doctor______________________");
+  Serial.println("____________0w0_Are_You_Healthy_Today?________________");
+  Serial.println("Mobile Doctor 0W0");
+  Serial.println(doctorName);
+  Serial.println(patientName);
+  // Dereference data
+  DisplayData dd = *((DisplayData*) dataPtr);
+  // Display temperature
+  if(dispT) {
+    Serial.print("Temperature:        ");
+    Serial.print(*(dd.tempCorrectedBuf));
+    Serial.println(" C");
+  }
+  if(dispBP) {
+    Serial.print("Systolic Pressure: ");
+    Serial.print(*(dd.bloodPressCorrectedBuf + 1));
+    Serial.println("mmHg");
+    Serial.print("Diastolic Pressure: ");
+    Serial.print(*(dd.bloodPressCorrectedBuf));
+    Serial.println("mmHg");
+  }
+  if(dispPR) {
+    Serial.print("Pulse rate:         ");
+    Serial.print(*(pulseRateRawBuf));
+    Serial.println("BPM");
+  }
+  if(dispEKG) {
+    Serial.print("EKG:                ");
+    // TODO: makesure if the EKG is right
+    Serial.print(*(EKGFreqBuf));
+    Serial.println("Hz");
+  }
+  Serial.print("Battery:              ");
+  Serial.println(*(batteryStatePtrr));
+  if(tempHigh) {
+    Serial.println("Your body temperature is too high! Calm down QWQ");
+  }
+  
+  if (bpHigh) {
+    Serial.println("Your blood pressure is too high! Calm down QWQ");
+  }
+      
+  if(prHigh) {
+    Serial.println("Your heart beat is too slow. Do something exciting 0w0");
+  }
+  Serial.println("__________________________________________CSE474_Inc._____");
+  Serial.println(" ");
+  Serial.println(" ");
+  return;
+}
+
 
 /*
 *    Execute only at the Setup function once
@@ -785,6 +847,7 @@ void startUp() {
   disp = {&Display, &dDa};
   alar = {&WarningAlarm, &wAD};
   stat = {&Status, &sD};
+  remDisp = {&remoteCommunicationDisplay, &dDa};
   //keyp = {&Select, &kD};
   com = {&Communications, &comD};
   
@@ -798,11 +861,14 @@ void startUp() {
   //insertLast(&keyp);
   time1 = millis();
   timeb = time1;
+  timeRD1 = time1;
+  timeEmer1 = time1;
   // taskQueue[4] = disp;
   //run(&keyp);
   //generateEKG();
 
 }
+
 
 void flash() {
   if (dispBP && flashBP) {
@@ -841,7 +907,7 @@ void flash() {
       tft.fillRect(225, Tindex, 400, 15, BLACK);
       tft.setTextSize(2);
       tft.setCursor(225, Tindex);
-      Serial.println(Tindex);
+      // Serial.println(Tindex);
         
       tft.print(*(tempCorrectedBuf));
       tft.print(" C");
@@ -849,6 +915,7 @@ void flash() {
   }
   
 }
+
 
 
 /*
@@ -861,3 +928,16 @@ void run(TCB* taskQ) {
     // Call the function in the taskQ;
     (*taskQ->myTask)(taskQ->taskDataPtr);
 }
+
+/*
+*   Called when user having an emergency situation
+*/
+void emergency() {
+  Serial.println("EMERGENCY!!!");
+  // Display website
+  Serial.println("https://www.911.gov/");
+  tft.fillScreen(RED);
+}
+
+
+
