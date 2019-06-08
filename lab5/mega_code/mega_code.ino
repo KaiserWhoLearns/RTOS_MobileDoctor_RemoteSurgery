@@ -240,11 +240,14 @@ void loop()
     }
 
     if(time2 - time1 > 2000) {
-
       schedulerTest();
       time1 = time2; 
       
     } else {
    
     }
+
+//    if (time2 - time1 > 4000) {
+//      generateEKG();
+//    }
 }

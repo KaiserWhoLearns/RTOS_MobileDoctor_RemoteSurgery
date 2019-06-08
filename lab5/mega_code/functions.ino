@@ -43,8 +43,7 @@ unsigned char pulseOutOfRange = 0;
 unsigned char rrOutOfRange = 0;
 unsigned char EKGOutOfRange = 0;
 
-unsigned int f0 = 0;
-unsigned int* f0ptr;
+
 
 bool trIsReverse = FALSE, prIsReverse = FALSE, isEven = TRUE;
 
@@ -99,7 +98,7 @@ void Measure(void* dataPtr)
     }
     if(dispRR) { 
         Serial1.write('r');
-        Serial1.write('r');
+        Serial1.write('l');
         if(Serial1.available()) { 
             int newRR = Serial1.read();
             if(moreThan15(newRR, md.pulseRateRawBuf)) {
@@ -107,37 +106,44 @@ void Measure(void* dataPtr)
             }
         }
     }
+//    if(dispEKG) { 
+//        Serial1.write('g');
+//        Serial1.write('l');
+//        if(Serial1.available()) { 
+//            int fft = Serial1.read();
+//            shiftChar(fft, 16, (md.EKGFreqBuf));
+//        }
+//    }
     Serial1.write('e');
     delay(200);
-    generateEKG();
+    //generateEKG();
     return;
 }
 
-int Fs = 0;
-int Ts;
+
+double Fs = 0;
+
 int i;
 int fft = 0;
+double f0 = 0;
+int m_index = 0;
 void generateEKG() {
-//    EKGData EKGD = *((EKGData*) data);
     f0 = 100;
-    Fs = 3 * f0;
-    Ts = 1/Fs;
-    //Serial.println(Ts);
-    
-//    int t = Ts;
+    Fs = 5 * f0;
     
     for (i = 0; i < 256; i++) {
         EKGRawBuf[i] = 32*sin(2*3.14*f0*i/Fs);
         //Serial.println(EKGRawBuf[i]);
-        //EKGImgBuf[i] = 0;
-        //t += Ts;
-        //Serial.println(t); 
+        EKGImgBuf[i] = 0;
     }
     delay(1000);
     //Serial.println(EKGRawBuf[0]);
-    fft = optfft(EKGRawBuf, EKGImgBuf);
-    //Serial.println(fft);
+    m_index = optfft(EKGRawBuf, EKGImgBuf);
+    fft = Fs *m_index /256 + 1;
+    Serial.println(fft);
     shiftChar(fft, 16, EKGFreqBuf);
+    Serial.println(EKGFreqBuf[0]);
+    return;
     
 }
 
@@ -171,7 +177,10 @@ void Compute(void* dataPtr) {
     }
     if(dispRR) {
         shiftChar((*(comd.respirationRateRawBuf))*3 + 7, 8, (comd.respirationRateCorBufPtr));
-    }  
+    }
+    if (dispEKG) {
+        generateEKG();
+    }
     return;
 }
 
@@ -832,7 +841,7 @@ void remoteCommunicationDisplay(void* dataPtr) {
 */
 void startUp() {
     // Setup the data structs
-  meaD = MeasureData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr, measurementSelectionPtr};
+  meaD = MeasureData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr, measurementSelectionPtr, EKGFreqBufPtr};
   //EKGD = EKGData{EKGRawBuf, EKGImgBuf, EKGFreqBuf};
   cD = ComputeData{temperatureRawPtrr, bloodPressRawPtrr, pulseRateRawPtrr, respirationRateRawPtr, EKGRawBufPtr, EKGImgBufPtr, EKGFreqBufPtr, tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr,measurementSelectionPtr};
   dDa = DisplayData{ModePtrr, tempCorrectedPtrr, bloodPressCorrectedPtrr, pulseRateCorrectedPtrr, respirationRateCorPtr, EKGFreqBufPtr, batteryStatePtrr};
@@ -938,6 +947,3 @@ void emergency() {
   Serial.println("https://www.911.gov/");
   tft.fillScreen(RED);
 }
-
-
-

@@ -123,6 +123,7 @@ typedef struct
     unsigned int* pulseRateRawBuf;
     unsigned int* respirationRateRawBuf;
     unsigned short* measurementSelectionPtr;
+    unsigned char* EKGFreqBuf;
 } MeasureData;
 
 typedef struct
