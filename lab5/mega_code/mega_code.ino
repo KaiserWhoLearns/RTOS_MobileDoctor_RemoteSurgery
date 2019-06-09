@@ -73,9 +73,9 @@ unsigned short displayTM = 0;
 unsigned short displayEmergency = 0;
 unsigned short displayGame = 0;
 
-unsigned short* displayTMPtr = displayTM;
-unsigned short* displayEmergencyPtr = displayEmergency;
-unsigned short* displayGamePtr = displayGame;
+unsigned short* displayTMPtr = &displayTM;
+unsigned short* displayEmergencyPtr = &displayEmergency;
+unsigned short* displayGamePtr = &displayGame;
 unsigned short* displaySelectionPtr = &displaySelection;
 unsigned short* localFunctionSelectPtr = &localFunctionSelect;
 unsigned short* measurementSelectionPtr = &measurementSelection;
@@ -160,6 +160,7 @@ void setup() {
 }
 
 
+int n = 0;
 
 void loop()
 {
@@ -203,7 +204,7 @@ void loop()
     }
     
     if (time2 - time1 > 1) {
-      if(/**(displayGamePtr) == 0 && *(displayEmergencyPtr) == 0 && *(displayTMPtr) == 0 &&*/ *(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {
+      if(*(displayGamePtr) == 0 && *(displayEmergencyPtr) == 0 && *(displayTMPtr) == 0 && *(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {
         TCB temp = {&Select, &kD};
         insertLast(&temp);
         run(&temp);
@@ -242,16 +243,19 @@ void loop()
           if (startF == true) {
               flash();
           }
-      } else if (*(displayTMPtr) == 1) {
+      } 
+
+      Serial.println(*(displayTMPtr));
+      
+      if (*(displayTMPtr) == 1) {
           Serial.print("blank");
           blank();
-          *(displayTMPtr) = 0;
+          //*(displayTMPtr) = 0;
       } else if (*(displayEmergencyPtr) == 1) {
-          blank();
-          *(displayEmergencyPtr) = 0;
+          callDoctor();
       } else if (*(displayGamePtr) == 1) {
-          blank();
-          *(displayGamePtr) = 0;
+          game();
+          //*(displayGamePtr) = 0;
       }
       
     }
@@ -264,7 +268,9 @@ void loop()
    
     }
 
-//    if (time2 - time1 > 4000) {
+//    if (n % 2 == 0) {
 //      generateEKG();
+//      Serial.println("?");
 //    }
+//    Serial.println(EKGFreqBuf[0]);
 }

@@ -20,6 +20,11 @@ bool refMenu = TRUE;
 bool refAnnu = TRUE;
 bool refMeas = TRUE;
 bool refDisp = TRUE;
+bool ref = TRUE;
+bool refCD = TRUE;
+bool refG = TRUE;
+
+bool genEKG = TRUE;
 
 bool TSelected = FALSE;
 bool BPSelected = FALSE;
@@ -106,14 +111,6 @@ void Measure(void* dataPtr)
             }
         }
     }
-//    if(dispEKG) { 
-//        Serial1.write('g');
-//        Serial1.write('l');
-//        if(Serial1.available()) { 
-//            int fft = Serial1.read();
-//            shiftChar(fft, 16, (md.EKGFreqBuf));
-//        }
-//    }
     Serial1.write('e');
     delay(200);
     //generateEKG();
@@ -128,8 +125,8 @@ int fft = 0;
 double f0 = 0;
 int m_index = 0;
 void generateEKG() {
-    f0 = 100;
-    Fs = 5 * f0;
+    f0 = 200;
+    Fs = 2.2 * f0;
     
     for (i = 0; i < 256; i++) {
         EKGRawBuf[i] = 32*sin(2*3.14*f0*i/Fs);
@@ -178,9 +175,10 @@ void Compute(void* dataPtr) {
     if(dispRR) {
         shiftChar((*(comd.respirationRateRawBuf))*3 + 7, 8, (comd.respirationRateCorBufPtr));
     }
-//    if (dispEKG) {
-//        generateEKG();
-//    }
+    if (dispEKG && genEKG) {
+        generateEKG();
+        genEKG = false;
+    }
     return;
 }
 
@@ -660,15 +658,21 @@ void Select(void* dataPtr) {
             }
             if (TM (p.x, p.y)) {
                *(kd.displayTMPtr) = 1;
-               Serial.println(*(kd.displayTMPtr));
+               refDisp = true;
+               ref = true;
+               //Serial.println(*(kd.displayTMPtr));
                //blank();
             } 
             if (EM (p.x, p.y)) {
               *(kd.displayEmergencyPtr) = 1;
+              refDisp = true;
+              refCD = true;
               //blank();
             }
             if (Game (p.x, p.y)) {
               *(kd.displayGamePtr) = 1;
+              refDisp = true;
+              refG = true;
               //blank();
             }
         }
@@ -676,13 +680,35 @@ void Select(void* dataPtr) {
     return;
 }
 
-void blank() {
-    tft.fillScreen(WHITE);
-    tft.fillRect(0, 180, 330, 60, RED);
-    tft.setTextSize(2);
-    tft.setTextColor(BLUE);
-    tft.setCursor(150, 200);
-    tft.print("Exit");
+/*
+*   Extra credit feature; It will call doctor when the button is pressed
+*   June 8, Kaiser
+*/
+void callDoctor() {
+    if (refCD) {
+      //Serial.println("The patient is calling you!");
+      
+      tft.setTextSize(3);
+      
+      tft.fillScreen(BLACK);
+      tft.fillRect(0, 180, 330, 60, RED);
+      tft.setTextSize(2);
+      tft.setTextColor(BLUE);
+      tft.setCursor(150, 200);
+      tft.print("Exit");
+      tft.setTextColor(WHITE);
+      tft.setCursor(10, 80);
+      tft.print("Calling the Doctor......");
+      delay(1000);
+      tft.fillRect(0, 0, 330, 150, BLACK);
+      tft.setCursor(10, 80);
+      tft.print("Please wait for your doctor.");
+      
+      //Serial.println("The patient is calling you!");
+      
+      refCD = false;
+    }
+
     digitalWrite(13, HIGH);
     TSPoint p = ts.getPoint();
     digitalWrite(13, LOW);
@@ -695,7 +721,77 @@ void blank() {
         p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
         p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
         if(QUIT3(p.x, p.y)) {
-            *(displaySelectionPtr) = 0;
+            //*(displayTMPtr) = 0;
+            *(displayEmergencyPtr) = 0;
+            //*(displayGamePtr) = 0;
+            refSelect = true;
+            refDisp = true;
+        }
+    } 
+    
+    return;
+}
+
+void game() {
+    if (refG) {
+      tft.setCursor(0, 20);
+      tft.setTextColor(WHITE);
+      tft.setTextSize(2);
+      tft.fillScreen(BLACK);
+      tft.print("Select the block that has green words to escape this page.");
+      tft.setTextColor(BLUE);
+      tft.setCursor(230, 120);
+      tft.print("GREEN");
+      // Green words
+      tft.setTextColor(GREEN);
+      tft.setCursor(10, 120);
+      tft.print("BLUE");
+      refG = false;
+    }
+        TSPoint p = ts.getPoint();
+        digitalWrite(13, LOW);
+        pinMode(XM, OUTPUT);
+        pinMode(YP, OUTPUT);
+        if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+        // scale from 0->1023 to tft.width
+            p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
+            p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
+            if(G(p.x, p.y)) {
+              //*(displayTMPtr) = 0;
+              *(displayGamePtr) = 0;
+              //*(displayGamePtr) = 0;
+              refSelect = true;
+              refDisp = true;
+            }
+        } 
+    return;
+}
+
+void blank() {
+    if (ref) {
+      tft.fillScreen(WHITE);
+      tft.fillRect(0, 180, 330, 60, RED);
+      tft.setTextSize(2);
+      tft.setTextColor(BLUE);
+      tft.setCursor(150, 200);
+      tft.print("Exit");
+      ref = false;
+    }
+    digitalWrite(13, HIGH);
+    TSPoint p = ts.getPoint();
+    digitalWrite(13, LOW);
+    pinMode(XM, OUTPUT);
+    pinMode(YP, OUTPUT);
+    
+    // If we have point selected
+    if (p.z > ts.pressureThreshhold) {
+        // scale from 0->1023 to tft.width
+        p.x = (tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
+        p.y = (tft.height()-map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
+        if(QUIT3(p.x, p.y)) {
+            *(displayTMPtr) = 0;
+            *(displayEmergencyPtr) = 0;
+            *(displayGamePtr) = 0;
             refSelect = true;
             refDisp = true;
         }
