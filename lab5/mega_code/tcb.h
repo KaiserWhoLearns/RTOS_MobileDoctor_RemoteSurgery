@@ -63,6 +63,9 @@
 #define MENU(x, y) (y > 0) && (y < 110) && (x > 0) && (x < 115)
 #define ANN(x, y) (y > 0) && (y < 110) && (x > 250)
 #define MEAS(x, y) (y > 0) && (y < 110) && (x > 120) && (x < 245)
+#define TM(x, y) (x > 0) && (x < 115) && (y > 130) 
+#define EM(x, y) (x > 120) && (x < 245) && (y > 130)
+#define Game(x, y) (x > 250) && (y > 130)
 #define QUIT1(x, y) (y > 0) && (y < 240) && (x > 0) && (x < 70)
 #define T(x, y) (x > 70) && (y < 192) && (y > 128)
 #define BP(x, y) (x > 70) && (y < 64) && (y > 0)
@@ -177,6 +180,9 @@ typedef struct
     unsigned short* remoteFunctionSelectPtr;
     unsigned short* measurementResultSelectionPtr;
     unsigned short* displaySelectionPtr;
+    unsigned short* displayTMPtr;
+    unsigned short* displayEmergencyPtr;
+    unsigned short* displayGamePtr;
 } KeypadData;
 
 typedef struct

@@ -69,6 +69,13 @@ unsigned short command = 0;
 unsigned short remoteFunctionSelect = 0;
 unsigned short measurementResultSelection = 0;
 unsigned short displaySelection = 0;
+unsigned short displayTM = 0;
+unsigned short displayEmergency = 0;
+unsigned short displayGame = 0;
+
+unsigned short* displayTMPtr = displayTM;
+unsigned short* displayEmergencyPtr = displayEmergency;
+unsigned short* displayGamePtr = displayGame;
 unsigned short* displaySelectionPtr = &displaySelection;
 unsigned short* localFunctionSelectPtr = &localFunctionSelect;
 unsigned short* measurementSelectionPtr = &measurementSelection;
@@ -196,7 +203,7 @@ void loop()
     }
     
     if (time2 - time1 > 1) {
-      if(*(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {
+      if(/**(displayGamePtr) == 0 && *(displayEmergencyPtr) == 0 && *(displayTMPtr) == 0 &&*/ *(measurementSelectionPtr) == 0 && *(alarmAcknowledgePtr) == 0 && *(displaySelectionPtr) == 0) {
         TCB temp = {&Select, &kD};
         insertLast(&temp);
         run(&temp);
@@ -235,6 +242,16 @@ void loop()
           if (startF == true) {
               flash();
           }
+      } else if (*(displayTMPtr) == 1) {
+          Serial.print("blank");
+          blank();
+          *(displayTMPtr) = 0;
+      } else if (*(displayEmergencyPtr) == 1) {
+          blank();
+          *(displayEmergencyPtr) = 0;
+      } else if (*(displayGamePtr) == 1) {
+          blank();
+          *(displayGamePtr) = 0;
       }
       
     }
