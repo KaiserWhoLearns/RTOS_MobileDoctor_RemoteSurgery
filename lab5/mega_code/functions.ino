@@ -771,11 +771,20 @@ void blank() {
     if (ref) {
       tft.fillScreen(WHITE);
       tft.fillRect(0, 180, 330, 60, RED);
-      tft.setTextSize(2);
+      tft.setTextSize(3);
+      tft.setCursor(10, 90);
+      tft.setTextColor(RED);
+      tft.print("Make Way for Ambulance !!!");
       tft.setTextColor(BLUE);
       tft.setCursor(150, 200);
+      tft.setTextSize(2);
       tft.print("Exit");
       ref = false;
+      delay(500);
+    } else {
+
+      tft.fillCircle(150, 90, 60, RED);
+      tft.fillRect(0, 0, 330, 180, WHITE);
     }
     digitalWrite(13, HIGH);
     TSPoint p = ts.getPoint();
